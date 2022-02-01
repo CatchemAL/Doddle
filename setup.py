@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 # Package meta-data.
 NAME = "nerdle"
 DESCRIPTION = "A nerd's approach to playing Wordle."
-URL = r"https://github.com/todo"
+URL = r"https://github.com/CatchemAl/Nerdle"
 EMAIL = "AlexJCross90@gmail.com"
 AUTHOR = "Alex Cross"
 REQUIRES_PYTHON = ">=3.7.0"
