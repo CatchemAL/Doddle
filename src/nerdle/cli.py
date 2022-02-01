@@ -1,9 +1,5 @@
-import sys
 import argparse
 from argparse import Namespace
-from typing import Optional, List
-from .words import ALLOWED_GUESSES, POSSIBLE_ANSWERS
-from .words6 import SIX_LETTER_WORDS
 from .model import Solver
 from .scoring import Scorer
 from .dictionary import WordLoader
@@ -12,14 +8,12 @@ from .dictionary import WordLoader
 def evade(args: Namespace):
 
     size = args.size
-    solution = args.solution
     best_guess = args.guess
     
     loader = WordLoader(size)
     scorer = Scorer(size)
     solver = Solver(scorer)
 
-    all_words = loader.common_words.union(loader.all_words)
     available_answers = loader.common_words
 
     while True:
@@ -37,7 +31,6 @@ def evade(args: Namespace):
 def solve(args: Namespace):
 
     size = args.size
-    solution = args.solution
     best_guess = args.guess
     
     loader = WordLoader(size)

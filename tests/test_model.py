@@ -1,4 +1,4 @@
-from wordle.scoring import Scorer
+from nerdle.scoring import Scorer
 import pytest
 
 @pytest.mark.parametrize("solution,guess,expected", [

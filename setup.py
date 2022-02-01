@@ -1,8 +1,8 @@
 from setuptools import setup, find_packages
 
 # Package meta-data.
-NAME = "wordle"
-DESCRIPTION = "A simple Wordle simulator and solver."
+NAME = "nerdle"
+DESCRIPTION = "A nerd's approach to playing Wordle."
 URL = r"https://github.com/todo"
 EMAIL = "AlexJCross90@gmail.com"
 AUTHOR = "Alex Cross"
@@ -22,7 +22,7 @@ setup(
     install_requires=REQUIRED,  # external packages as dependencies
     entry_points={
         "console_scripts": [
-            "wordle = wordle.cli:main",
+            "nerdle = nerdle.cli:main",
         ],
     },
 )

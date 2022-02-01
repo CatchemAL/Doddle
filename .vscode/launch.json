@@ -1,0 +1,36 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Nerdle (Simulate)",
+            "type": "python",
+            "request": "launch",
+            "module": "src.nerdle",
+            "args": ["simulate", "--solution=EXACT", "--guess=RAISE"]
+        },
+        {
+            "name": "Nerdle (Solve)",
+            "type": "python",
+            "request": "launch",
+            "module": "src.nerdle",
+            "args": ["solve", "--guess=RAISED", "--size=6"]
+        },
+        {
+            "name": "Nerdle (Evade)",
+            "type": "python",
+            "request": "launch",
+            "module": "src.nerdle",
+            "args": ["evade", "--guess=RAISE"]
+        },
+        {
+            "name": "Python: Current File",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal"
+        }
+    ]
+}
