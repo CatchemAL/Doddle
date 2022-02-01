@@ -1,5 +1,4 @@
 {
-    "python.pythonPath": "c:\\Users\\alexj\\OneDrive\\Documents\\Python Projects\\Wordle\\.venv\\Scripts\\python.exe",
     "python.testing.pytestArgs": [
         "tests/"
     ],

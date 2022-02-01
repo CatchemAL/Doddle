@@ -19,7 +19,8 @@ def evade(args: Namespace):
     while True:
         solutions_by_score = solver.get_possible_solutions_by_score(available_answers, best_guess)
         highest_score = max(solutions_by_score, key=lambda k: len(solutions_by_score[k]))
-        print(f'The score was {highest_score:args.size}')
+        padded_score = f'{highest_score}'.zfill(size)
+        print(f'The score was {padded_score}')
         if scorer.is_perfect_score(highest_score):
             print('You win!')
             break
@@ -54,9 +55,9 @@ def solve(args: Namespace):
 
 def simulate(args: Namespace):
 
-    size = args.size
     solution = args.solution
     best_guess = args.guess
+    size = len(solution)
     
     loader = WordLoader(size)
     scorer = Scorer(size)
@@ -86,7 +87,6 @@ def main() -> None:
     simulate_parser = subparsers.add_parser('simulate')
     simulate_parser.add_argument("--solution", required=True, type=str)
     simulate_parser.add_argument("--guess", default='RAISE', type=str)
-    simulate_parser.add_argument("--size", default=DEFAULT_SIZE, type=int)
     simulate_parser.set_defaults(func=simulate)
     
     solve_parser = subparsers.add_parser('solve')

@@ -23,7 +23,7 @@
             "type": "python",
             "request": "launch",
             "module": "src.nerdle",
-            "args": ["evade", "--guess=RAISE"]
+            "args": ["evade", "--guess=TAILER", "--size=6"]
         },
         {
             "name": "Python: Current File",
