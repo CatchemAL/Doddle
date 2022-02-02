@@ -1,8 +1,9 @@
 import argparse
 from argparse import Namespace
+
+from .dictionary import WordLoader
 from .model import Solver, seed
 from .scoring import Scorer
-from .dictionary import WordLoader
 
 
 def evade(args: Namespace):

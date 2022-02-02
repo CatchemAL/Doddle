@@ -1,9 +1,13 @@
 from __future__ import annotations
-import numpy as np
+
 from collections import defaultdict
-from typing import Set, Dict
-from .scoring import Scorer
 from dataclasses import dataclass
+from typing import Dict, Set
+
+import numpy as np
+
+from .scoring import Scorer
+
 
 def seed(size: int) -> str:
     if size == 5:

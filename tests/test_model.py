@@ -1,5 +1,7 @@
-from nerdle.scoring import Scorer
 import pytest
+
+from nerdle.scoring import Scorer
+
 
 @pytest.mark.parametrize("solution,guess,expected", [
     ('SPEAR', 'SPEAK', '22220'),

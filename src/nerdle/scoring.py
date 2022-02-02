@@ -1,6 +1,8 @@
-import numpy as np
 from functools import lru_cache
-from numba import jit, int32, int8
+
+import numpy as np
+from numba import int8, int32, jit
+
 
 class Scorer:
 
