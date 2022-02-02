@@ -9,7 +9,7 @@
             "type": "python",
             "request": "launch",
             "module": "src.nerdle",
-            "args": ["simulate", "--solution=EXACT", "--guess=RAISE"]
+            "args": ["simulate", "--solution=MOIST", "--guess=RAISE"]
         },
         {
             "name": "Nerdle (Solve)",
