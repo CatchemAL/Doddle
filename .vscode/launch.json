@@ -16,14 +16,14 @@
             "type": "python",
             "request": "launch",
             "module": "src.nerdle",
-            "args": ["solve", "--guess=RAISED", "--size=6"]
+            "args": ["solve", "--guess=RAISE"]
         },
         {
             "name": "Nerdle (Evade)",
             "type": "python",
             "request": "launch",
             "module": "src.nerdle",
-            "args": ["evade", "--guess=TAILER", "--size=6"]
+            "args": ["evade", "--guess=TAILER"]
         },
         {
             "name": "Python: Current File",

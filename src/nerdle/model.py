@@ -2,6 +2,12 @@ import numpy as np
 from collections import defaultdict
 from .scoring import Scorer
 
+def seed(size: int) -> str:
+    if size == 5:
+        return 'RAISE'
+    else:
+        return 'TAILER'
+
 class Solver:
 
     def __init__(self, scorer: Scorer) -> None:

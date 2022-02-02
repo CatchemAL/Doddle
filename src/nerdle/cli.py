@@ -1,14 +1,14 @@
 import argparse
 from argparse import Namespace
-from .model import Solver
+from .model import Solver, seed
 from .scoring import Scorer
 from .dictionary import WordLoader
 
 
 def evade(args: Namespace):
 
-    size = args.size
-    best_guess = args.guess
+    size = args.size or len(args.guess)
+    best_guess = args.guess or seed(size)
     
     loader = WordLoader(size)
     scorer = Scorer(size)
@@ -31,8 +31,8 @@ def evade(args: Namespace):
 
 def solve(args: Namespace):
 
-    size = args.size
-    best_guess = args.guess
+    size = args.size or len(args.guess)
+    best_guess = args.guess or seed(size)
     
     loader = WordLoader(size)
     scorer = Scorer(size)
@@ -56,8 +56,8 @@ def solve(args: Namespace):
 def simulate(args: Namespace):
 
     solution = args.solution
-    best_guess = args.guess
     size = len(solution)
+    best_guess = args.guess or seed(size)
     
     loader = WordLoader(size)
     scorer = Scorer(size)
@@ -79,24 +79,24 @@ def simulate(args: Namespace):
 
 def main() -> None:
 
-    DEFAULT_SIZE = 5
-
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers()
 
     simulate_parser = subparsers.add_parser('simulate')
     simulate_parser.add_argument("--solution", required=True, type=str)
-    simulate_parser.add_argument("--guess", default='RAISE', type=str)
+    simulate_parser.add_argument("--guess", type=str)
     simulate_parser.set_defaults(func=simulate)
     
     solve_parser = subparsers.add_parser('solve')
-    solve_parser.add_argument("--guess", default='RAISE', type=str)
-    solve_parser.add_argument("--size", default=DEFAULT_SIZE, type=int)
+    solve_group = solve_parser.add_mutually_exclusive_group()
+    solve_group.add_argument("--guess", type=str)
+    solve_group.add_argument("--size", type=int)
     solve_parser.set_defaults(func=solve)
     
     evade_parser = subparsers.add_parser('evade')
-    evade_parser.add_argument("--guess", default='RAISE', type=str)
-    evade_parser.add_argument("--size", default=DEFAULT_SIZE, type=int)
+    evade_group = evade_parser.add_mutually_exclusive_group()
+    evade_group.add_argument("--guess", type=str)
+    evade_group.add_argument("--size", type=int)
     evade_parser.set_defaults(func=evade)
     
     args = parser.parse_args()
