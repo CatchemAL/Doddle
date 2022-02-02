@@ -10,10 +10,17 @@ from .scoring import Scorer
 
 
 def seed(size: int) -> str:
-    if size == 5:
-        return 'RAISE'
-    else:
-        return 'TAILER'
+
+    seed_by_size = {
+        4: 'OLEA',
+        5: 'RAISE',
+        6: 'TAILER',
+        7: 'TENAILS',
+        8: 'CENTRALS',
+        9: 'SECRETION'
+    }
+
+    return seed_by_size[size]
 
 class Solver:
 
