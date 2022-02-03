@@ -2,6 +2,8 @@
 
 ![alt text](https://github.com/CatchemAl/Nerdle/blob/main/images/Nerdle.png?raw=true)
 
+## Build
+![example workflow](https://github.com/CatchemAl/Nerdle/actions/workflows/python-app.yml/badge.svg)
 
 ## Features
 - **Solve** the game in realtime using Nerdle's solver
