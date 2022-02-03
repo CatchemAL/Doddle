@@ -4,34 +4,32 @@ from collections import defaultdict
 from dataclasses import dataclass
 from typing import Dict, Set
 
-import numpy as np
-
 from .scoring import Scorer
 
 
 def seed(size: int) -> str:
 
     seed_by_size = {
-        4: 'OLEA',
-        5: 'RAISE',
-        6: 'TAILER',
-        7: 'TENAILS',
-        8: 'CENTRALS',
-        9: 'SECRETION'
+        4: "OLEA",
+        5: "RAISE",
+        6: "TAILER",
+        7: "TENAILS",
+        8: "CENTRALS",
+        9: "SECRETION",
     }
 
     return seed_by_size[size]
 
-class Solver:
 
+class Solver:
     def __init__(self, scorer: Scorer) -> None:
         self.scorer = scorer
 
     def prettify(self, solution: str, guess: str) -> None:
         score = self.scorer.score_word(solution, guess)
         size = len(solution)
-        padded_score = f'{score}'.zfill(size)
-        message = f'{solution}, {guess}, {padded_score}'
+        padded_score = f"{score}".zfill(size)
+        message = f"{solution}, {guess}, {padded_score}"
         print(message)
 
     def get_best_guess(self, possible_solutions: Set[str], available_guesses: Set[str]) -> str:
@@ -39,24 +37,29 @@ class Solver:
         if len(possible_solutions) <= 2:
             return list(possible_solutions)[0]
 
-        best_guess_to_date = Guess('N/A', 1_000_000, 1_000_000)
+        best_guess_to_date = Guess("N/A", 1_000_000, 1_000_000)
 
         for guess in available_guesses:
-            possible_solutions_by_score = self.get_possible_solutions_by_score(possible_solutions, guess)
+            possible_solutions_by_score = self.get_possible_solutions_by_score(
+                possible_solutions, guess
+            )
             new_guess = Guess.create(guess, possible_solutions_by_score)
 
             if new_guess.improves_upon(best_guess_to_date, possible_solutions):
                 best_guess_to_date = new_guess
-        
+
         return best_guess_to_date.word
 
-    def get_possible_solutions_by_score(self, possible_solutions: Set[str], guess: str) -> Dict[int, Set[str]]:
+    def get_possible_solutions_by_score(
+        self, possible_solutions: Set[str], guess: str
+    ) -> Dict[int, Set[str]]:
         possible_solutions_by_score = defaultdict(set)
         for solution in possible_solutions:
             score = self.scorer.score_word(solution, guess)
             possible_solutions_by_score[score].add(solution)
 
         return possible_solutions_by_score
+
 
 @dataclass
 class Guess:
@@ -77,7 +80,6 @@ class Guess:
             return self.number_of_buckets > other.number_of_buckets
 
         return self.word < other.word
-
 
     @staticmethod
     def create(guess: str, possible_solutions_by_score: Dict[int, Set[str]]) -> Guess:

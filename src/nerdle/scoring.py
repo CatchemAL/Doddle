@@ -5,7 +5,6 @@ from numba import int8, int32, jit
 
 
 class Scorer:
-
     def __init__(self, size: int = 5) -> None:
         self.size = size
         self._ternaries = get_fast_ternary_lookup(size)
@@ -25,18 +24,21 @@ class Scorer:
         ternary = self._ternaries[score]
         return ternary
 
+
 def get_fast_ternary_lookup(size: int) -> np.ndarray:
-    vector = [np.base_repr(i, base=3) for i in range(3 ** size)]
+    vector = [np.base_repr(i, base=3) for i in range(3**size)]
     return np.array(vector, dtype=np.int32)
+
 
 @lru_cache(maxsize=None)
 def to_vector(word: str) -> np.ndarray:
     asciis = [ord(c) - 64 for c in word.upper()]
     return np.array(asciis, dtype=np.int8)
 
-@jit(int32(int8[:],int8[:],int32[:]), nopython=True)
+
+@jit(int32(int8[:], int8[:], int32[:]), nopython=True)
 def score_word_jit(solution_array: np.ndarray, guess_array: np.ndarray, powers: np.ndarray) -> int:
-    
+
     matches = solution_array == guess_array
 
     value = 0
@@ -52,7 +54,7 @@ def score_word_jit(solution_array: np.ndarray, guess_array: np.ndarray, powers: 
         num_times_already_observed = 0
         for j in range(i):
             if not matches[j]:
-                num_times_already_observed += (letter == guess_array[j])
+                num_times_already_observed += letter == guess_array[j]
 
         num_times_in_solution = 0
         for (j, is_match_j) in enumerate(matches):
@@ -66,16 +68,17 @@ def score_word_jit(solution_array: np.ndarray, guess_array: np.ndarray, powers: 
 
     return value
 
+
 def score_word_slow(solution_array: str, guess_array: str) -> int:
-    '''
+    """
     This is no longer used but is kept because it is a more
     readable reference implementation of the above, more
     optimised code.
-    '''
+    """
 
     indices = np.arange(5, 0, -1) - 1
-    powers = 3 ** indices
-    
+    powers = 3**indices
+
     # First we tackle exact matches
     matches = solution_array == guess_array
     value = powers[matches].sum() * 2
