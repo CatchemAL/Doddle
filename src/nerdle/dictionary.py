@@ -6,8 +6,14 @@ from typing import Set
 class WordLoader:
     def __init__(self, size: int) -> None:
         self.size = size
-        self.all_words = self.load_from_file("dictionary-full.json")
-        self.common_words = self.load_from_file("dictionary-answers.json")
+
+        if size == 5:
+            # Use the official Wordle list for the real game
+            self.all_words = self.load_from_file("dictionary-full-official.json")
+            self.common_words = self.load_from_file("dictionary-answers-official.json")
+        else:
+            self.all_words = self.load_from_file("dictionary-full.json")
+            self.common_words = self.load_from_file("dictionary-answers.json")
 
     def load_from_file(self, file_name: str) -> Set[str]:
         path = Path(__file__).parent.absolute()
