@@ -27,7 +27,7 @@ def evade(args: Namespace):
             break
 
         available_answers = solutions_by_score[highest_score]
-        best_guess = input(f"Please enter your next guess:\n").upper()
+        best_guess = input("Please enter your next guess:\n").upper()
 
 
 def solve(args: Namespace):
