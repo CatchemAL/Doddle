@@ -8,7 +8,7 @@ class Scorer:
     def __init__(self, size: int = 5) -> None:
         self.size = size
         self._ternaries = get_fast_ternary_lookup(size)
-        self._powers = 3 ** np.arange(size - 1, -1, -1)
+        self._powers = (3 ** np.arange(size - 1, -1, -1)).astype(np.int32)
 
     @property
     def perfect_score(self) -> int:
