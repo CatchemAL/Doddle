@@ -73,8 +73,12 @@ class Guess:
         if self.size_of_largest_bucket != other.size_of_largest_bucket:
             return self.size_of_largest_bucket < other.size_of_largest_bucket
 
-        if self.word in common_words and other.word not in common_words:
-            return True
+        if self.word in common_words: 
+            if other.word not in common_words:
+                return True
+        else:
+            if other.word in common_words:
+                return False
 
         if self.number_of_buckets != other.number_of_buckets:
             return self.number_of_buckets > other.number_of_buckets
