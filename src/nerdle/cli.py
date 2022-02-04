@@ -3,6 +3,7 @@ from argparse import ArgumentParser, Namespace
 from .model import Solver, seed
 from .scoring import Scorer
 from .words import WordLoader
+from .view import get_user_score
 
 
 def evade(args: Namespace) -> None:
@@ -42,7 +43,7 @@ def solve(args: Namespace) -> None:
     available_answers = loader.common_words
 
     while True:
-        observed_score = int(input(f"Enter observed score for {best_guess}:\n"))
+        (observed_score, best_guess) = get_user_score(best_guess, size)
         if scorer.is_perfect_score(observed_score):
             print("Great success!")
             break

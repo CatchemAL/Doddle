@@ -8,7 +8,7 @@
 ## Features
 - **Solve** the game in realtime using Nerdle's solver
 - **Simulate** how the game would unfold given an answer
-- **Evade** being discorvered - dodge the guesses for as long as possible
+- **Evade** being discovered - dodge the guesses for as long as possible
 
 ## Install
 - `pip install git+https://github.com/CatchemAl/Nerdle.git`
@@ -24,4 +24,11 @@
 - Can be improved
 - Is work in progress
 
-
+## Coming soon
+- Change guess in realtime
+- **Explain** feature to show what the solver is thinking
+- An improved UI (console based) for evade
+- Proper setup of CI/CD and containerisation
+- Optional search-depth arguments for deep-dive searches
+- More algorithms for solving
+- MVC architecture
