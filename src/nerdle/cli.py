@@ -45,7 +45,7 @@ def solve(args: Namespace) -> None:
     while True:
         (observed_score, best_guess) = get_user_score(best_guess, size)
         if scorer.is_perfect_score(observed_score):
-            print("Great success!")
+            print("Great success! ✨ 🍰 ✨")
             break
 
         histogram = solver.get_possible_solutions_by_score(available_answers, best_guess)
