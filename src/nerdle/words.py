@@ -17,6 +17,7 @@ class WordLoader:
 
     def load_from_file(self, file_name: str) -> Set[str]:
         path = Path(__file__).parent.absolute()
-        with open(path / file_name) as file:
+        SUB_FOLDER = 'dictionaries'
+        with open(path / SUB_FOLDER / file_name) as file:
             word_list = json.load(file)
             return {word.upper() for word in word_list if len(word) == self.size}

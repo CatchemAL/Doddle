@@ -1,1 +1,1 @@
-include src/nerdle/*.json
+graft src/nerdle/dictionaries

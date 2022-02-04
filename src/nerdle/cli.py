@@ -1,12 +1,12 @@
 import argparse
 from argparse import Namespace
 
-from .dictionary import WordLoader
+from .words import WordLoader
 from .model import Solver, seed
 from .scoring import Scorer
 
 
-def evade(args: Namespace):
+def evade(args: Namespace) -> None:
 
     size = args.size or len(args.guess)
     best_guess = args.guess or seed(size)
@@ -30,7 +30,7 @@ def evade(args: Namespace):
         best_guess = input("Please enter your next guess:\n").upper()
 
 
-def solve(args: Namespace):
+def solve(args: Namespace) -> None:
 
     size = args.size or len(args.guess)
     best_guess = args.guess or seed(size)
@@ -54,7 +54,7 @@ def solve(args: Namespace):
         print(f"The best guess is {best_guess}")
 
 
-def simulate(args: Namespace):
+def simulate(args: Namespace) -> None:
 
     solution = args.solution
     size = len(solution)
