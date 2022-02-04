@@ -9,11 +9,14 @@ class WordLoader:
 
         if size == 5:
             # Use the official Wordle list for the real game
-            self.all_words = self.load_from_file("dictionary-full-official.json")
-            self.common_words = self.load_from_file("dictionary-answers-official.json")
+            all_words = self.load_from_file("dictionary-full-official.json")
+            common_words = self.load_from_file("dictionary-answers-official.json")
         else:
-            self.all_words = self.load_from_file("dictionary-full.json")
-            self.common_words = self.load_from_file("dictionary-answers.json")
+            all_words = self.load_from_file("dictionary-full.json")
+            common_words = self.load_from_file("dictionary-answers.json")
+
+        self.all_words = all_words.union(common_words)
+        self.common_words = common_words
 
     def load_from_file(self, file_name: str) -> Set[str]:
         path = Path(__file__).parent.absolute()

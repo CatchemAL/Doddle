@@ -1,5 +1,4 @@
-import argparse
-from argparse import Namespace
+from argparse import ArgumentParser, Namespace
 
 from .model import Solver, seed
 from .scoring import Scorer
@@ -39,7 +38,7 @@ def solve(args: Namespace) -> None:
     scorer = Scorer(size)
     solver = Solver(scorer)
 
-    all_words = loader.common_words.union(loader.all_words)
+    all_words = loader.all_words
     available_answers = loader.common_words
 
     while True:
@@ -64,7 +63,7 @@ def simulate(args: Namespace) -> None:
     scorer = Scorer(size)
     solver = Solver(scorer)
 
-    all_words = loader.common_words.union(loader.all_words)
+    all_words = loader.all_words
     available_answers = loader.common_words
 
     while True:
@@ -80,7 +79,7 @@ def simulate(args: Namespace) -> None:
 
 def main() -> None:
 
-    parser = argparse.ArgumentParser()
+    parser = ArgumentParser()
     subparsers = parser.add_subparsers()
 
     simulate_parser = subparsers.add_parser("simulate")
