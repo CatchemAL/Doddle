@@ -7,13 +7,36 @@
 
 ## Features
 - **Run** the solver to see how the game is optimally played
-- **Solve** the game in realtime using Nerdle's solver
-- **Evade** - a variation of the game where the solver attempts to dodge your guesses (inspired by Absurdle)
+- **Solve** a game in realtime using Nerdle's solver
+- Play a variation of the game where the solver attempts to **evade** your every guess (inspired by [Absurdle](https://qntm.org/files/absurdle/absurdle.html))
 
 ## Install
-- `pip install git+https://github.com/CatchemAl/Nerdle.git`
+`pip install git+https://github.com/CatchemAl/Nerdle.git`
 
 ## Commands
+### Run
+
+```ruby
+nerdle run --answer=ENTOURAGE
+nerdle run --answer=ENTOURAGE --guess=SEDUCTION
+```
+
+Run a simulation with an answer of your choosing to see how Nerdle solves the problem. You can optionally provide your own starting `--guess` to see how the game plays out. With every guess in the game, Nerdle acquires more information and prunes the list of possible solutions. The output shows you how many possible solutions still exist.
+
+### Solve
+
+```ruby
+nerdle solve --size=5
+nerdle solve --guess=RAISE
+```
+
+Work smarter not harder. Use Nerdle's solver to solve Wordle as fast as possible. If you're playing Wordle and need some... ahem... *divine inspiration*, fire up Nerdle's solver. Nerdle will give you the optimal word to use. Type the response back into Wordle to generate the next guess. Nerdle represents answers as ternary numbers! Nerdle uses `2` for exact matches, `1` for partial matches and `0` for unmatched letters (e.g. `10202`).
+
+### Evade
+```ruby
+nerdle evade --guess=SALTY
+```
+
 - `nerdle solve --guess=SOARE` (with an optional starting guess)
 - `nerdle simulate --solution=BRAIN` (see how the pros solve it)
 - `nerdle evade --size=6` (play a devilishly hard game with 6 letters inspired by absurdle)
