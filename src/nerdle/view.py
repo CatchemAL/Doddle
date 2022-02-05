@@ -82,7 +82,7 @@ class ConsoleView:
         is_valid = False
 
         while not is_valid:
-            user_response = input(f"Enter observed score for {guess}:\n")
+            user_response = input(f"Enter score for {guess}:\n")
             sanitized_response = user_response.upper().replace(" ", "")
             (observed_score, guess, is_valid) = self._parse_response(guess, sanitized_response)
 

@@ -46,13 +46,13 @@ def solve(args: Namespace) -> None:
     while True:
         (observed_score, best_guess) = view.get_user_score(best_guess)
         if scorer.is_perfect_score(observed_score):
-            print("Great success! ✨ 🍰 ✨")
+            print("\nGreat success! ✨ 🔮 ✨")
             break
 
         histogram = solver.get_possible_solutions_by_score(available_answers, best_guess)
         available_answers = histogram[observed_score]
         best_guess = solver.get_best_guess(available_answers, all_words)
-        print(f"The best guess is {best_guess}")
+        print(f"\nThe best guess is {best_guess}")
 
 
 def run(args: Namespace) -> None:
