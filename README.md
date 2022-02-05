@@ -17,8 +17,8 @@
 ### Run
 
 ```ruby
-nerdle run --answer=ENTOURAGE
-nerdle run --answer=ENTOURAGE --guess=SEDUCTION
+nerdle run --answer=SALTY
+nerdle run --answer=SALTY --guess=TORCH
 ```
 
 Run a simulation with an answer of your choosing to see how Nerdle solves the problem. You can optionally provide your own starting `--guess` to see how the game plays out. With every guess in the game, Nerdle acquires more information and prunes the list of possible solutions. The output shows you how many possible solutions still exist.
