@@ -1,7 +1,10 @@
 import re
-from typing import Tuple
+from typing import Set, Tuple
 
+import colorama
 from colorama import Fore
+
+colorama.init()
 
 
 class SimulationView:
@@ -9,32 +12,34 @@ class SimulationView:
         self.size = size
         self.count = 0
 
-    def report_score(self, solution: str, guess: str, score: int):
+    def report_score(self, solution: str, guess: str, score: int, available_answers: Set[str]):
         if self.count == 0:
             header = self._build_header()
             print(header)
 
         self.count += 1
-        row = self._build_row(solution, guess, score)
+        row = self._build_row(solution, guess, score, len(available_answers))
         print(row)
 
     def _build_header(self) -> str:
         repetitions = 0 if self.size <= 5 else (self.size - 5)
         spacing = " " * repetitions
         dashes = "-" * repetitions
-        header = f"\n| # | Soln.{spacing} | Guess{spacing} | Score{spacing} |\n"
-        header += f"|---|-------{dashes}|-------{dashes}|-------{dashes}|"
+        header = f"\n| # | Soln.{spacing} | Guess{spacing} | Score{spacing} | Poss.{spacing} |\n"
+        header += f"|---|-------{dashes}|-------{dashes}|-------{dashes}|-------{dashes}|"
         return header
 
-    def _build_row(self, soln: str, guess: str, score: int) -> str:
+    def _build_row(self, soln: str, guess: str, score: int, num_left: int) -> str:
 
-        padding = "" if self.size >= 5 else " " * (5 - self.size)
+        padding = " " * max(0, 5 - self.size)
         padded_score = f"{score}".zfill(self.size)
+        num_left_str = " " if guess == soln else f"{num_left}"
+        padded_num_left = num_left_str.rjust(max(5, self.size), " ")
 
         pretty_soln = soln + padding
         pretty_guess = self._color_code(guess, score) + padding
         pretty_score = self._color_code(padded_score, score) + padding
-        return f"| {self.count} | {pretty_soln} | {pretty_guess} | {pretty_score} |"
+        return f"| {self.count} | {pretty_soln} | {pretty_guess} | {pretty_score} | {padded_num_left} |"
 
     @staticmethod
     def _color_code(word: str, score: int) -> str:
@@ -42,15 +47,20 @@ class SimulationView:
         size = len(word)
         padded_score = f"{score}".zfill(size)
 
+        prev_digit = 0
         pretty_chars = []
         for (char, digit) in zip(word, padded_score):
-            if digit == "2":
+            if digit == prev_digit:
+                pretty_chars.append(char)
+            elif digit == "2":
                 pretty_chars.append(Fore.GREEN + char)
             elif digit == "1":
                 pretty_chars.append(Fore.YELLOW + char)
             else:
                 pretty_chars.append(Fore.RESET + char)
-        else:
+            prev_digit = digit
+
+        if prev_digit != 0:
             pretty_chars.append(Fore.RESET)
 
         return "".join(pretty_chars)

@@ -71,12 +71,12 @@ def simulate(args: Namespace) -> None:
 
     while True:
         observed_score = scorer.score_word(solution, best_guess)
-        view.report_score(solution, best_guess, observed_score)
+        histogram = solver.get_possible_solutions_by_score(available_answers, best_guess)
+        available_answers = histogram[observed_score]
+        view.report_score(solution, best_guess, observed_score, available_answers)
         if best_guess == solution:
             break
 
-        histogram = solver.get_possible_solutions_by_score(available_answers, best_guess)
-        available_answers = histogram[observed_score]
         best_guess = solver.get_best_guess(available_answers, all_words)
 
 
