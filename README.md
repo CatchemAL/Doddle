@@ -6,9 +6,9 @@
 ![example workflow](https://github.com/CatchemAl/Nerdle/actions/workflows/python-app.yml/badge.svg)
 
 ## Features
+- **Run** the solver to see how the game is optimally played
 - **Solve** the game in realtime using Nerdle's solver
-- **Simulate** how the game would unfold given an answer
-- **Evade** being discovered - dodge the guesses for as long as possible
+- **Evade** - a variation of the game where the solver attempts to dodge your guesses (inspired by Absurdle)
 
 ## Install
 - `pip install git+https://github.com/CatchemAl/Nerdle.git`

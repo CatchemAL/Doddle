@@ -5,11 +5,11 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Nerdle (Simulate)",
+            "name": "Nerdle (Run)",
             "type": "python",
             "request": "launch",
             "module": "src.nerdle",
-            "args": ["simulate", "--solution=SHARD", "--guess=RAISE"]
+            "args": ["run", "--answer=SHARD", "--guess=RAISE"]
         },
         {
             "name": "Nerdle (Solve)",

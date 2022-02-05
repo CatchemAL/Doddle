@@ -7,7 +7,7 @@ from colorama import Fore
 colorama.init()
 
 
-class SimulationView:
+class RunView:
     def __init__(self, size: int) -> None:
         self.size = size
         self.count = 0
@@ -39,7 +39,10 @@ class SimulationView:
         pretty_soln = soln + padding
         pretty_guess = self._color_code(guess, score) + padding
         pretty_score = self._color_code(padded_score, score) + padding
-        return f"| {self.count} | {pretty_soln} | {pretty_guess} | {pretty_score} | {padded_num_left} |"
+
+        i = self.count
+
+        return f"| {i} | {pretty_soln} | {pretty_guess} | {pretty_score} | {padded_num_left} |"
 
     @staticmethod
     def _color_code(word: str, score: int) -> str:

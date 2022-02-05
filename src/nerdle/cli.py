@@ -2,7 +2,7 @@ from argparse import ArgumentParser, Namespace
 
 from .model import Solver
 from .scoring import Scorer
-from .view import ConsoleView, SimulationView
+from .view import ConsoleView, RunView
 from .words import WordLoader
 
 
@@ -55,13 +55,13 @@ def solve(args: Namespace) -> None:
         print(f"The best guess is {best_guess}")
 
 
-def simulate(args: Namespace) -> None:
+def run(args: Namespace) -> None:
 
-    solution = args.solution
+    solution = args.answer
     size = len(solution)
     best_guess = args.guess or Solver.seed(size)
 
-    view = SimulationView(size)
+    view = RunView(size)
     loader = WordLoader(size)
     scorer = Scorer(size)
     solver = Solver(scorer)
@@ -85,10 +85,10 @@ def main() -> None:
     parser = ArgumentParser()
     subparsers = parser.add_subparsers()
 
-    simulate_parser = subparsers.add_parser("simulate")
-    simulate_parser.add_argument("--solution", required=True, type=lambda s: s.upper())
-    simulate_parser.add_argument("--guess", type=lambda s: s.upper())
-    simulate_parser.set_defaults(func=simulate)
+    run_parser = subparsers.add_parser("run")
+    run_parser.add_argument("--answer", required=True, type=lambda s: s.upper())
+    run_parser.add_argument("--guess", type=lambda s: s.upper())
+    run_parser.set_defaults(func=run)
 
     solve_parser = subparsers.add_parser("solve")
     solve_group = solve_parser.add_mutually_exclusive_group()
