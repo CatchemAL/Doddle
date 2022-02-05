@@ -1,6 +1,6 @@
 # Nerdle -  _a nerd's approach to solving Wordle_
 
-![alt text](https://github.com/CatchemAl/Nerdle/blob/main/images/Nerdle.png?raw=true)
+<img src="https://github.com/CatchemAl/Nerdle/blob/main/images/Nerdle.png" width="360">
 
 ## Build
 ![example workflow](https://github.com/CatchemAl/Nerdle/actions/workflows/python-app.yml/badge.svg)
@@ -23,7 +23,7 @@ nerdle run --answer=SALTY --guess=TORCH
 
 Run a simulation with an answer of your choosing to see how Nerdle solves the problem. You can optionally provide your own starting `--guess` to see how the game plays out. With every guess in the game, Nerdle acquires more information and prunes the list of possible solutions. The output shows you how many possible solutions still exist.
 
-![alt text](https://github.com/CatchemAl/Nerdle/blob/main/images/Simulate.png?raw=true)
+![](https://github.com/CatchemAl/Nerdle/blob/main/images/Simulate.png)
 
 ### Solve
 
