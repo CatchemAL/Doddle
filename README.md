@@ -66,19 +66,16 @@ The best guess is SALTY
 ```ruby
 nerdle evade --guess=SALTY
 ```
+Evade is a spin on the conventional Wordle game. Here, Nerdle uses its solver to hide the final answer for as long as possible. Nerdle doesn't choose an answer before the game starts - instead it presents you with a score that results in maximal ambiguity for as long as possible. You'll always get there in the end, but the game might take a while. 😈
 
-- `nerdle solve --guess=SOARE` (with an optional starting guess)
-- `nerdle simulate --solution=BRAIN` (see how the pros solve it)
-- `nerdle evade --size=6` (play a devilishly hard game with 6 letters inspired by absurdle)
 
 ## Algorithm
-- Based on min-max
-- Subject to change
-- Can be improved
-- Is work in progress
+Nerdle uses a [minimax](https://en.wikipedia.org/wiki/Minimax) algorithm to solve the game. The algorithm:
+- is still a work in progress
+- is subject to change
+- has plenty of scope for improvement (see below!)
 
 ## Coming soon
-- Change guess in realtime
 - **Explain** feature to show what the solver is thinking
 - An improved UI (console based) for evade
 - Proper setup of CI/CD and containerisation
