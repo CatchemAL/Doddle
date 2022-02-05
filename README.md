@@ -76,9 +76,13 @@ Nerdle uses a [minimax](https://en.wikipedia.org/wiki/Minimax) algorithm to solv
 - has plenty of scope for improvement (see below!)
 
 ## Coming soon
-- **Explain** feature to show what the solver is thinking
+- Add an `explain` feature to show what the solver is thinking
 - An improved UI (console based) for evade
+  - The user needs an interactive keyboard to remember what they've already played
 - Proper setup of CI/CD and containerisation
+  - To check deployment on UNIX based systems
 - Optional search-depth arguments for deep-dive searches
-- More algorithms for solving
+  - Performance needs to be assessed.
+  - Hopefully results in interesting pairs of moves.
+- More algorithms for solving (DNNs or RL)
 - MVC architecture
