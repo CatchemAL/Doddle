@@ -23,7 +23,7 @@ nerdle run --answer=SALTY --guess=TORCH
 
 Run a simulation with an answer of your choosing to see how Nerdle solves the problem. You can optionally provide your own starting `--guess` to see how the game plays out. With every guess in the game, Nerdle acquires more information and prunes the list of possible solutions. The output shows you how many possible solutions still exist.
 
-<img src="https://github.com/CatchemAl/Nerdle/blob/main/images/Simulate.png" width="510">
+<img src="https://github.com/CatchemAl/Nerdle/blob/main/images/Run.png" width="400">
 
 ### Solve
 
@@ -33,6 +33,22 @@ nerdle solve --guess=RAISE
 ```
 
 Work smarter not harder. Use Nerdle's solver to solve Wordle as fast as possible. If you're playing Wordle and need some... ahem... *divine inspiration*, fire up Nerdle's solver. Nerdle will give you the optimal word to use. Type the response back into Wordle to generate the next guess. Nerdle represents answers as ternary numbers! Nerdle uses `2` for exact matches, `1` for partial matches and `0` for unmatched letters (e.g. `10202`).
+
+```
+>>> nerdle solve --guess=TORCH
+Enter score for TORCH:
+>>> 10000
+
+The best guess is SNAIL
+Enter score for TORCH:
+>>> 20101
+
+The best guess is SALTY
+Enter score for SALTY:
+>>> 22222
+
+Great success! ✨ 🔮 ✨
+```
 
 ### Evade
 ```ruby
