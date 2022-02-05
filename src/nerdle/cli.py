@@ -2,8 +2,8 @@ from argparse import ArgumentParser, Namespace
 
 from .model import Solver, seed
 from .scoring import Scorer
+from .view import ConsoleView, SimulationView
 from .words import WordLoader
-from .view import get_user_score
 
 
 def evade(args: Namespace) -> None:
@@ -35,6 +35,7 @@ def solve(args: Namespace) -> None:
     size = args.size or len(args.guess)
     best_guess = args.guess or seed(size)
 
+    view = ConsoleView(size)
     loader = WordLoader(size)
     scorer = Scorer(size)
     solver = Solver(scorer)
@@ -43,7 +44,7 @@ def solve(args: Namespace) -> None:
     available_answers = loader.common_words
 
     while True:
-        (observed_score, best_guess) = get_user_score(best_guess, size)
+        (observed_score, best_guess) = view.get_user_score(best_guess)
         if scorer.is_perfect_score(observed_score):
             print("Great success! ✨ 🍰 ✨")
             break
@@ -60,6 +61,7 @@ def simulate(args: Namespace) -> None:
     size = len(solution)
     best_guess = args.guess or seed(size)
 
+    view = SimulationView(size)
     loader = WordLoader(size)
     scorer = Scorer(size)
     solver = Solver(scorer)
@@ -68,9 +70,9 @@ def simulate(args: Namespace) -> None:
     available_answers = loader.common_words
 
     while True:
-        solver.prettify(solution, best_guess)
         observed_score = scorer.score_word(solution, best_guess)
-        if scorer.is_perfect_score(observed_score):
+        view.report_score(solution, best_guess, observed_score)
+        if best_guess == solution:
             break
 
         histogram = solver.get_possible_solutions_by_score(available_answers, best_guess)
