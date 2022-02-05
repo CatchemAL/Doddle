@@ -40,7 +40,7 @@ Enter score for TORCH:
 >>> 10000
 
 The best guess is SNAIL
-Enter score for TORCH:
+Enter score for SNAIL:
 >>> 20101
 
 The best guess is SALTY
@@ -48,6 +48,18 @@ Enter score for SALTY:
 >>> 22222
 
 Great success! ✨ 🔮 ✨
+```
+
+Half way through a game and just want to know the next best move? Nerdle's got you covered. With `solve`, you're not forced to play the move Nerdle suggests. Nerdle accepts two syntaxes when entering a score: 1) as score (as above e.g. `20101`); or 2) a `WORD=SCORE` pair (`SNAKE=20100`). If you're half way through and need the best move, fill in what you've done so far using the second input method and let Nerdle take over from there.
+
+
+```
+The best guess is SNAIL
+Enter score for SNAIL:
+>>> SNAKE=20100
+
+The best guess is SALTY
+...
 ```
 
 ### Evade
