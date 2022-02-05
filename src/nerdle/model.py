@@ -20,9 +20,6 @@ class Solver:
 
     def get_best_guess(self, possible_solutions: Set[str], available_guesses: Set[str]) -> str:
 
-        if len(possible_solutions) <= 2:
-            return list(possible_solutions)[0]
-
         best_guess_to_date = Guess("N/A", 1_000_000, 1_000_000)
 
         for guess in available_guesses:
