@@ -34,6 +34,22 @@ nerdle solve --guess=RAISE
 
 Work smarter not harder. Use Nerdle's solver to solve Wordle as fast as possible. If you're playing Wordle and need some... ahem... *divine inspiration*, fire up Nerdle's solver. Nerdle will give you the optimal word to use. Type the response back into Wordle to generate the next guess. Nerdle represents answers as ternary numbers! Nerdle uses `2` for exact matches, `1` for partial matches and `0` for unmatched letters (e.g. `10202`).
 
+```
+>>> nerdle solve --guess=TORCH
+Enter score for TORCH:
+>>> 10000
+
+The best guess is SNAIL
+Enter score for TORCH:
+>>> 20101
+
+The best guess is SALTY
+Enter score for SALTY:
+>>> 22222
+
+Great success! ✨ 🔮 ✨
+```
+
 ### Evade
 ```ruby
 nerdle evade --guess=SALTY
