@@ -7,20 +7,6 @@ from typing import Dict, Set
 from .scoring import Scorer
 
 
-def seed(size: int) -> str:
-
-    seed_by_size = {
-        4: "OLEA",
-        5: "RAISE",
-        6: "TAILER",
-        7: "TENAILS",
-        8: "CENTRALS",
-        9: "SECRETION",
-    }
-
-    return seed_by_size[size]
-
-
 class Solver:
     def __init__(self, scorer: Scorer) -> None:
         self.scorer = scorer
@@ -59,6 +45,20 @@ class Solver:
             possible_solutions_by_score[score].add(solution)
 
         return possible_solutions_by_score
+
+    @staticmethod
+    def seed(size: int) -> str:
+
+        seed_by_size = {
+            4: "OLEA",
+            5: "RAISE",
+            6: "TAILER",
+            7: "TENAILS",
+            8: "CENTRALS",
+            9: "SECRETION",
+        }
+
+        return seed_by_size[size]
 
 
 @dataclass

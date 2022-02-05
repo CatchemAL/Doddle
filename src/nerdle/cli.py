@@ -1,6 +1,6 @@
 from argparse import ArgumentParser, Namespace
 
-from .model import Solver, seed
+from .model import Solver
 from .scoring import Scorer
 from .view import ConsoleView, SimulationView
 from .words import WordLoader
@@ -9,7 +9,7 @@ from .words import WordLoader
 def evade(args: Namespace) -> None:
 
     size = args.size or len(args.guess)
-    best_guess = args.guess or seed(size)
+    best_guess = args.guess or Solver.seed(size)
 
     loader = WordLoader(size)
     scorer = Scorer(size)
@@ -33,7 +33,7 @@ def evade(args: Namespace) -> None:
 def solve(args: Namespace) -> None:
 
     size = args.size or len(args.guess)
-    best_guess = args.guess or seed(size)
+    best_guess = args.guess or Solver.seed(size)
 
     view = ConsoleView(size)
     loader = WordLoader(size)
@@ -59,7 +59,7 @@ def simulate(args: Namespace) -> None:
 
     solution = args.solution
     size = len(solution)
-    best_guess = args.guess or seed(size)
+    best_guess = args.guess or Solver.seed(size)
 
     view = SimulationView(size)
     loader = WordLoader(size)
@@ -86,19 +86,19 @@ def main() -> None:
     subparsers = parser.add_subparsers()
 
     simulate_parser = subparsers.add_parser("simulate")
-    simulate_parser.add_argument("--solution", required=True, type=str)
-    simulate_parser.add_argument("--guess", type=str)
+    simulate_parser.add_argument("--solution", required=True, type=lambda s: s.upper())
+    simulate_parser.add_argument("--guess", type=lambda s: s.upper())
     simulate_parser.set_defaults(func=simulate)
 
     solve_parser = subparsers.add_parser("solve")
     solve_group = solve_parser.add_mutually_exclusive_group()
-    solve_group.add_argument("--guess", type=str)
+    solve_group.add_argument("--guess", type=lambda s: s.upper())
     solve_group.add_argument("--size", type=int)
     solve_parser.set_defaults(func=solve)
 
     evade_parser = subparsers.add_parser("evade")
     evade_group = evade_parser.add_mutually_exclusive_group()
-    evade_group.add_argument("--guess", type=str)
+    evade_group.add_argument("--guess", type=lambda s: s.upper())
     evade_group.add_argument("--size", type=int)
     evade_parser.set_defaults(func=evade)
 
