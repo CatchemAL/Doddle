@@ -2,6 +2,8 @@ from .solver import Solver
 from .views import RunView
 from .words import WordLoader
 
+from typing import Dict, Set
+
 
 class RunController:
     def __init__(self, loader: WordLoader, solver: Solver, view: RunView) -> None:
@@ -54,22 +56,24 @@ class HideController:
         self.solver = solver
         self.view = view
 
-    def hide(self, best_guess: str) -> None:
+    def hide(self, guess: str) -> None:
 
         available_answers = self.loader.common_words
 
         while True:
-            solutions_by_score = self.solver.get_possible_solutions_by_score(
-                available_answers, best_guess
-            )
-            highest_score = max(solutions_by_score, key=lambda k: len(solutions_by_score[k]))
 
-            # BUG! See issue #1 on GitHub
-            available_answers = solutions_by_score[highest_score]
-            self.view.update(best_guess, highest_score, available_answers)
+            solns_by_score = self.solver.get_possible_solutions_by_score(available_answers, guess)
+
+            def rank_score(score: int) -> int:
+                solutions = solns_by_score[score]
+                return  0 if guess in solutions else len(solns_by_score[score])
+
+            highest_score = max(solns_by_score, key=rank_score)
+            available_answers = solns_by_score[highest_score]
+            self.view.update(guess, highest_score, available_answers)
 
             if self.solver.scorer.is_perfect_score(highest_score):
                 self.view.report_success()
                 break
 
-            best_guess = self.view.get_user_guess()
+            guess = self.view.get_user_guess()
