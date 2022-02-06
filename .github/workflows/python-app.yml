@@ -29,19 +29,23 @@ jobs:
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
         nerdle run --answer=SALTY
     
+    - name: Test with pytest
+      run: |
+        pip install pytest
+        pytest -v --cov=nerdle --cov-report term:skip-covered tests/
+    
+    - name: Check formatting using Black
+      run: |
+        pip install black
+        black --check --diff --color .
+    
+    - name: Check imports using iSort
+      run: |
+        pip install isort
+        isort --check --diff --color .
+
     - name: Lint with flake8
       run: |
         pip install flake8
         flake8
     
-    - name: Check formatting using Black
-      run: |
-        black .
-    
-    - name: Check imports using iSort
-      run: |
-        isort .
-    
-    - name: Test with pytest
-      run: |
-        pytest -v --cov=nerdle --cov-report term:skip-covered tests/
