@@ -31,7 +31,7 @@ jobs:
     
     - name: Test with pytest
       run: |
-        pip install pytest
+        pip install pytest-cov
         pytest -v --cov=nerdle --cov-report term:skip-covered tests/
     
     - name: Check formatting using Black
