@@ -61,6 +61,10 @@ class SolveView:
         message = "\nGreat success! ✨ 🔮 ✨"
         print(message)
 
+    def report_no_solution(self) -> None:
+        message = "\nOh no! Nerdle does not know of any words that match those scores! 😭 😭 😭"
+        print(message)
+
     def report_best_guess(self, best_guess: str) -> None:
         message = f"\nThe best guess is {best_guess}"
         print(message)
