@@ -68,6 +68,9 @@ nerdle evade --guess=SALTY
 ```
 Evade is a spin on the conventional Wordle game. Here, Nerdle uses its solver to hide the final answer for as long as possible. Nerdle doesn't choose an answer before the game starts - instead it presents you with a score that results in maximal ambiguity for as long as possible. You'll always get there in the end, but the game might take a while. 😈
 
+<img src="https://github.com/CatchemAl/Nerdle/blob/main/images/evade.png" width="350">
+
+Similar to the original Wordle game, a keyboard is rendered to display what characters have been guessed so far.
 
 ## Algorithm
 Nerdle uses a [minimax](https://en.wikipedia.org/wiki/Minimax) algorithm to solve the game. The algorithm:
