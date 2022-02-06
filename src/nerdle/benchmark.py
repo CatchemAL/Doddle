@@ -32,7 +32,7 @@ def solve(solution):
     return n_guesses
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
 
     size = 5
     processes = 8
@@ -48,4 +48,4 @@ if __name__ == '__main__':
         counts[n] = counts.get(n, 0) + 1
 
     for c in sorted(counts):
-        print(f'{c} guesses: {counts[c]}')
+        print(f"{c} guesses: {counts[c]}")
