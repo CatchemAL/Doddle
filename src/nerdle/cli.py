@@ -1,14 +1,14 @@
 from argparse import ArgumentParser, Namespace
 
 from .factory import create_hide_controller, create_run_controller, create_solve_controller
-from .solver import Solver
+from .solver import MinimaxSolver
 
 
 def run(args: Namespace) -> None:
 
     solution = args.answer
     size = len(solution)
-    best_guess = args.guess or Solver.seed(size)
+    best_guess = args.guess or MinimaxSolver.seed(size)
     controller = create_run_controller(size)
     controller.run(solution, best_guess)
 
@@ -16,7 +16,7 @@ def run(args: Namespace) -> None:
 def solve(args: Namespace) -> None:
 
     size = args.size or len(args.guess)
-    best_guess = args.guess or Solver.seed(size)
+    best_guess = args.guess or MinimaxSolver.seed(size)
     controller = create_solve_controller(size)
     controller.solve(best_guess)
 
@@ -24,7 +24,7 @@ def solve(args: Namespace) -> None:
 def hide(args: Namespace) -> None:
 
     size = args.size or len(args.guess)
-    best_guess = args.guess or Solver.seed(size)
+    best_guess = args.guess or MinimaxSolver.seed(size)
     controller = create_hide_controller(size)
     controller.hide(best_guess)
 
