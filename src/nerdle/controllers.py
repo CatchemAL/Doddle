@@ -2,8 +2,6 @@ from .solver import Solver
 from .views import RunView
 from .words import WordLoader
 
-from typing import Dict, Set
-
 
 class RunController:
     def __init__(self, loader: WordLoader, solver: Solver, view: RunView) -> None:
@@ -15,6 +13,10 @@ class RunController:
 
         all_words = self.loader.all_words
         available_answers = self.loader.common_words
+
+        if solution not in available_answers:
+            all_words.add(solution)
+            available_answers.add(solution)
 
         while True:
             observed_score = self.solver.scorer.score_word(solution, best_guess)
@@ -66,7 +68,7 @@ class HideController:
 
             def rank_score(score: int) -> int:
                 solutions = solns_by_score[score]
-                return  0 if guess in solutions else len(solns_by_score[score])
+                return 0 if guess in solutions else len(solns_by_score[score])
 
             highest_score = max(solns_by_score, key=rank_score)
             available_answers = solns_by_score[highest_score]
