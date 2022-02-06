@@ -86,4 +86,3 @@ Nerdle uses a [minimax](https://en.wikipedia.org/wiki/Minimax) algorithm to solv
   - Performance needs to be assessed.
   - Hopefully results in interesting pairs of moves.
 - More algorithms for solving (DNNs or RL)
-- MVC architecture
