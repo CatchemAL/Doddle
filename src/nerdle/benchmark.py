@@ -1,8 +1,8 @@
 from multiprocessing import Pool
 
-from nerdle.solver import Solver
-from nerdle.scoring import Scorer
-from nerdle.words import WordLoader
+from .solver import Solver
+from .scoring import Scorer
+from .words import WordLoader
 
 
 def solve(solution):
