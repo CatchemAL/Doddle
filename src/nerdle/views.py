@@ -37,7 +37,6 @@ class HideView:
 
 
 class AbstractRunView:
-
     @abc.abstractmethod
     def report_score(
         self, solution: str, guess: str, score: int, available_answers: Set[str]

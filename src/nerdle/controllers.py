@@ -1,5 +1,5 @@
 from .solver import Solver
-from .views import HideView, SolveView, AbstractRunView
+from .views import AbstractRunView, HideView, SolveView
 from .words import WordLoader
 
 

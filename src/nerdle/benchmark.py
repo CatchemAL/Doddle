@@ -2,8 +2,8 @@ import functools
 from multiprocessing import Pool
 
 from .controllers import RunController
-from .words import WordLoader
 from .views import SilentRunView
+from .words import WordLoader
 
 
 def benchmark(solver, size: int):
