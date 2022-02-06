@@ -1,51 +1,25 @@
+import functools
 from multiprocessing import Pool
 
-from .solver import Solver
-from .scoring import Scorer
+from .controllers import RunController
 from .words import WordLoader
+from .views import SilentRunView
 
 
-def solve(solution):
+def benchmark(solver, size: int):
 
-    size = len(solution)
-    best_guess = Solver.seed(size)
-
-    loader = WordLoader(size)
-    scorer = Scorer(size)
-    solver = Solver(scorer)
-
-    all_words = loader.all_words
-    available_answers = loader.common_words
-
-    n_guesses = 0
-
-    while True:
-        n_guesses += 1
-        observed_score = scorer.score_word(solution, best_guess)
-        histogram = solver.get_possible_solutions_by_score(available_answers, best_guess)
-        available_answers = histogram[observed_score]
-        if best_guess == solution:
-            break
-
-        best_guess = solver.get_best_guess(available_answers, all_words)
-
-    return n_guesses
-
-
-if __name__ == "__main__":
-
-    size = 5
-    processes = 8
     loader = WordLoader(size)
     solutions = loader.common_words
+    initial_guess = solver.seed(size)
 
+    controller = RunController(loader, solver, SilentRunView())
+
+    with Pool(8) as p:
+        n_guess = p.map(functools.partial(controller.run, best_guess=initial_guess), solutions)
+
+    # count occurrences of number of guesses to solve
     counts = {}
-
-    with Pool(processes) as p:
-        n_guess = p.map(solve, solutions)
-
     for n in n_guess:
         counts[n] = counts.get(n, 0) + 1
 
-    for c in sorted(counts):
-        print(f"{c} guesses: {counts[c]}")
+    return counts
