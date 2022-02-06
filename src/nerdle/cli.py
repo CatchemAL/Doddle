@@ -9,7 +9,6 @@ def run(args: Namespace) -> None:
     solution = args.answer
     size = len(solution)
     best_guess = args.guess or Solver.seed(size)
-
     controller = create_run_controller(size)
     controller.run(solution, best_guess)
 
@@ -18,7 +17,6 @@ def solve(args: Namespace) -> None:
 
     size = args.size or len(args.guess)
     best_guess = args.guess or Solver.seed(size)
-
     controller = create_solve_controller(size)
     controller.solve(best_guess)
 
@@ -27,7 +25,6 @@ def hide(args: Namespace) -> None:
 
     size = args.size or len(args.guess)
     best_guess = args.guess or Solver.seed(size)
-
     controller = create_hide_controller(size)
     controller.hide(best_guess)
 
