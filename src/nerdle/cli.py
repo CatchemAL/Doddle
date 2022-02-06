@@ -2,16 +2,16 @@ from argparse import ArgumentParser, Namespace
 
 from .scoring import Scorer
 from .solver import Solver
-from .views import EvadeView, RunView, SolveView
+from .views import HideView, RunView, SolveView
 from .words import WordLoader
 
 
-def evade(args: Namespace) -> None:
+def hide(args: Namespace) -> None:
 
     size = args.size or len(args.guess)
     best_guess = args.guess or Solver.seed(size)
 
-    view = EvadeView(size)
+    view = HideView(size)
     loader = WordLoader(size)
     scorer = Scorer(size)
     solver = Solver(scorer)
@@ -97,11 +97,11 @@ def main() -> None:
     solve_group.add_argument("--size", type=int)
     solve_parser.set_defaults(func=solve)
 
-    evade_parser = subparsers.add_parser("evade")
-    evade_group = evade_parser.add_mutually_exclusive_group()
-    evade_group.add_argument("--guess", type=lambda s: s.upper())
-    evade_group.add_argument("--size", type=int)
-    evade_parser.set_defaults(func=evade)
+    hide_parser = subparsers.add_parser("hide")
+    hide_group = hide_parser.add_mutually_exclusive_group()
+    hide_group.add_argument("--guess", type=lambda s: s.upper())
+    hide_group.add_argument("--size", type=int)
+    hide_parser.set_defaults(func=hide)
 
     args = parser.parse_args()
     args.func(args)

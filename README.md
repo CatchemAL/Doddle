@@ -8,7 +8,8 @@
 ## Features
 - **Run** the solver to see how the game is optimally played
 - **Solve** a game in realtime using Nerdle's solver
-- Play a variation of the game where the solver attempts to **evade** your every guess (inspired by [Absurdle](https://qntm.org/files/absurdle/absurdle.html))
+- Play a variation of the game where the solver attempts to **hide** the answer from you for as long as possible (inspired by [Absurdle](https://qntm.org/files/absurdle/absurdle.html))
+- Play using words of length 4-9 (inclusive) by adding the optional `--size` argument (default is 5).
 
 ## Install
 `pip install git+https://github.com/CatchemAl/Nerdle.git`
@@ -62,11 +63,11 @@ The best guess is SALTY
 ...
 ```
 
-### Evade
+### Hide
 ```ruby
-nerdle evade --guess=SALTY
+nerdle hide --guess=SALTY
 ```
-Evade is a spin on the conventional Wordle game. Here, Nerdle uses its solver to hide the final answer for as long as possible. Nerdle doesn't choose an answer before the game starts - instead it presents you with a score that results in maximal ambiguity for as long as possible. You'll always get there in the end, but the game might take a while. 😈
+Hide is a spin on the conventional Wordle game. Here, Nerdle uses its solver to hide the final answer for as long as possible. Nerdle doesn't choose an answer before the game starts - instead it always presents you with the score that results in maximum ambiguity. You'll get there in the end, but the game might take a while. 😈
 
 <img src="https://github.com/CatchemAl/Nerdle/blob/main/images/evade.png" width="350">
 

@@ -4,7 +4,7 @@ from typing import Set, Tuple
 from .view_models import Keyboard, KeyboardPrinter, Scoreboard, ScoreboardPrinter
 
 
-class EvadeView:
+class HideView:
     def __init__(self, size: int) -> None:
         self.scoreboard = Scoreboard()
         self.keyboard = Keyboard()

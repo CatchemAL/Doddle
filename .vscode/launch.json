@@ -19,11 +19,11 @@
             "args": ["solve", "--guess=RAISE"]
         },
         {
-            "name": "Nerdle (Evade)",
+            "name": "Nerdle (Hide)",
             "type": "python",
             "request": "launch",
             "module": "src.nerdle",
-            "args": ["evade", "--guess=EXITS"]
+            "args": ["hide", "--guess=EXITS"]
         },
         {
             "name": "Python: Current File",
