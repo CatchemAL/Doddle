@@ -2,7 +2,7 @@ from argparse import ArgumentParser, Namespace
 
 from .model import Solver
 from .scoring import Scorer
-from .view import ConsoleView, RunView
+from .view import EvadeView, RunView, SolveView
 from .words import WordLoader
 
 
@@ -11,6 +11,7 @@ def evade(args: Namespace) -> None:
     size = args.size or len(args.guess)
     best_guess = args.guess or Solver.seed(size)
 
+    view = EvadeView(size)
     loader = WordLoader(size)
     scorer = Scorer(size)
     solver = Solver(scorer)
@@ -20,14 +21,14 @@ def evade(args: Namespace) -> None:
     while True:
         solutions_by_score = solver.get_possible_solutions_by_score(available_answers, best_guess)
         highest_score = max(solutions_by_score, key=lambda k: len(solutions_by_score[k]))
-        padded_score = f"{highest_score}".zfill(size)
-        print(f"The score was {padded_score}")
+        available_answers = solutions_by_score[highest_score]
+        view.update(best_guess, highest_score, available_answers)
+
         if scorer.is_perfect_score(highest_score):
-            print("You win!")
+            view.report_success()
             break
 
-        available_answers = solutions_by_score[highest_score]
-        best_guess = input("Please enter your next guess:\n").upper()
+        best_guess = view.get_user_guess()
 
 
 def solve(args: Namespace) -> None:
@@ -35,7 +36,7 @@ def solve(args: Namespace) -> None:
     size = args.size or len(args.guess)
     best_guess = args.guess or Solver.seed(size)
 
-    view = ConsoleView(size)
+    view = SolveView(size)
     loader = WordLoader(size)
     scorer = Scorer(size)
     solver = Solver(scorer)
@@ -46,13 +47,13 @@ def solve(args: Namespace) -> None:
     while True:
         (observed_score, best_guess) = view.get_user_score(best_guess)
         if scorer.is_perfect_score(observed_score):
-            print("\nGreat success! ✨ 🔮 ✨")
+            view.report_success()
             break
 
         histogram = solver.get_possible_solutions_by_score(available_answers, best_guess)
         available_answers = histogram[observed_score]
         best_guess = solver.get_best_guess(available_answers, all_words)
-        print(f"\nThe best guess is {best_guess}")
+        view.report_best_guess(best_guess)
 
 
 def run(args: Namespace) -> None:

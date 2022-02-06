@@ -1,81 +1,69 @@
 import re
 from typing import Set, Tuple
 
-import colorama
-from colorama import Fore
+from .view_models import Keyboard, KeyboardPrinter, Scoreboard, ScoreboardPrinter
 
-colorama.init()
+
+class EvadeView:
+    def __init__(self, size: int) -> None:
+        self.scoreboard = Scoreboard()
+        self.keyboard = Keyboard()
+        self.size = size
+
+    def update(self, word: str, score: int, available_answers: Set[str]) -> None:
+
+        sb_printer = ScoreboardPrinter(self.size)
+        kb_printer = KeyboardPrinter()
+
+        num_left = len(available_answers)
+        soln = word if num_left == 1 and word in available_answers else None
+        self.scoreboard.add_row(soln, word, score, num_left)
+        sb_printer.print(self.scoreboard)
+
+        self.keyboard.update(word, score)
+        kb_printer.print(self.keyboard)
+
+    def report_success(self) -> None:
+        message = "You win! 🙌 👏 🙌"
+        print(message)
+
+    def get_user_guess(self) -> str:
+        guess = ""
+        while len(guess) != self.size or not guess.isalpha():
+            guess = input("Please enter your next guess:\n").upper()
+
+        return guess
 
 
 class RunView:
     def __init__(self, size: int) -> None:
         self.size = size
-        self.count = 0
+        self.scoreboard = Scoreboard()
 
-    def report_score(self, solution: str, guess: str, score: int, available_answers: Set[str]):
-        if self.count == 0:
-            header = self._build_header()
-            print(header)
+    def report_score(
+        self, solution: str, guess: str, score: int, available_answers: Set[str]
+    ) -> None:
+        self.scoreboard.add_row(solution, guess, score, len(available_answers))
 
-        self.count += 1
-        row = self._build_row(solution, guess, score, len(available_answers))
-        print(row)
-
-    def _build_header(self) -> str:
-        repetitions = 0 if self.size <= 5 else (self.size - 5)
-        spacing = " " * repetitions
-        dashes = "-" * repetitions
-        header = f"\n| # | Soln.{spacing} | Guess{spacing} | Score{spacing} | Poss.{spacing} |\n"
-        header += f"|---|-------{dashes}|-------{dashes}|-------{dashes}|-------{dashes}|"
-        return header
-
-    def _build_row(self, soln: str, guess: str, score: int, num_left: int) -> str:
-
-        padding = " " * max(0, 5 - self.size)
-        padded_score = f"{score}".zfill(self.size)
-        num_left_str = " " if guess == soln else f"{num_left}"
-        padded_num_left = num_left_str.rjust(max(5, self.size), " ")
-
-        pretty_soln = soln + padding
-        pretty_guess = self._color_code(guess, score) + padding
-        pretty_score = self._color_code(padded_score, score) + padding
-
-        i = self.count
-
-        return f"| {i} | {pretty_soln} | {pretty_guess} | {pretty_score} | {padded_num_left} |"
-
-    @staticmethod
-    def _color_code(word: str, score: int) -> str:
-
-        size = len(word)
-        padded_score = f"{score}".zfill(size)
-
-        prev_digit = 0
-        pretty_chars = []
-        for (char, digit) in zip(word, padded_score):
-            if digit == prev_digit:
-                pretty_chars.append(char)
-            elif digit == "2":
-                pretty_chars.append(Fore.GREEN + char)
-            elif digit == "1":
-                pretty_chars.append(Fore.YELLOW + char)
-            else:
-                pretty_chars.append(Fore.RESET + char)
-            prev_digit = digit
-
-        if prev_digit != 0:
-            pretty_chars.append(Fore.RESET)
-
-        return "".join(pretty_chars)
+        sb_printer = ScoreboardPrinter(self.size)
+        sb_printer.print_next(self.scoreboard)
 
 
-class ConsoleView:
+class SolveView:
 
     score_expr = re.compile(r"[0-2]+$")
     word_expr = re.compile(r"^([A-Z]+)=([0-2]+)$")
 
     def __init__(self, size: int) -> None:
         self.size = size
+
+    def report_success(self) -> None:
+        message = "\nGreat success! ✨ 🔮 ✨"
+        print(message)
+
+    def report_best_guess(self, best_guess: str) -> None:
+        message = f"\nThe best guess is {best_guess}"
+        print(message)
 
     def get_user_score(self, guess: str) -> Tuple[int, str]:
 
