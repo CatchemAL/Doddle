@@ -50,7 +50,7 @@ Enter score for SALTY:
 Great success! ✨ 🔮 ✨
 ```
 
-Half way through a game and just want to know the next best move? Nerdle's got you covered. With `solve`, you're not forced to play the move Nerdle suggests. Nerdle accepts two syntaxes when entering a score: 1) as score (as above e.g. `20101`); or 2) a `WORD=SCORE` pair (`SNAKE=20100`). If you're half way through and need the best move, fill in what you've done so far using the second input method and let Nerdle take over from there.
+Half way through a game and just want to know the next best move? Nerdle's got you covered. With `solve`, you're not forced to play the move Nerdle suggests. Nerdle accepts two syntaxes when entering a score: 1) just a score (as above e.g. `20101`); or 2) a `WORD=SCORE` pair (`SNAKE=20100`). If you're half way through and need the best move, fill in what you've done so far using the second input method and let Nerdle take over from there.
 
 
 ```
@@ -77,10 +77,7 @@ Nerdle uses a [minimax](https://en.wikipedia.org/wiki/Minimax) algorithm to solv
 
 ## Coming soon
 - Add an `explain` feature to show what the solver is thinking
-- An improved UI (console based) for evade
-  - The user needs an interactive keyboard to remember what they've already played
-- Proper setup of CI/CD and containerisation
-  - To check deployment on UNIX based systems
+- Proper setup of CI/CD and containerisation to check deployment on UNIX based systems
 - Optional search-depth arguments for deep-dive searches
   - Performance needs to be assessed.
   - Hopefully results in interesting pairs of moves.
