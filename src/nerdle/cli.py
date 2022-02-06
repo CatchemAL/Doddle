@@ -1,8 +1,8 @@
 from argparse import ArgumentParser, Namespace
 
-from .model import Solver
 from .scoring import Scorer
-from .view import EvadeView, RunView, SolveView
+from .solver import Solver
+from .views import EvadeView, RunView, SolveView
 from .words import WordLoader
 
 
