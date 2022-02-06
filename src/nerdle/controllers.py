@@ -63,7 +63,7 @@ class HideController:
                 available_answers, best_guess
             )
             highest_score = max(solutions_by_score, key=lambda k: len(solutions_by_score[k]))
-         
+
             # BUG! See issue #1 on GitHub
             available_answers = solutions_by_score[highest_score]
             self.view.update(best_guess, highest_score, available_answers)
