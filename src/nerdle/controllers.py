@@ -1,15 +1,15 @@
 from .solver import Solver
-from .views import RunView
+from .views import AbstractRunView, HideView, SolveView
 from .words import WordLoader
 
 
 class RunController:
-    def __init__(self, loader: WordLoader, solver: Solver, view: RunView) -> None:
+    def __init__(self, loader: WordLoader, solver: Solver, view: AbstractRunView) -> None:
         self.loader = loader
         self.solver = solver
         self.view = view
 
-    def run(self, solution: str, best_guess: str) -> None:
+    def run(self, solution: str, best_guess: str) -> int:
 
         all_words = self.loader.all_words
         available_answers = self.loader.common_words
@@ -18,7 +18,10 @@ class RunController:
             all_words.add(solution)
             available_answers.add(solution)
 
+        n_guesses = 0
+
         while True:
+            n_guesses += 1
             observed_score = self.solver.scorer.score_word(solution, best_guess)
             histogram = self.solver.get_possible_solutions_by_score(available_answers, best_guess)
             available_answers = histogram[observed_score]
@@ -28,9 +31,11 @@ class RunController:
 
             best_guess = self.solver.get_best_guess(available_answers, all_words)
 
+        return n_guesses
+
 
 class SolveController:
-    def __init__(self, loader: WordLoader, solver: Solver, view: RunView) -> None:
+    def __init__(self, loader: WordLoader, solver: Solver, view: SolveView) -> None:
         self.loader = loader
         self.solver = solver
         self.view = view
@@ -58,7 +63,7 @@ class SolveController:
 
 
 class HideController:
-    def __init__(self, loader: WordLoader, solver: Solver, view: RunView) -> None:
+    def __init__(self, loader: WordLoader, solver: Solver, view: HideView) -> None:
         self.loader = loader
         self.solver = solver
         self.view = view

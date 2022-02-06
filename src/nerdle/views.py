@@ -1,3 +1,4 @@
+import abc
 import re
 from typing import Set, Tuple
 
@@ -35,7 +36,15 @@ class HideView:
         return guess
 
 
-class RunView:
+class AbstractRunView:
+    @abc.abstractmethod
+    def report_score(
+        self, solution: str, guess: str, score: int, available_answers: Set[str]
+    ) -> None:
+        pass
+
+
+class RunView(AbstractRunView):
     def __init__(self, size: int) -> None:
         self.size = size
         self.scoreboard = Scoreboard()
@@ -47,6 +56,15 @@ class RunView:
 
         sb_printer = ScoreboardPrinter(self.size)
         sb_printer.print_next(self.scoreboard)
+
+
+class SilentRunView(AbstractRunView):
+    """View that doesn't show anything."""
+
+    def report_score(
+        self, solution: str, guess: str, score: int, available_answers: Set[str]
+    ) -> None:
+        pass
 
 
 class SolveView:
