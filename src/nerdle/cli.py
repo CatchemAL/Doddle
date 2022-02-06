@@ -20,7 +20,7 @@ def evade(args: Namespace) -> None:
 
     while True:
         solutions_by_score = solver.get_possible_solutions_by_score(available_answers, best_guess)
-        highest_score = max(solutions_by_score, key=lambda k: len(solutions_by_score[k]))
+        highest_score = max(solutions_by_score, key=lambda k: len(solutions_by_score[k])) # BUG!
         available_answers = solutions_by_score[highest_score]
         view.update(best_guess, highest_score, available_answers)
 
