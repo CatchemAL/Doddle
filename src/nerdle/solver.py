@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import abc
 from collections import defaultdict
 from dataclasses import dataclass
 from typing import Dict, Set
@@ -18,20 +19,9 @@ class Solver:
         message = f"{solution}, {guess}, {padded_score}"
         print(message)
 
+    @abc.abstractmethod
     def get_best_guess(self, possible_solutions: Set[str], available_guesses: Set[str]) -> str:
-
-        best_guess_to_date = Guess("N/A", 1_000_000, 1_000_000)
-
-        for guess in available_guesses:
-            possible_solutions_by_score = self.get_possible_solutions_by_score(
-                possible_solutions, guess
-            )
-            new_guess = Guess.create(guess, possible_solutions_by_score)
-
-            if new_guess.improves_upon(best_guess_to_date, possible_solutions):
-                best_guess_to_date = new_guess
-
-        return best_guess_to_date.word
+        pass
 
     def get_possible_solutions_by_score(
         self, possible_solutions: Set[str], guess: str
@@ -56,6 +46,43 @@ class Solver:
         }
 
         return seed_by_size[size]
+
+
+class MinimaxSolver(Solver):
+    def get_best_guess(self, possible_solutions: Set[str], available_guesses: Set[str]) -> str:
+
+        best_guess_to_date = Guess("N/A", 1_000_000, 1_000_000)
+
+        for guess in available_guesses:
+            possible_solutions_by_score = self.get_possible_solutions_by_score(
+                possible_solutions, guess
+            )
+            new_guess = Guess.create(guess, possible_solutions_by_score)
+
+            if new_guess.improves_upon(best_guess_to_date, possible_solutions):
+                best_guess_to_date = new_guess
+
+        return best_guess_to_date.word
+
+
+class DeeperMinimaxSolver(Solver):
+    def get_best_guess(self, possible_solutions: Set[str], available_guesses: Set[str]) -> str:
+
+        best_guess_to_date = Guess("N/A", 1_000_000, 1_000_000)
+
+        for guess in available_guesses:
+            possible_solutions_by_score = self.get_possible_solutions_by_score(
+                possible_solutions, guess
+            )
+
+            # TODO look at possible solutions for subsequent round of guesses
+
+            new_guess = Guess.create(guess, possible_solutions_by_score)
+
+            if new_guess.improves_upon(best_guess_to_date, possible_solutions):
+                best_guess_to_date = new_guess
+
+        return best_guess_to_date.word
 
 
 @dataclass
