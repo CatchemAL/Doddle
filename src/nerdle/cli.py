@@ -1,10 +1,7 @@
 from argparse import ArgumentParser, Namespace
 
-from .controllers import HideController, RunController, SolveController
-from .scoring import Scorer
+from .factory import create_hide_controller, create_run_controller, create_solve_controller
 from .solver import Solver
-from .views import HideView, RunView, SolveView
-from .words import WordLoader
 
 
 def run(args: Namespace) -> None:
@@ -13,12 +10,7 @@ def run(args: Namespace) -> None:
     size = len(solution)
     best_guess = args.guess or Solver.seed(size)
 
-    loader = WordLoader(size)
-    scorer = Scorer(size)
-    solver = Solver(scorer)
-    view = RunView(size)
-    controller = RunController(loader, solver, view)
-
+    controller = create_run_controller(size)
     controller.run(solution, best_guess)
 
 
@@ -27,11 +19,7 @@ def solve(args: Namespace) -> None:
     size = args.size or len(args.guess)
     best_guess = args.guess or Solver.seed(size)
 
-    loader = WordLoader(size)
-    scorer = Scorer(size)
-    solver = Solver(scorer)
-    view = SolveView(size)
-    controller = SolveController(loader, solver, view)
+    controller = create_solve_controller(size)
     controller.solve(best_guess)
 
 
@@ -40,11 +28,7 @@ def hide(args: Namespace) -> None:
     size = args.size or len(args.guess)
     best_guess = args.guess or Solver.seed(size)
 
-    loader = WordLoader(size)
-    scorer = Scorer(size)
-    solver = Solver(scorer)
-    view = HideView(size)
-    controller = HideController(loader, solver, view)
+    controller = create_hide_controller(size)
     controller.hide(best_guess)
 
 
