@@ -73,12 +73,12 @@ class DeeperMinimaxSolver(Solver):
         super().__init__(scorer)
 
     def get_best_guess(self, possible_solutions: Set[str], available_guesses: Set[str]) -> str:
-        """Search one level deeper for guesses that have better worst case scenarios on the next round."""
+        """Search one level deeper for guesses that have better next round worst case scenarios."""
 
         if len(possible_solutions) == 1:
             return possible_solutions.pop()
 
-        best_guess_to_date = Guess("N/A", 1_000_000, 1_000_000, {})
+        best_guess = Guess("N/A", 1_000_000, 1_000_000, {})
         best_largest_bucket_to_date = 1_000_000
 
         bucket_guesses = {}
@@ -98,8 +98,8 @@ class DeeperMinimaxSolver(Solver):
         if 1 in bucket_guesses:
             # if any of the guesses would get us there next go, just choose one
             for guess in bucket_guesses[1]:
-                if guess.improves_upon(best_guess_to_date, possible_solutions):
-                    best_guess_to_date = guess
+                if guess.improves_upon(best_guess, possible_solutions):
+                    best_guess = guess
         else:
             # only search the most plausible guesses
             search_guesses = []
@@ -116,13 +116,13 @@ class DeeperMinimaxSolver(Solver):
                 solution_order = sorted(
                     possible_solutions_by_score,
                     key=lambda x: len(possible_solutions_by_score[x]),
-                    reverse=True
+                    reverse=True,
                 )
 
                 guess_largest_bucket = 0
 
                 for score in solution_order:
-                    # if there aren't many possible solutions then this can't result in a large bucket
+                    # if there aren't many possible solutions then skip
                     if len(possible_solutions_by_score[score]) < guess_largest_bucket:
                         break
 
@@ -140,16 +140,16 @@ class DeeperMinimaxSolver(Solver):
 
                 if guess_largest_bucket == best_largest_bucket_to_date:
                     # if the new guess has as bad a largest bucket on the next round
-                    if guess.improves_upon(best_guess_to_date, possible_solutions):
+                    if guess.improves_upon(best_guess, possible_solutions):
                         # assess it in this round and choose the better guess
-                        best_guess_to_date = guess
+                        best_guess = guess
 
                 elif guess_largest_bucket < best_largest_bucket_to_date:
                     # if the new guess has a better largest bucket then it is the best guess
                     best_largest_bucket_to_date = guess_largest_bucket
-                    best_guess_to_date = guess
+                    best_guess = guess
 
-        return best_guess_to_date.word
+        return best_guess.word
 
 
 @dataclass
