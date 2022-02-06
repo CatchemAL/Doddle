@@ -80,8 +80,7 @@ Nerdle uses a [minimax](https://en.wikipedia.org/wiki/Minimax) algorithm to solv
 
 ## Coming soon
 - Add an `explain` feature to show what the solver is thinking
-- An improved UI (console based) for evade
-  - The user needs an interactive keyboard to remember what they've already played
+- Integration tests to check the package deploys successfully
 - Proper setup of CI/CD and containerisation
   - To check deployment on UNIX based systems
 - Optional search-depth arguments for deep-dive searches
