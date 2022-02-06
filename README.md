@@ -2,8 +2,6 @@
 
 <img src="https://github.com/CatchemAl/Nerdle/blob/main/images/Nerdle.png" width="360">
 
-## Build
-![example workflow](https://github.com/CatchemAl/Nerdle/actions/workflows/python-app.yml/badge.svg)
 
 ## Features
 - **Run** the solver to see how the game is optimally played
@@ -12,6 +10,8 @@
 - Play using words of length 4-9 (inclusive) by adding the optional `--size` argument (default is 5).
 
 ## Install
+![example workflow](https://github.com/CatchemAl/Nerdle/actions/workflows/python-app.yml/badge.svg)
+
 `pip install git+https://github.com/CatchemAl/Nerdle.git`
 
 ## Commands
