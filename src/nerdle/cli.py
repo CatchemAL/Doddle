@@ -7,17 +7,19 @@ from .views import HideView, RunView, SolveView
 from .words import WordLoader
 
 
-def hide(args: Namespace) -> None:
+def run(args: Namespace) -> None:
 
-    size = args.size or len(args.guess)
+    solution = args.answer
+    size = len(solution)
     best_guess = args.guess or Solver.seed(size)
 
     loader = WordLoader(size)
     scorer = Scorer(size)
     solver = Solver(scorer)
-    view = HideView(size)
-    controller = HideController(loader, solver, view)
-    controller.hide(best_guess)
+    view = RunView(size)
+    controller = RunController(loader, solver, view)
+
+    controller.run(solution, best_guess)
 
 
 def solve(args: Namespace) -> None:
@@ -33,19 +35,17 @@ def solve(args: Namespace) -> None:
     controller.solve(best_guess)
 
 
-def run(args: Namespace) -> None:
+def hide(args: Namespace) -> None:
 
-    solution = args.answer
-    size = len(solution)
+    size = args.size or len(args.guess)
     best_guess = args.guess or Solver.seed(size)
 
     loader = WordLoader(size)
     scorer = Scorer(size)
     solver = Solver(scorer)
-    view = RunView(size)
-    controller = RunController(loader, solver, view)
-
-    controller.run(solution, best_guess)
+    view = HideView(size)
+    controller = HideController(loader, solver, view)
+    controller.hide(best_guess)
 
 
 def main() -> None:
