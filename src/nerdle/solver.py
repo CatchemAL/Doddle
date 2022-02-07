@@ -4,7 +4,6 @@ import abc
 from collections import defaultdict
 from dataclasses import dataclass
 from functools import cmp_to_key
-from os import stat
 from typing import Dict, Iterator, Set
 
 from .scoring import Scorer
@@ -55,7 +54,13 @@ class MinimaxSolver(Solver):
             guess = Guess.create(word, solns_by_score)
             yield guess
 
-    def get_best_guess2(self, potential_solutions: Set[str], all_words: Set[str]) -> Guess:
+
+
+class DeepMinimaxSolver(MinimaxSolver):
+    def __init__(self, scorer: Scorer) -> None:
+        super().__init__(scorer)
+
+    def get_best_guess(self, potential_solutions: Set[str], all_words: Set[str]) -> Guess:
 
         SEARCH_CAP = 5
 
@@ -71,7 +76,7 @@ class MinimaxSolver(Solver):
             nested_best_guesses = []
             for worst_outcome in worst_outcomes[:SEARCH_CAP]:
                 nested_potential_solutions = solns_by_score[worst_outcome]
-                nested_best_guess = self.get_best_guess2(nested_potential_solutions, all_words)
+                nested_best_guess = super().get_best_guess(nested_potential_solutions, all_words)
                 nested_best_guesses.append(nested_best_guess)
             worst_best_guess = max(nested_best_guesses, key=cmp_func)
             nested_worst_best_guess_by_guess[guess.word] = worst_best_guess

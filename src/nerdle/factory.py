@@ -2,7 +2,7 @@ from typing import Tuple
 
 from .controllers import HideController, RunController, SolveController
 from .scoring import Scorer
-from .solver import MinimaxSolver, Solver
+from .solver import DeepMinimaxSolver, MinimaxSolver, Solver
 from .views import HideView, RunView, SolveView
 from .words import WordLoader
 
@@ -28,5 +28,10 @@ def create_hide_controller(size: int) -> HideController:
 def _create(size: int) -> Tuple[WordLoader, Solver]:
     loader = WordLoader(size)
     scorer = Scorer(size)
-    solver = MinimaxSolver(scorer)
+
+    if True:
+        solver = DeepMinimaxSolver(scorer)
+    else:
+        solver = MinimaxSolver(scorer)
+
     return loader, solver
