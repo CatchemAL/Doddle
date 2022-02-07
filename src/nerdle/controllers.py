@@ -18,20 +18,17 @@ class RunController:
             all_words.add(solution)
             available_answers.add(solution)
 
-        n_guesses = 0
-
-        while True:
-            n_guesses += 1
+        for i in range(10):
             observed_score = self.solver.scorer.score_word(solution, best_guess)
             histogram = self.solver.get_possible_solutions_by_score(available_answers, best_guess)
             available_answers = histogram[observed_score]
             self.view.report_score(solution, best_guess, observed_score, available_answers)
             if best_guess == solution:
-                break
+                return i + 1
 
-            best_guess = str(self.solver.get_best_guess(available_answers, all_words))
+            best_guess = self.solver.get_best_guess(available_answers, all_words).word
 
-        return n_guesses
+        raise LookupError("Failed to converge after 10 iterations.")
 
 
 class SolveController:
@@ -58,7 +55,7 @@ class SolveController:
                 self.view.report_no_solution()
                 break
 
-            best_guess = self.solver.get_best_guess(available_answers, all_words)
+            best_guess = self.solver.get_best_guess(available_answers, all_words).word
             self.view.report_best_guess(best_guess)
 
 

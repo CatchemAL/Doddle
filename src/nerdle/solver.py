@@ -43,9 +43,8 @@ class Solver:
         return seed_by_size[size]
 
 
-
 class MinimaxSolver(Solver):
-    def get_best_guess2(self, potential_solutions: Set[str], all_words: Set[str]) -> Guess:
+    def get_best_guess(self, potential_solutions: Set[str], all_words: Set[str]) -> Guess:
         guesses = self.all_guesses(potential_solutions, all_words)
         best_guess = min(guesses, key=Guess.comparer(potential_solutions))
         return best_guess
@@ -56,7 +55,7 @@ class MinimaxSolver(Solver):
             guess = Guess.create(word, solns_by_score)
             yield guess
 
-    def get_best_guess(self, potential_solutions: Set[str], all_words: Set[str]) -> Guess:
+    def get_best_guess2(self, potential_solutions: Set[str], all_words: Set[str]) -> Guess:
 
         SEARCH_CAP = 5
 
