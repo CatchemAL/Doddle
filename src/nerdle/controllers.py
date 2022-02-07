@@ -29,7 +29,7 @@ class RunController:
             if best_guess == solution:
                 break
 
-            best_guess = self.solver.get_best_guess(available_answers, all_words)
+            best_guess = str(self.solver.get_best_guess(available_answers, all_words))
 
         return n_guesses
 
