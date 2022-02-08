@@ -60,11 +60,11 @@ class DeepMinimaxSolver(MinimaxSolver):
 
     def get_best_guess(self, potential_solutions: Set[str], all_words: Set[str]) -> Guess:
 
-        SEARCH_CAP = 5
+        N_BRANCH = 5
 
         guesses = self.all_guesses(potential_solutions, all_words)
         cmp_func = Guess.comparer(potential_solutions)
-        best_guesses = sorted(guesses, key=cmp_func)[:SEARCH_CAP]
+        best_guesses = sorted(guesses, key=cmp_func)[:N_BRANCH]
 
         nested_worst_best_guess_by_guess = {}
 
@@ -72,7 +72,7 @@ class DeepMinimaxSolver(MinimaxSolver):
             solns_by_score = self.get_solutions_by_score(potential_solutions, guess.word)
             worst_outcomes = sorted(solns_by_score, key=lambda s: -len(solns_by_score[s]))
             nested_best_guesses = []
-            for worst_outcome in worst_outcomes[:SEARCH_CAP]:
+            for worst_outcome in worst_outcomes[:N_BRANCH]:
                 nested_potential_solns = solns_by_score[worst_outcome]
                 nested_best_guess = self.solver.get_best_guess(nested_potential_solns, all_words)
                 nested_best_guesses.append(nested_best_guess)
