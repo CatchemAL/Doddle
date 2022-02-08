@@ -30,7 +30,7 @@ class Solver:
 
         seed_by_size = {
             4: "OLEA",
-            5: "AESIR",
+            5: "RAISE",
             6: "TAILER",
             7: "TENAILS",
             8: "CENTRALS",
