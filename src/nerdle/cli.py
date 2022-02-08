@@ -28,8 +28,10 @@ def hide(args: Namespace) -> None:
     controller = create_hide_controller(size)
     controller.hide(best_guess)
 
+
 def benchmark_performance(args: Namespace) -> None:
-    print(f'Run benchmarks for size {args.size}')
+    print(f"Run benchmarks for size {args.size}")
+
 
 def main() -> None:
 
