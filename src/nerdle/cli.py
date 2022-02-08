@@ -23,7 +23,7 @@ def solve(args: Namespace) -> None:
 
 def hide(args: Namespace) -> None:
 
-    size = args.size or len(args.guess)
+    size = len(args.guess) if args.guess else args.size
     best_guess = args.guess or MinimaxSolver.seed(size)
     controller = create_hide_controller(size)
     controller.hide(best_guess)
