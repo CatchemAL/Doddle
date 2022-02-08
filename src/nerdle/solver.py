@@ -17,22 +17,20 @@ class Solver:
     def get_best_guess(self, potential_solutions: Set[str], all_words: Set[str]) -> str:
         pass
 
-    def get_possible_solutions_by_score(
-        self, potential_solutions: Set[str], guess: str
-    ) -> Dict[int, Set[str]]:
-        possible_solutions_by_score = defaultdict(set)
-        for solution in potential_solutions:
-            score = self.scorer.score_word(solution, guess)
-            possible_solutions_by_score[score].add(solution)
+    def get_solutions_by_score(self, potential_solns: Set[str], guess: str) -> Dict[int, Set[str]]:
+        potential_solns_by_score = defaultdict(set)
+        for soln in potential_solns:
+            score = self.scorer.score_word(soln, guess)
+            potential_solns_by_score[score].add(soln)
 
-        return possible_solutions_by_score
+        return potential_solns_by_score
 
     @staticmethod
     def seed(size: int) -> str:
 
         seed_by_size = {
             4: "OLEA",
-            5: "RAISE",
+            5: "AESIR",
             6: "TAILER",
             7: "TENAILS",
             8: "CENTRALS",
@@ -50,15 +48,15 @@ class MinimaxSolver(Solver):
 
     def all_guesses(self, potential_solutions: Set[str], all_words: Set[str]) -> Iterator[Guess]:
         for word in all_words:
-            solns_by_score = self.get_possible_solutions_by_score(potential_solutions, word)
+            solns_by_score = self.get_solutions_by_score(potential_solutions, word)
             guess = Guess.create(word, solns_by_score)
             yield guess
 
 
-
 class DeepMinimaxSolver(MinimaxSolver):
-    def __init__(self, scorer: Scorer) -> None:
-        super().__init__(scorer)
+    def __init__(self, inner_solver: Solver) -> None:
+        super().__init__(inner_solver.scorer)
+        self.solver = inner_solver
 
     def get_best_guess(self, potential_solutions: Set[str], all_words: Set[str]) -> Guess:
 
@@ -71,12 +69,12 @@ class DeepMinimaxSolver(MinimaxSolver):
         nested_worst_best_guess_by_guess = {}
 
         for guess in best_guesses:
-            solns_by_score = self.get_possible_solutions_by_score(potential_solutions, guess.word)
+            solns_by_score = self.get_solutions_by_score(potential_solutions, guess.word)
             worst_outcomes = sorted(solns_by_score, key=lambda s: -len(solns_by_score[s]))
             nested_best_guesses = []
             for worst_outcome in worst_outcomes[:SEARCH_CAP]:
-                nested_potential_solutions = solns_by_score[worst_outcome]
-                nested_best_guess = super().get_best_guess(nested_potential_solutions, all_words)
+                nested_potential_solns = solns_by_score[worst_outcome]
+                nested_best_guess = self.solver.get_best_guess(nested_potential_solns, all_words)
                 nested_best_guesses.append(nested_best_guess)
             worst_best_guess = max(nested_best_guesses, key=cmp_func)
             nested_worst_best_guess_by_guess[guess.word] = worst_best_guess
@@ -107,9 +105,7 @@ class DeeperMinimaxSolver(Solver):
         bucket_guesses = {}
 
         for guess in available_guesses:
-            possible_solutions_by_score = self.get_possible_solutions_by_score(
-                possible_solutions, guess
-            )
+            possible_solutions_by_score = self.get_solutions_by_score(possible_solutions, guess)
             new_guess = Guess.create(guess, possible_solutions_by_score)
             b_size = new_guess.size_of_largest_bucket
 
@@ -152,7 +148,7 @@ class DeeperMinimaxSolver(Solver):
                     best_next_guess = self.minimax.get_best_guess(
                         possible_solutions_by_score[score], available_guesses
                     )
-                    possible_next_solutions_by_score = self.get_possible_solutions_by_score(
+                    possible_next_solutions_by_score = self.get_solutions_by_score(
                         possible_solutions_by_score[score], best_next_guess
                     )
                     size_of_largest_bucket = max(

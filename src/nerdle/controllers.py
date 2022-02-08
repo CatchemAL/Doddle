@@ -20,7 +20,7 @@ class RunController:
 
         for i in range(10):
             observed_score = self.solver.scorer.score_word(solution, best_guess)
-            histogram = self.solver.get_possible_solutions_by_score(available_answers, best_guess)
+            histogram = self.solver.get_solutions_by_score(available_answers, best_guess)
             available_answers = histogram[observed_score]
             self.view.report_score(solution, best_guess, observed_score, available_answers)
             if best_guess == solution:
@@ -48,7 +48,7 @@ class SolveController:
                 self.view.report_success()
                 break
 
-            histogram = self.solver.get_possible_solutions_by_score(available_answers, best_guess)
+            histogram = self.solver.get_solutions_by_score(available_answers, best_guess)
             available_answers = histogram[observed_score]
 
             if not available_answers:
@@ -71,7 +71,7 @@ class HideController:
 
         while True:
 
-            solns_by_score = self.solver.get_possible_solutions_by_score(available_answers, guess)
+            solns_by_score = self.solver.get_solutions_by_score(available_answers, guess)
 
             def rank_score(score: int) -> int:
                 solutions = solns_by_score[score]

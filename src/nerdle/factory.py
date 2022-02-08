@@ -25,13 +25,12 @@ def create_hide_controller(size: int) -> HideController:
     return HideController(loader, solver, view)
 
 
-def _create(size: int) -> Tuple[WordLoader, Solver]:
+def _create(size: int, depth: int = 2) -> Tuple[WordLoader, Solver]:
     loader = WordLoader(size)
     scorer = Scorer(size)
+    solver = MinimaxSolver(scorer)
 
-    if True:
-        solver = DeepMinimaxSolver(scorer)
-    else:
-        solver = MinimaxSolver(scorer)
+    for _ in range(1, depth):
+        solver = DeepMinimaxSolver(solver)
 
     return loader, solver
