@@ -147,7 +147,7 @@ class DeeperMinimaxSolver(Solver):
 
                     best_next_guess = self.minimax.get_best_guess(
                         possible_solutions_by_score[score], available_guesses
-                    )
+                    ).word
                     possible_next_solutions_by_score = self.get_solutions_by_score(
                         possible_solutions_by_score[score], best_next_guess
                     )

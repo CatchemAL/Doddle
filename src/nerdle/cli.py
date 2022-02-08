@@ -28,6 +28,8 @@ def hide(args: Namespace) -> None:
     controller = create_hide_controller(size)
     controller.hide(best_guess)
 
+def benchmark_performance(args: Namespace) -> None:
+    print(f'Run benchmarks for size {args.size}')
 
 def main() -> None:
 
@@ -50,6 +52,10 @@ def main() -> None:
     hide_group.add_argument("--guess", type=lambda s: s.upper())
     hide_group.add_argument("--size", type=int)
     hide_parser.set_defaults(func=hide)
+
+    benchmark_parser = subparsers.add_parser("benchmark")
+    benchmark_parser.add_argument("--size", required=True, type=int)
+    benchmark_parser.set_defaults(func=benchmark_performance)
 
     args = parser.parse_args()
     args.func(args)
