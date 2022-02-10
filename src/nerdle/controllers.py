@@ -106,5 +106,5 @@ class BenchmarkController:
         f = partial(controller.run, best_guess=initial_guess)
 
         histogram = benchmark(f, solutions)
-        
+
         self.view.display(histogram)
