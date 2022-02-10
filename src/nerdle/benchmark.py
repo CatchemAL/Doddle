@@ -1,7 +1,6 @@
-import functools
 from collections import defaultdict
 from multiprocessing import Pool
-from typing import Callable, DefaultDict, Dict, Set
+from typing import Callable, DefaultDict, Set
 
 
 def benchmark(f: Callable[[str], int], solutions: Set[str]) -> DefaultDict[int, int]:
