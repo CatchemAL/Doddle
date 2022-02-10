@@ -4,7 +4,9 @@ import abc
 from collections import defaultdict
 from dataclasses import dataclass
 from functools import cmp_to_key
-from typing import Dict, Iterator, Set
+from typing import DefaultDict, Dict, Iterator, Set
+
+import numpy as np
 
 from .scoring import Scorer
 
@@ -25,6 +27,14 @@ class Solver:
 
         return potential_solns_by_score
 
+    def get_histogram(self, potential_solns: Set[str], guess: str) -> DefaultDict[int, int]:
+        histogram = defaultdict(int)
+        for soln in potential_solns:
+            score = self.scorer.score_word(soln, guess)
+            histogram[score] += 1
+
+        return histogram
+
     @staticmethod
     def seed(size: int) -> str:
 
@@ -43,13 +53,12 @@ class Solver:
 class MinimaxSolver(Solver):
     def get_best_guess(self, potential_solutions: Set[str], all_words: Set[str]) -> Guess:
         guesses = self.all_guesses(potential_solutions, all_words)
-        best_guess = min(guesses, key=Guess.comparer(potential_solutions))
-        return best_guess
+        return min(guesses, key=Guess.comparer(potential_solutions))
 
     def all_guesses(self, potential_solutions: Set[str], all_words: Set[str]) -> Iterator[Guess]:
         for word in all_words:
-            solns_by_score = self.get_solutions_by_score(potential_solutions, word)
-            guess = Guess.create(word, solns_by_score)
+            histogram = self.get_histogram(potential_solutions, word)
+            guess = Guess.create(word, histogram)
             yield guess
 
 
@@ -86,97 +95,13 @@ class DeepMinimaxSolver(MinimaxSolver):
         return best_guess
 
 
-class DeeperMinimaxSolver(Solver):
-    N_BRANCH = 5
-
-    def __init__(self, scorer: Scorer) -> None:
-        self.minimax = MinimaxSolver(scorer)
-        super().__init__(scorer)
-
-    def get_best_guess(self, possible_solutions: Set[str], available_guesses: Set[str]) -> str:
-        """Search one level deeper for guesses that have better next round worst case scenarios."""
-
-        if len(possible_solutions) == 1:
-            return possible_solutions.pop()
-
-        best_guess = Guess("N/A", 1_000_000, 1_000_000, {})
-        best_largest_bucket_to_date = 1_000_000
-
-        bucket_guesses = {}
-
-        for guess in available_guesses:
-            possible_solutions_by_score = self.get_solutions_by_score(possible_solutions, guess)
-            new_guess = Guess.create(guess, possible_solutions_by_score)
-            b_size = new_guess.size_of_largest_bucket
-
-            if b_size not in bucket_guesses:
-                bucket_guesses[b_size] = []
-
-            bucket_guesses[b_size].append(new_guess)
-
-        if 1 in bucket_guesses:
-            # if any of the guesses would get us there next go, just choose one
-            for guess in bucket_guesses[1]:
-                if guess.improves_upon(best_guess, possible_solutions):
-                    best_guess = guess
-        else:
-            # only search the most plausible guesses
-            search_guesses = []
-            total_count = 0
-            for b_size in sorted(bucket_guesses):
-                search_guesses.extend(bucket_guesses[b_size])
-                total_count += len(bucket_guesses[b_size])
-                if (b_size == 1) or (total_count >= self.N_BRANCH):
-                    break
-
-            for guess in search_guesses:
-                possible_solutions_by_score = guess.possible_solutions_by_score
-                # loop through possible solutions in descending order of bucket size
-                solution_order = sorted(
-                    possible_solutions_by_score,
-                    key=lambda x: len(possible_solutions_by_score[x]),
-                    reverse=True,
-                )
-
-                guess_largest_bucket = 0
-
-                for score in solution_order:
-                    # if there aren't many possible solutions then skip
-                    if len(possible_solutions_by_score[score]) < guess_largest_bucket:
-                        break
-
-                    best_next_guess = self.minimax.get_best_guess(
-                        possible_solutions_by_score[score], available_guesses
-                    ).word
-                    possible_next_solutions_by_score = self.get_solutions_by_score(
-                        possible_solutions_by_score[score], best_next_guess
-                    )
-                    size_of_largest_bucket = max(
-                        len(group) for group in possible_next_solutions_by_score.values()
-                    )
-                    if size_of_largest_bucket > guess_largest_bucket:
-                        guess_largest_bucket = size_of_largest_bucket
-
-                if guess_largest_bucket == best_largest_bucket_to_date:
-                    # if the new guess has as bad a largest bucket on the next round
-                    if guess.improves_upon(best_guess, possible_solutions):
-                        # assess it in this round and choose the better guess
-                        best_guess = guess
-
-                elif guess_largest_bucket < best_largest_bucket_to_date:
-                    # if the new guess has a better largest bucket then it is the best guess
-                    best_largest_bucket_to_date = guess_largest_bucket
-                    best_guess = guess
-
-        return best_guess.word
-
-
 @dataclass
 class Guess:
 
     word: str
     size_of_largest_bucket: int
     number_of_buckets: int
+    entropy: float
 
     def improves_upon(self, other: Guess, common_words: Set[str]) -> bool:
 
@@ -199,15 +124,21 @@ class Guess:
         return self.word
 
     def __repr__(self) -> str:
-        return f"{self.word=}, {self.size_of_largest_bucket=}, {self.number_of_buckets=}"
+        return (
+            f"Word={self.word}, Size of largest bucket={self.size_of_largest_bucket}, "
+            + f"Number of buckets={self.number_of_buckets}, Entropy={self.entropy}"
+        )
 
     @staticmethod
-    def create(guess: str, possible_solutions_by_score: Dict[int, Set[str]]) -> Guess:
+    def create(guess: str, histogram: Dict[int, int]) -> Guess:
 
-        groups = possible_solutions_by_score.values()
-        number_of_buckets = len(groups)
-        size_of_largest_bucket = max(len(group) for group in groups)
-        return Guess(guess, size_of_largest_bucket, number_of_buckets)
+        buckets = np.array(list(histogram.values()))
+        probabilites = buckets / buckets.sum()
+        entropy = -probabilites.dot(np.log2(probabilites))
+
+        number_of_buckets = len(histogram)
+        size_of_largest_bucket = max(buckets)
+        return Guess(guess, size_of_largest_bucket, number_of_buckets, entropy)
 
     @staticmethod
     def comparer(potential_solutions: Set[str]):
