@@ -1,9 +1,9 @@
 from typing import Tuple
 
-from .controllers import HideController, RunController, SolveController
+from .controllers import BenchmarkController, HideController, RunController, SolveController
 from .scoring import Scorer
 from .solver import DeepMinimaxSolver, MinimaxSolver, Solver
-from .views import HideView, RunView, SolveView
+from .views import BenchmarkView, HideView, RunView, SolveView
 from .words import WordLoader
 
 
@@ -23,6 +23,12 @@ def create_hide_controller(size: int) -> HideController:
     loader, solver = _create(size, 1)
     view = HideView(size)
     return HideController(loader, solver, view)
+
+
+def create_benchmark_controller(size: int, depth: int) -> BenchmarkController:
+    loader, solver = _create(size, depth)
+    view = BenchmarkView()
+    return BenchmarkController(loader, solver, view)
 
 
 def _create(size: int, depth: int) -> Tuple[WordLoader, Solver]:

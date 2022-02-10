@@ -1,6 +1,11 @@
 from argparse import ArgumentParser, Namespace
 
-from .factory import create_hide_controller, create_run_controller, create_solve_controller
+from .factory import (
+    create_benchmark_controller,
+    create_hide_controller,
+    create_run_controller,
+    create_solve_controller,
+)
 from .solver import MinimaxSolver
 
 
@@ -30,7 +35,11 @@ def hide(args: Namespace) -> None:
 
 
 def benchmark_performance(args: Namespace) -> None:
-    print(f"Run benchmarks for size {args.size}")
+
+    size = len(args.guess) if args.guess else args.size
+    initial_guess = args.guess or MinimaxSolver.seed(size)
+    controller = create_benchmark_controller(args.size, args.depth)
+    controller.run(initial_guess)
 
 
 def main() -> None:
@@ -58,7 +67,10 @@ def main() -> None:
     hide_parser.set_defaults(func=hide)
 
     benchmark_parser = subparsers.add_parser("benchmark")
-    benchmark_parser.add_argument("--size", required=True, type=int)
+    benchmark_group = benchmark_parser.add_mutually_exclusive_group()
+    benchmark_group.add_argument("--guess", type=lambda s: s.upper())
+    benchmark_group.add_argument("--size", type=int, default=5)
+    benchmark_parser.add_argument("--depth", required=False, default=1, type=int)
     benchmark_parser.set_defaults(func=benchmark_performance)
 
     args = parser.parse_args()

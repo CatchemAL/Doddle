@@ -9,7 +9,7 @@
             "type": "python",
             "request": "launch",
             "module": "src.nerdle",
-            "args": ["run", "--answer=FEWER", "--guess=AESIR"]
+            "args": ["run", "--answer=HUMOR", "--guess=ALIEN"]
         },
         {
             "name": "Nerdle (Solve)",
@@ -24,6 +24,13 @@
             "request": "launch",
             "module": "src.nerdle",
             "args": ["hide", "--guess=EXITS"]
+        },
+        {
+            "name": "Nerdle (Benchmark)",
+            "type": "python",
+            "request": "launch",
+            "module": "src.nerdle",
+            "args": ["benchmark", "--size=5"]
         },
         {
             "name": "Python: Current File",

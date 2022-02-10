@@ -1,39 +1,8 @@
 import abc
 import re
-from typing import Set, Tuple
+from typing import DefaultDict, Set, Tuple
 
 from .view_models import Keyboard, KeyboardPrinter, Scoreboard, ScoreboardPrinter
-
-
-class HideView:
-    def __init__(self, size: int) -> None:
-        self.scoreboard = Scoreboard()
-        self.keyboard = Keyboard()
-        self.size = size
-
-    def update(self, word: str, score: int, available_answers: Set[str]) -> None:
-
-        sb_printer = ScoreboardPrinter(self.size)
-        kb_printer = KeyboardPrinter()
-
-        num_left = len(available_answers)
-        soln = word if num_left == 1 and word in available_answers else None
-        self.scoreboard.add_row(soln, word, score, num_left)
-        sb_printer.print(self.scoreboard)
-
-        self.keyboard.update(word, score)
-        kb_printer.print(self.keyboard)
-
-    def report_success(self) -> None:
-        message = "You win! 🙌 👏 🙌"
-        print(message)
-
-    def get_user_guess(self) -> str:
-        guess = ""
-        while len(guess) != self.size or not guess.isalpha():
-            guess = input("Please enter your next guess:\n").upper()
-
-        return guess
 
 
 class AbstractRunView:
@@ -111,3 +80,39 @@ class SolveView:
             return (int(score), user_guess, True)
 
         return (-1, guess, False)
+
+
+class HideView:
+    def __init__(self, size: int) -> None:
+        self.scoreboard = Scoreboard()
+        self.keyboard = Keyboard()
+        self.size = size
+
+    def update(self, word: str, score: int, available_answers: Set[str]) -> None:
+
+        sb_printer = ScoreboardPrinter(self.size)
+        kb_printer = KeyboardPrinter()
+
+        num_left = len(available_answers)
+        soln = word if num_left == 1 and word in available_answers else None
+        self.scoreboard.add_row(soln, word, score, num_left)
+        sb_printer.print(self.scoreboard)
+
+        self.keyboard.update(word, score)
+        kb_printer.print(self.keyboard)
+
+    def report_success(self) -> None:
+        message = "You win! 🙌 👏 🙌"
+        print(message)
+
+    def get_user_guess(self) -> str:
+        guess = ""
+        while len(guess) != self.size or not guess.isalpha():
+            guess = input("Please enter your next guess:\n").upper()
+
+        return guess
+
+
+class BenchmarkView:
+    def display(self, histogram: DefaultDict[int, int]) -> None:
+        print(histogram)

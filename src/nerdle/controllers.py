@@ -1,5 +1,8 @@
+from functools import partial
+
+from .benchmark import benchmark
 from .solver import Solver
-from .views import AbstractRunView, HideView, SolveView
+from .views import AbstractRunView, BenchmarkView, HideView, SilentRunView, SolveView
 from .words import WordLoader
 
 
@@ -11,6 +14,8 @@ class RunController:
 
     def run(self, solution: str, best_guess: str) -> int:
 
+        MAX_ITERS = 10
+
         all_words = self.loader.all_words
         available_answers = self.loader.common_words
 
@@ -18,7 +23,7 @@ class RunController:
             all_words.add(solution)
             available_answers.add(solution)
 
-        for i in range(10):
+        for i in range(MAX_ITERS):
             observed_score = self.solver.scorer.score_word(solution, best_guess)
             histogram = self.solver.get_solutions_by_score(available_answers, best_guess)
             available_answers = histogram[observed_score]
@@ -28,7 +33,7 @@ class RunController:
 
             best_guess = self.solver.get_best_guess(available_answers, all_words).word
 
-        raise LookupError("Failed to converge after 10 iterations.")
+        raise LookupError(f"Failed to converge after {MAX_ITERS} iterations.")
 
 
 class SolveController:
@@ -86,3 +91,20 @@ class HideController:
                 break
 
             guess = self.view.get_user_guess()
+
+
+class BenchmarkController:
+    def __init__(self, loader: WordLoader, solver: Solver, view: BenchmarkView) -> None:
+        self.loader = loader
+        self.solver = solver
+        self.view = view
+
+    def run(self, initial_guess: str) -> None:
+
+        solutions = self.loader.common_words
+        controller = RunController(self.loader, self.solver, SilentRunView())
+        f = partial(controller.run, best_guess=initial_guess)
+
+        histogram = benchmark(f, solutions)
+        
+        self.view.display(histogram)
