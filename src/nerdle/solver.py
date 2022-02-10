@@ -3,7 +3,8 @@ from __future__ import annotations
 import abc
 from collections import defaultdict
 from dataclasses import dataclass
-from typing import Dict, Set
+from functools import cmp_to_key
+from typing import Dict, Iterator, Set
 
 from .scoring import Scorer
 
@@ -12,26 +13,17 @@ class Solver:
     def __init__(self, scorer: Scorer) -> None:
         self.scorer = scorer
 
-    def prettify(self, solution: str, guess: str) -> None:
-        score = self.scorer.score_word(solution, guess)
-        size = len(solution)
-        padded_score = f"{score}".zfill(size)
-        message = f"{solution}, {guess}, {padded_score}"
-        print(message)
-
     @abc.abstractmethod
-    def get_best_guess(self, possible_solutions: Set[str], available_guesses: Set[str]) -> str:
+    def get_best_guess(self, potential_solutions: Set[str], all_words: Set[str]) -> str:
         pass
 
-    def get_possible_solutions_by_score(
-        self, possible_solutions: Set[str], guess: str
-    ) -> Dict[int, Set[str]]:
-        possible_solutions_by_score = defaultdict(set)
-        for solution in possible_solutions:
-            score = self.scorer.score_word(solution, guess)
-            possible_solutions_by_score[score].add(solution)
+    def get_solutions_by_score(self, potential_solns: Set[str], guess: str) -> Dict[int, Set[str]]:
+        potential_solns_by_score = defaultdict(set)
+        for soln in potential_solns:
+            score = self.scorer.score_word(soln, guess)
+            potential_solns_by_score[score].add(soln)
 
-        return possible_solutions_by_score
+        return potential_solns_by_score
 
     @staticmethod
     def seed(size: int) -> str:
@@ -49,20 +41,49 @@ class Solver:
 
 
 class MinimaxSolver(Solver):
-    def get_best_guess(self, possible_solutions: Set[str], available_guesses: Set[str]) -> str:
+    def get_best_guess(self, potential_solutions: Set[str], all_words: Set[str]) -> Guess:
+        guesses = self.all_guesses(potential_solutions, all_words)
+        best_guess = min(guesses, key=Guess.comparer(potential_solutions))
+        return best_guess
 
-        best_guess_to_date = Guess("N/A", 1_000_000, 1_000_000, {})
+    def all_guesses(self, potential_solutions: Set[str], all_words: Set[str]) -> Iterator[Guess]:
+        for word in all_words:
+            solns_by_score = self.get_solutions_by_score(potential_solutions, word)
+            guess = Guess.create(word, solns_by_score)
+            yield guess
 
-        for guess in available_guesses:
-            possible_solutions_by_score = self.get_possible_solutions_by_score(
-                possible_solutions, guess
-            )
-            new_guess = Guess.create(guess, possible_solutions_by_score)
 
-            if new_guess.improves_upon(best_guess_to_date, possible_solutions):
-                best_guess_to_date = new_guess
+class DeepMinimaxSolver(MinimaxSolver):
+    def __init__(self, inner_solver: Solver) -> None:
+        super().__init__(inner_solver.scorer)
+        self.solver = inner_solver
 
-        return best_guess_to_date.word
+    def get_best_guess(self, potential_solutions: Set[str], all_words: Set[str]) -> Guess:
+
+        N_BRANCH = 5
+
+        guesses = self.all_guesses(potential_solutions, all_words)
+        cmp_func = Guess.comparer(potential_solutions)
+        best_guesses = sorted(guesses, key=cmp_func)[:N_BRANCH]
+
+        nested_worst_best_guess_by_guess = {}
+
+        for guess in best_guesses:
+            solns_by_score = self.get_solutions_by_score(potential_solutions, guess.word)
+            worst_outcomes = sorted(solns_by_score, key=lambda s: -len(solns_by_score[s]))
+            nested_best_guesses = []
+            for worst_outcome in worst_outcomes[:N_BRANCH]:
+                nested_potential_solns = solns_by_score[worst_outcome]
+                nested_best_guess = self.solver.get_best_guess(nested_potential_solns, all_words)
+                nested_best_guesses.append(nested_best_guess)
+            worst_best_guess = max(nested_best_guesses, key=cmp_func)
+            nested_worst_best_guess_by_guess[guess.word] = worst_best_guess
+
+        kvps = nested_worst_best_guess_by_guess.items()
+        best_nested_worst_best_guess = min(nested_worst_best_guess_by_guess.values(), key=cmp_func)
+        best_guess_str = next(key for key, value in kvps if value == best_nested_worst_best_guess)
+        best_guess = next(guess for guess in best_guesses if guess.word == best_guess_str)
+        return best_guess
 
 
 class DeeperMinimaxSolver(Solver):
@@ -84,9 +105,7 @@ class DeeperMinimaxSolver(Solver):
         bucket_guesses = {}
 
         for guess in available_guesses:
-            possible_solutions_by_score = self.get_possible_solutions_by_score(
-                possible_solutions, guess
-            )
+            possible_solutions_by_score = self.get_solutions_by_score(possible_solutions, guess)
             new_guess = Guess.create(guess, possible_solutions_by_score)
             b_size = new_guess.size_of_largest_bucket
 
@@ -128,8 +147,8 @@ class DeeperMinimaxSolver(Solver):
 
                     best_next_guess = self.minimax.get_best_guess(
                         possible_solutions_by_score[score], available_guesses
-                    )
-                    possible_next_solutions_by_score = self.get_possible_solutions_by_score(
+                    ).word
+                    possible_next_solutions_by_score = self.get_solutions_by_score(
                         possible_solutions_by_score[score], best_next_guess
                     )
                     size_of_largest_bucket = max(
@@ -158,7 +177,6 @@ class Guess:
     word: str
     size_of_largest_bucket: int
     number_of_buckets: int
-    possible_solutions_by_score: Dict[int, Set[str]]
 
     def improves_upon(self, other: Guess, common_words: Set[str]) -> bool:
 
@@ -177,10 +195,29 @@ class Guess:
 
         return self.word < other.word
 
+    def __str__(self) -> str:
+        return self.word
+
+    def __repr__(self) -> str:
+        return f"{self.word=}, {self.size_of_largest_bucket=}, {self.number_of_buckets=}"
+
     @staticmethod
     def create(guess: str, possible_solutions_by_score: Dict[int, Set[str]]) -> Guess:
 
         groups = possible_solutions_by_score.values()
         number_of_buckets = len(groups)
         size_of_largest_bucket = max(len(group) for group in groups)
-        return Guess(guess, size_of_largest_bucket, number_of_buckets, possible_solutions_by_score)
+        return Guess(guess, size_of_largest_bucket, number_of_buckets)
+
+    @staticmethod
+    def comparer(potential_solutions: Set[str]):
+        @cmp_to_key
+        def cmp_items(guess1: Guess, guess2: Guess) -> int:
+            if guess1.improves_upon(guess2, potential_solutions):
+                return -1
+            elif guess1 == guess2:
+                return 0
+            else:
+                return 1
+
+        return cmp_items
