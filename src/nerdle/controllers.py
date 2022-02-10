@@ -24,8 +24,8 @@ class RunController:
             available_answers.add(solution)
 
         for i in range(MAX_ITERS):
-            observed_score = self.solver.scorer.score_word(solution, best_guess)
             histogram = self.solver.get_solutions_by_score(available_answers, best_guess)
+            observed_score = self.solver.scorer.score_word(solution, best_guess)
             available_answers = histogram[observed_score]
             self.view.report_score(solution, best_guess, observed_score, available_answers)
             if best_guess == solution:
