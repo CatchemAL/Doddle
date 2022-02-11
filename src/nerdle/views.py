@@ -115,4 +115,9 @@ class HideView:
 
 class BenchmarkView:
     def display(self, histogram: DefaultDict[int, int]) -> None:
-        print(histogram)
+        print("| # | Count |")
+        print("|---|-------|")
+
+        for (num, count) in sorted(histogram.items()):
+            padded_num_left = f"{count:,}".rjust(5, " ")
+            print(f"| {num} | {padded_num_left} |")

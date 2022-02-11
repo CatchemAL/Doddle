@@ -1,4 +1,6 @@
+from collections import defaultdict
 from functools import lru_cache
+from typing import DefaultDict, Dict, Set
 
 import numpy as np
 from numba import int8, int32, jit
@@ -23,6 +25,22 @@ class Scorer:
         score = score_word_jit(solution_array, guess_array, self._powers)
         ternary = self._ternaries[score]
         return ternary
+
+    def get_solutions_by_score(self, potential_solns: Set[str], guess: str) -> Dict[int, Set[str]]:
+        solns_by_score = defaultdict(set)
+        for soln in potential_solns:
+            score = self.score_word(soln, guess)
+            solns_by_score[score].add(soln)
+
+        return solns_by_score
+
+    def get_histogram(self, potential_solns: Set[str], guess: str) -> DefaultDict[int, int]:
+        histogram = defaultdict(int)
+        for soln in potential_solns:
+            score = self.score_word(soln, guess)
+            histogram[score] += 1
+
+        return histogram
 
 
 def get_fast_ternary_lookup(size: int) -> np.ndarray:
