@@ -95,13 +95,17 @@ class DeepMinimaxSolver(MinimaxSolver):
         return best_guess
 
 
-@dataclass
 class Guess:
 
-    word: str
-    size_of_largest_bucket: int
-    number_of_buckets: int
-    entropy: float
+    __slots__ = ['word', 'size_of_largest_bucket', 'number_of_buckets', 'entropy']
+
+    def __init__(
+        self, word: str, size_of_largest_bucket: int, number_of_buckets: int, entropy: float
+    ) -> None:
+        self.word = word
+        self.size_of_largest_bucket = size_of_largest_bucket
+        self.number_of_buckets = number_of_buckets
+        self.entropy = entropy
 
     def improves_upon(self, other: Guess, common_words: Set[str]) -> bool:
 
