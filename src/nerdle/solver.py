@@ -3,7 +3,6 @@ from __future__ import annotations
 import abc
 from collections import defaultdict
 from dataclasses import dataclass
-from functools import cmp_to_key
 from typing import DefaultDict, Dict, Iterator, Set
 
 import numpy as np
