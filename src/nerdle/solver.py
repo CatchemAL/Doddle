@@ -53,12 +53,12 @@ class Solver:
 class MinimaxSolver(Solver):
     def get_best_guess(self, potential_solutions: Set[str], all_words: Set[str]) -> Guess:
         guesses = self.all_guesses(potential_solutions, all_words)
-        return min(guesses, key=Guess.comparer(potential_solutions))
+        return min(guesses)
 
     def all_guesses(self, potential_solutions: Set[str], all_words: Set[str]) -> Iterator[Guess]:
         for word in all_words:
             histogram = self.get_histogram(potential_solutions, word)
-            guess = Guess.create(word, histogram)
+            guess = Guess.create(word, potential_solutions, histogram)
             yield guess
 
 
@@ -72,8 +72,7 @@ class DeepMinimaxSolver(MinimaxSolver):
         N_BRANCH = 5
 
         guesses = self.all_guesses(potential_solutions, all_words)
-        cmp_func = Guess.comparer(potential_solutions)
-        best_guesses = sorted(guesses, key=cmp_func)[:N_BRANCH]
+        best_guesses = sorted(guesses)[:N_BRANCH]
 
         nested_worst_best_guess_by_guess = {}
 
@@ -85,39 +84,34 @@ class DeepMinimaxSolver(MinimaxSolver):
                 nested_potential_solns = solns_by_score[worst_outcome]
                 nested_best_guess = self.solver.get_best_guess(nested_potential_solns, all_words)
                 nested_best_guesses.append(nested_best_guess)
-            worst_best_guess = max(nested_best_guesses, key=cmp_func)
+            worst_best_guess = max(nested_best_guesses)
             nested_worst_best_guess_by_guess[guess.word] = worst_best_guess
 
         kvps = nested_worst_best_guess_by_guess.items()
-        best_nested_worst_best_guess = min(nested_worst_best_guess_by_guess.values(), key=cmp_func)
+        best_nested_worst_best_guess = min(nested_worst_best_guess_by_guess.values())
         best_guess_str = next(key for key, value in kvps if value == best_nested_worst_best_guess)
         best_guess = next(guess for guess in best_guesses if guess.word == best_guess_str)
         return best_guess
 
 
+@dataclass
 class Guess:
 
-    __slots__ = ["word", "size_of_largest_bucket", "number_of_buckets", "entropy"]
+    word: str
+    size_of_largest_bucket: int
+    number_of_buckets: int
+    entropy: float
+    is_common_word: bool
 
-    def __init__(
-        self, word: str, size_of_largest_bucket: int, number_of_buckets: int, entropy: float
-    ) -> None:
-        self.word = word
-        self.size_of_largest_bucket = size_of_largest_bucket
-        self.number_of_buckets = number_of_buckets
-        self.entropy = entropy
-
-    def improves_upon(self, other: Guess, common_words: Set[str]) -> bool:
+    def improves_upon(self, other: Guess) -> bool:
 
         if self.size_of_largest_bucket != other.size_of_largest_bucket:
             return self.size_of_largest_bucket < other.size_of_largest_bucket
 
-        if self.word in common_words:
-            if other.word not in common_words:
-                return True
-        else:
-            if other.word in common_words:
-                return False
+        if self.is_common_word and not other.is_common_word:
+            return True
+        if other.is_common_word and not self.is_common_word:
+            return False
 
         if self.number_of_buckets != other.number_of_buckets:
             return self.number_of_buckets > other.number_of_buckets
@@ -129,12 +123,18 @@ class Guess:
 
     def __repr__(self) -> str:
         return (
-            f"Word={self.word}, Size of largest bucket={self.size_of_largest_bucket}, "
-            + f"Number of buckets={self.number_of_buckets}, Entropy={self.entropy}"
+            f"Word={self.word}, Largest bucket={self.size_of_largest_bucket}, "
+            + f"Num. buckets={self.number_of_buckets}, Entropy={self.entropy}"
         )
 
+    def __lt__(self, other: Guess):
+        return self.improves_upon(other)
+
+    def __gt__(self, other: Guess):
+        return other.improves_upon(self)
+
     @staticmethod
-    def create(guess: str, histogram: Dict[int, int]) -> Guess:
+    def create(word: str, potential_solutions: Set[str], histogram: Dict[int, int]) -> Guess:
 
         buckets = np.array(list(histogram.values()))
         probabilites = buckets / buckets.sum()
@@ -142,17 +142,6 @@ class Guess:
 
         number_of_buckets = len(histogram)
         size_of_largest_bucket = max(buckets)
-        return Guess(guess, size_of_largest_bucket, number_of_buckets, entropy)
+        is_common_word = word in potential_solutions
 
-    @staticmethod
-    def comparer(potential_solutions: Set[str]):
-        @cmp_to_key
-        def cmp_items(guess1: Guess, guess2: Guess) -> int:
-            if guess1.improves_upon(guess2, potential_solutions):
-                return -1
-            elif guess1 == guess2:
-                return 0
-            else:
-                return 1
-
-        return cmp_items
+        return Guess(word, size_of_largest_bucket, number_of_buckets, entropy, is_common_word)
