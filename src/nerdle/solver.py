@@ -19,6 +19,12 @@ class Solver:
     def get_best_guess(self, potential_solutions: Set[str], all_words: Set[str]) -> str:
         pass
 
+    def all_guesses(self, potential_solutions: Set[str], all_words: Set[str]) -> Iterator[Guess]:
+        for word in all_words:
+            histogram = self.get_histogram(potential_solutions, word)
+            guess = Guess.create(word, potential_solutions, histogram)
+            yield guess
+
     def get_solutions_by_score(self, potential_solns: Set[str], guess: str) -> Dict[int, Set[str]]:
         potential_solns_by_score = defaultdict(set)
         for soln in potential_solns:
@@ -55,14 +61,8 @@ class MinimaxSolver(Solver):
         guesses = self.all_guesses(potential_solutions, all_words)
         return min(guesses)
 
-    def all_guesses(self, potential_solutions: Set[str], all_words: Set[str]) -> Iterator[Guess]:
-        for word in all_words:
-            histogram = self.get_histogram(potential_solutions, word)
-            guess = Guess.create(word, potential_solutions, histogram)
-            yield guess
 
-
-class DeepMinimaxSolver(MinimaxSolver):
+class DeepMinimaxSolver(Solver):
     def __init__(self, inner_solver: Solver) -> None:
         super().__init__(inner_solver.scorer)
         self.solver = inner_solver
