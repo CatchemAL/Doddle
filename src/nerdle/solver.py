@@ -97,7 +97,7 @@ class DeepMinimaxSolver(MinimaxSolver):
 
 class Guess:
 
-    __slots__ = ['word', 'size_of_largest_bucket', 'number_of_buckets', 'entropy']
+    __slots__ = ["word", "size_of_largest_bucket", "number_of_buckets", "entropy"]
 
     def __init__(
         self, word: str, size_of_largest_bucket: int, number_of_buckets: int, entropy: float
