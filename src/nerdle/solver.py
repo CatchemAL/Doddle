@@ -10,7 +10,12 @@ import numpy as np
 from .scoring import Scorer
 
 
-class Solver:
+class Guess(Protocol):
+    word: str
+    is_common_word: bool
+
+
+class Solver(abc.ABC):
     def __init__(self, scorer: Scorer) -> None:
         self.scorer = scorer
 
@@ -36,7 +41,7 @@ class Solver:
 
         seed_by_size = {
             4: "OLEA",
-            5: "RAISE",
+            5: "ALOES",
             6: "TAILER",
             7: "TENAILS",
             8: "CENTRALS",
@@ -47,7 +52,7 @@ class Solver:
 
 
 class MinimaxSolver(Solver):
-    def get_best_guess(self, potential_solutions: Set[str], all_words: Set[str]) -> Guess:
+    def get_best_guess(self, potential_solutions: Set[str], all_words: Set[str]) -> MinimaxGuess:
         guesses = self.all_guesses(potential_solutions, all_words)
         return min(guesses)
 
@@ -62,29 +67,12 @@ class MinimaxSolver(Solver):
         return MinimaxGuess(word, is_common_word, number_of_buckets, size_of_largest_bucket)
 
 
-class EntropySolver(Solver):
-    def get_best_guess(self, potential_solutions: Set[str], all_words: Set[str]) -> Guess:
-        guesses = self.all_guesses(potential_solutions, all_words)
-        return min(guesses)
-
-    def create_guess(
-        self, word: str, potential_solutions: Set[str], histogram: Dict[int, int]
-    ) -> Guess:
-
-        probabilites = np.array(list(histogram.values()), dtype=np.float64)
-        probabilites /= len(potential_solutions)
-        entropy = -probabilites.dot(np.log2(probabilites))
-        is_common_word = word in potential_solutions
-
-        return EntropyGuess(word, is_common_word, entropy)
-
-
 class DeepMinimaxSolver(MinimaxSolver):
-    def __init__(self, inner_solver: Solver) -> None:
+    def __init__(self, inner_solver: MinimaxSolver) -> None:
         super().__init__(inner_solver.scorer)
         self.solver = inner_solver
 
-    def get_best_guess(self, potential_solutions: Set[str], all_words: Set[str]) -> Guess:
+    def get_best_guess(self, potential_solutions: Set[str], all_words: Set[str]) -> MinimaxGuess:
 
         N_GUESSES = 20
         N_BRANCHES = 5
@@ -110,11 +98,6 @@ class DeepMinimaxSolver(MinimaxSolver):
         best_guess_str = next(key for key, value in kvps if value == best_nested_worst_best_guess)
         best_guess = next(guess for guess in best_guesses if guess.word == best_guess_str)
         return best_guess
-
-
-class Guess(Protocol):
-    word: str
-    is_common_word: bool
 
 
 @dataclass
@@ -157,6 +140,54 @@ class MinimaxGuess:
         return other.improves_upon(self)
 
 
+class EntropySolver(Solver):
+    def get_best_guess(self, potential_solutions: Set[str], all_words: Set[str]) -> EntropyGuess:
+        guesses = self.all_guesses(potential_solutions, all_words)
+        return min(guesses)
+
+    def create_guess(
+        self, word: str, potential_solutions: Set[str], histogram: Dict[int, int]
+    ) -> EntropyGuess:
+
+        probabilites = np.array(list(histogram.values()), dtype=np.float64)
+        probabilites /= len(potential_solutions)
+        entropy = -probabilites.dot(np.log2(probabilites))
+        is_common_word = word in potential_solutions
+
+        return EntropyGuess(word, is_common_word, entropy)
+
+
+class DeepEntropySolver(EntropySolver):
+    def __init__(self, inner_solver: EntropySolver) -> None:
+        super().__init__(inner_solver.scorer)
+        self.solver = inner_solver
+
+    def get_best_guess(self, potential_solutions: Set[str], all_words: Set[str]) -> EntropyGuess:
+
+        N_GUESSES = 10
+
+        guesses = self.all_guesses(potential_solutions, all_words)
+        best_guesses = sorted(guesses)[:N_GUESSES]
+        deep_guesses: List[EntropyGuess] = []
+
+        for guess in best_guesses:
+            solns_by_outcome = self.scorer.get_solutions_by_score(potential_solutions, guess.word)
+
+            if guess.is_common_word and all(len(s) == 1 for s in solns_by_outcome.values()):
+                return guess
+
+            avg_entropy_reduction = 0
+            for nested_potential_solns in solns_by_outcome.values():
+                probability = len(nested_potential_solns) / len(potential_solutions)
+                nested_best_guess = self.solver.get_best_guess(nested_potential_solns, all_words)
+                entropy_reduction = nested_best_guess.entropy * probability
+                avg_entropy_reduction += entropy_reduction
+            deep_guesses.append(guess + avg_entropy_reduction)
+
+        deep_best_guess = min(deep_guesses)
+        return deep_best_guess
+
+
 @dataclass
 class EntropyGuess:
 
@@ -186,3 +217,6 @@ class EntropyGuess:
 
     def __gt__(self, other: EntropyGuess):
         return other.improves_upon(self)
+
+    def __add__(self, entropy: float) -> EntropyGuess:
+        return EntropyGuess(self.word, self.is_common_word, self.entropy + entropy)
