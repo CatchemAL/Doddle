@@ -2,7 +2,7 @@ from typing import Tuple
 
 from .controllers import BenchmarkController, HideController, RunController, SolveController
 from .scoring import Scorer
-from .solver import DeepMinimaxSolver, MinimaxSolver, Solver
+from .solver import DeepEntropySolver, DeepMinimaxSolver, EntropySolver, MinimaxSolver, Solver
 from .views import BenchmarkView, HideView, RunView, SolveView
 from .words import WordLoader
 
@@ -34,9 +34,13 @@ def create_benchmark_controller(size: int, depth: int) -> BenchmarkController:
 def _create(size: int, depth: int) -> Tuple[WordLoader, Solver]:
     loader = WordLoader(size)
     scorer = Scorer(size)
-    solver = MinimaxSolver(scorer)
 
+    solver = MinimaxSolver(scorer)
     for _ in range(1, depth):
         solver = DeepMinimaxSolver(solver)
+
+    solver = EntropySolver(scorer)
+    for _ in range(1, depth):
+        solver = DeepEntropySolver(solver)
 
     return loader, solver
