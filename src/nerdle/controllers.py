@@ -74,6 +74,8 @@ class HideController:
 
         available_answers = self.loader.common_words
 
+        guess = guess or self.view.get_user_guess()
+
         while True:
 
             solns_by_score = self.solver.scorer.get_solutions_by_score(available_answers, guess)

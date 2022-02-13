@@ -39,8 +39,9 @@ def _create(size: int, depth: int) -> Tuple[WordLoader, Solver]:
     for _ in range(1, depth):
         solver = DeepMinimaxSolver(solver)
 
-    # solver = EntropySolver(scorer)
-    # for _ in range(1, depth):
-    #    solver = DeepEntropySolver(solver)
+    if False:
+        solver = EntropySolver(scorer)
+        for _ in range(1, depth):
+            solver = DeepEntropySolver(solver)
 
     return loader, solver

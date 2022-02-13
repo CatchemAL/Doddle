@@ -108,7 +108,7 @@ class HideView:
     def get_user_guess(self) -> str:
         guess = ""
         while len(guess) != self.size or not guess.isalpha():
-            guess = input("Please enter your next guess:\n").upper()
+            guess = input("Please enter your guess:\n").upper()
 
         return guess
 
