@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from collections import defaultdict
 from dataclasses import dataclass
-from typing import List
+from typing import List, Iterator
 
 import colorama
 from colorama import Fore
@@ -44,7 +44,7 @@ class Scoreboard:
     def __len__(self):
         return len(self.rows)
 
-    def __iter__(self) -> Scoreboard:
+    def __iter__(self) -> Iterator[ScoreboardRow]:
         return iter(self.rows)
 
     def __next__(self) -> ScoreboardRow:
@@ -108,7 +108,7 @@ class ScoreboardPrinter:
         size = len(word)
         padded_score = f"{score}".zfill(size)
 
-        prev_digit = 0
+        prev_digit = "0"
         pretty_chars = []
         for (char, digit) in zip(word, padded_score):
             if digit == prev_digit:
@@ -121,7 +121,7 @@ class ScoreboardPrinter:
                 pretty_chars.append(Fore.RESET + char)
             prev_digit = digit
 
-        if prev_digit != 0:
+        if prev_digit != "0":
             pretty_chars.append(Fore.RESET)
 
         return "".join(pretty_chars)

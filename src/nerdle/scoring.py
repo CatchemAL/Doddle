@@ -35,7 +35,7 @@ class Scorer:
         return solns_by_score
 
     def get_histogram(self, potential_solns: Set[str], guess: str) -> DefaultDict[int, int]:
-        histogram = defaultdict(int)
+        histogram: DefaultDict[int, int] = defaultdict(int)
         for soln in potential_solns:
             score = self.score_word(soln, guess)
             histogram[score] += 1
