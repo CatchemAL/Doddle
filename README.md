@@ -1,6 +1,6 @@
 # Nerdle -  _a nerd's approach to solving Wordle_
 
-<img src="https://github.com/CatchemAl/Nerdle/blob/main/images/Nerdle.png" width="360">
+<img src="https://i.imgur.com/QUAzi66.png" width="360">
 
 
 ## Features
@@ -24,7 +24,7 @@ nerdle run --answer=SALTY --guess=TORCH
 
 Run a simulation with an answer of your choosing to see how Nerdle solves the problem. You can optionally provide your own starting `guess` to see how the game plays out. With every guess, Nerdle acquires more information and prunes the list of possible solutions. The output shows you how many possible solutions still exist.
 
-<img src="https://github.com/CatchemAl/Nerdle/blob/main/images/Run.png" width="400">
+<img src="https://i.imgur.com/Al2ucap.png" width="400">
 
 ### Solve
 
@@ -69,7 +69,7 @@ nerdle hide --guess=SALTY
 ```
 Hide is a spin on the conventional Wordle game. Here, Nerdle uses its solver to hide the final answer for as long as possible. Nerdle doesn't choose an answer before the game starts - instead it always presents you with the score that results in maximum ambiguity. You'll get there in the end, but the game might take a while. 😈
 
-<img src="https://github.com/CatchemAl/Nerdle/blob/main/images/evade.png" width="350">
+<img src="https://i.imgur.com/JrMj21n.png" width="350">
 
 Similar to the original Wordle game, a keyboard is rendered to display what characters have been guessed so far.
 
