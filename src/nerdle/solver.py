@@ -8,9 +8,8 @@ from typing import Dict, Iterator, List, Protocol, Set
 import numpy as np
 from numba import njit
 
-from .words import Word, WordSeries
-
 from .scoring import Scorer
+from .words import Word, WordSeries
 
 
 class Guess(Protocol):
@@ -75,15 +74,12 @@ class Solver(abc.ABC):
         self.score_matrix.precompute(potential_solutions)  # this is not
 
         indices = all_words.find_index(potential_solutions.words)
-            
-        words = all_words
         is_common = np.zeros(len(all_words), dtype=bool)
         is_common[indices] = True
         scores = self.score_matrix.storage[:, potential_solutions.index]
-            
 
         histogram = np.zeros(3**self.scorer.size, dtype=int)
-        for i, word in enumerate(words):
+        for i, word in enumerate(all_words):
             populate_histogram(scores, i, histogram)
             num_buckets = np.count_nonzero(histogram)
             largest_bucket = histogram.max()
