@@ -18,7 +18,26 @@ class Guess(Protocol):
 
 
 class HistogramBuilder:
-    pass
+
+    def __init__(self, scorer:Scorer, potential_solutions: WordSeries, all_words: WordSeries, is_lazy_eval = True) -> None:
+        self.score_matrix = ScoreMatrix(potential_solutions, all_words, scorer, is_lazy_eval)
+
+    def stream(self, potential_solutions: WordSeries, all_words: WordSeries) -> np.ndarray:
+        # First we precompute the score against all possible words
+        self.score_matrix.precompute(potential_solutions)
+
+        indices = all_words.find_index(potential_solutions.words)
+        is_common = np.zeros(len(all_words), dtype=bool)
+        is_common[indices] = True
+        scores = self.score_matrix.storage[:, potential_solutions.index]
+
+        histogram = np.zeros(3**all_words.word_length, dtype=int)
+        for i, word in enumerate(all_words):
+            populate_histogram(scores, i, histogram)
+            num_buckets = np.count_nonzero(histogram)
+            largest_bucket = histogram.max()
+            yield MinimaxGuess(word, is_common[i], num_buckets, largest_bucket)
+
 
 
 class ScoreMatrix:
@@ -30,18 +49,21 @@ class ScoreMatrix:
         rows, cols = all_words.index.max() + 1, potential_solns.index.max() + 1
         self.is_calculated = np.zeros(cols, dtype=bool)
         self.storage = np.full((rows, cols), -1, dtype=int)
+        self.is_fully_initialized = False
 
     def precompute(self, potential_solns: WordSeries | None = None) -> None:
 
         solns = potential_solns or self.potential_solns
-        if np.all(self.is_calculated[solns.index]):
+        if self.is_fully_initialized or np.all(self.is_calculated[solns.index]):
             return
 
-        f = np.vectorize(self.scorer.score_word)
         row_words = self.all_words.words[:, np.newaxis]
         col_words = solns.words[np.newaxis, :]
-        self.storage[:, solns.index] = f(row_words, col_words)
+
+        func = np.vectorize(self.scorer.score_word)
+        self.storage[:, solns.index] = func(row_words, col_words)
         self.is_calculated[solns.index] = True
+        self.is_fully_initialized = np.all(self.is_calculated)
 
 
 class Solver(abc.ABC):
@@ -53,13 +75,6 @@ class Solver(abc.ABC):
     @abc.abstractmethod
     def get_best_guess(self, potential_solutions: Set[str], all_words: Set[str]) -> Guess:
         pass
-
-    def initialize(self, potential_solutions: WordSeries, all_words: WordSeries) -> None:
-        if self.is_initialized:
-            return
-
-        self.score_matrix = ScoreMatrix(potential_solutions, all_words, self.scorer)
-        self.is_initialized = True
 
     def all_guesses(
         self, potential_solutions: WordSeries, all_words: WordSeries
@@ -113,6 +128,7 @@ def populate_histogram(matrix: np.ndarray, row: int, hist: np.ndarray) -> None:
 
 
 class MinimaxSolver(Solver):
+    # todo: potentially an implict vs explicit implementation
     def get_best_guess(self, potential_solutions: Set[str], all_words: Set[str]) -> MinimaxGuess:
         guesses = self.all_guesses(potential_solutions, all_words)
         return min(guesses)

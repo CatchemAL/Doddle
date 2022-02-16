@@ -20,6 +20,9 @@ class RunController:
 
         all_words, available_answers = self.loader({solution, best_guess})
 
+
+        # solver = solver_factory.create() Need to think about this
+
         # # Random rubbish
         # sliced = all_words[8:20]
         # word6 = sliced.iloc[6]
