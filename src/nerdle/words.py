@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 from bisect import bisect_left
 from pathlib import Path
-from typing import Sequence, Set
+from typing import Iterable, Sequence, Set
 
 import numpy as np
 
@@ -145,7 +145,9 @@ class WordLoader:
     def __init__(self, size: int) -> None:
         self.size = size
 
-    def __call__(self, words_to_add: Set[str]) -> tuple[WordSeries, WordSeries]:
+    def __call__(
+        self, words_to_add: Iterable[str] | Iterable[Word]
+    ) -> tuple[WordSeries, WordSeries]:
 
         if self.size == 5:
             # Use the official Wordle list for the real game
@@ -157,7 +159,8 @@ class WordLoader:
 
         # Add the starting word in case it is missing from the official dictionary
         # Better to solve an unofficial word than bomb out later.
-        common_words.update(words_to_add)
+        extras = {str(word) for word in words_to_add}
+        common_words.update(extras)
         all_words.update(common_words)
         common_series = WordSeries(common_words)
         all_series = WordSeries(all_words)

@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import abc
 from dataclasses import dataclass
-from ftplib import all_errors
 from math import isclose
 from typing import Dict, Iterator, List, Protocol, Set
 

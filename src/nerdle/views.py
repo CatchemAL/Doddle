@@ -3,6 +3,7 @@ import re
 from typing import DefaultDict, Set, Tuple
 
 from .view_models import Keyboard, KeyboardPrinter, Scoreboard, ScoreboardPrinter
+from .words import Word, WordSeries
 
 
 class AbstractRunView:
@@ -19,9 +20,10 @@ class RunView(AbstractRunView):
         self.scoreboard = Scoreboard()
 
     def report_score(
-        self, solution: str, guess: str, score: int, available_answers: Set[str]
+        self, solution: Word, guess: Word, score: int, available_answers: WordSeries
     ) -> None:
-        self.scoreboard.add_row(solution, guess, score, len(available_answers))
+
+        self.scoreboard.add_row(str(solution), str(guess), score, len(available_answers))
 
         sb_printer = ScoreboardPrinter(self.size)
         sb_printer.print_next(self.scoreboard)
@@ -31,7 +33,7 @@ class SilentRunView(AbstractRunView):
     """View that doesn't show anything."""
 
     def report_score(
-        self, solution: str, guess: str, score: int, available_answers: Set[str]
+        self, solution: Word, guess: Word, score: int, available_answers: WordSeries
     ) -> None:
         pass
 

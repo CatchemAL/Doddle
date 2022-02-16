@@ -18,7 +18,7 @@ class RunController:
 
         MAX_ITERS = 10
 
-        all_words, available_answers = self.loader({str(solution), str(best_guess)})
+        all_words, available_answers = self.loader({solution, best_guess})
 
         # # Random rubbish
         # sliced = all_words[8:20]
@@ -31,12 +31,8 @@ class RunController:
             histogram = self.solver.scorer.get_solutions_by_score(available_answers, best_guess)
             observed_score = self.solver.scorer.score_word(solution, best_guess)
             available_answers = histogram[observed_score]
-            self.view.report_score(
-                str(solution),
-                str(best_guess),
-                np.base_repr(observed_score, base=3),
-                available_answers,
-            )
+            ternary_score = np.base_repr(observed_score, base=3)  # yuk
+            self.view.report_score(solution, best_guess, ternary_score, available_answers)
             if best_guess == solution:
                 return i + 1
 
