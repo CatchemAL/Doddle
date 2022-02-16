@@ -7,6 +7,7 @@ from .factory import (
     create_solve_controller,
 )
 from .solver import MinimaxSolver
+from .words import Word
 
 
 def run(args: Namespace) -> None:
@@ -47,8 +48,8 @@ def main() -> None:
     subparsers = parser.add_subparsers()
 
     run_parser = subparsers.add_parser("run")
-    run_parser.add_argument("--answer", required=True, type=lambda s: s.upper())
-    run_parser.add_argument("--guess", type=lambda s: s.upper())
+    run_parser.add_argument("--answer", required=True, type=Word)
+    run_parser.add_argument("--guess", type=Word)
     run_parser.add_argument("--depth", required=False, default=1, type=int)
     run_parser.set_defaults(func=run)
 

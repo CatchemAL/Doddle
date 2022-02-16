@@ -7,13 +7,19 @@ from typing import Sequence, Set
 
 import numpy as np
 
-class Word2:
+
+class Word:
 
     __slots__ = ["value", "vector"]
 
-    def __init__(self, value: str) -> None:
-        self.value = value
-        self.vector = Word2.to_vector(value)
+    def __init__(self, value: str | Word) -> None:
+
+        if isinstance(value, Word):
+            self.value = value.value
+            self.vector = value.vector
+        else:
+            self.value = value.upper()
+            self.vector = Word.to_vector(value)
 
     def __str__(self) -> str:
         return self.value
@@ -36,6 +42,9 @@ class Word2:
     def __ge__(self, other: Word) -> bool:
         return self.value >= other.value
 
+    def __len__(self) -> int:
+        return len(self.vector)
+
     def __hash__(self) -> int:
         return hash(self.value)
 
@@ -45,51 +54,6 @@ class Word2:
         return np.array(asciis, dtype=np.int8)
 
 
-class Word:
-    __slots__ = ["vector", "_index"]
-
-    def __init__(self, value: str, index: int, vector: np.ndarray | None = None) -> None:
-        self.vector = Word.to_vector(value) if vector is None else vector
-        self._index = index
-
-    def __int__(self):
-        return self._index
-
-    def __str__(self) -> str:
-        return Word.to_str(self.vector)
-
-    def __repr__(self) -> str:
-        index = f"[{self._index}]".ljust(8)
-        return f"{index}{str(self)}"
-
-    def __eq__(self, obj: object) -> bool:
-        return isinstance(obj, type(self)) and self.index == obj.index
-
-    def __lt__(self, other: Word) -> bool:
-        return self.index < other.index
-
-    def __gt__(self, other: Word) -> bool:
-        return self.index > other.index
-
-    def __le__(self, other: Word) -> bool:
-        return self.index <= other.index
-
-    def __ge__(self, other: Word) -> bool:
-        return self.index >= other.index
-
-    def __hash__(self) -> int:
-        return hash(self.index)
-
-    @staticmethod
-    def to_vector(word: str) -> np.ndarray:
-        asciis = (ord(c) - 64 for c in word.upper())
-        return np.fromiter(asciis, dtype=np.int8)
-
-    @staticmethod
-    def to_str(vec: np.ndarray) -> str:
-        return "".join((chr(n + 64) for n in vec))
-
-
 class WordSeries:
     def __init__(self, words: Sequence[str] | np.ndarray, index: np.ndarray | None = None) -> None:
 
@@ -97,26 +61,33 @@ class WordSeries:
             self.words = words
         else:
             sorted_words = sorted(words)
-            self.words = np.array([Word2(w) for w in sorted_words])
-        
+            self.words = np.array([Word(w) for w in sorted_words])
+
         self.index = np.arange(len(sorted_words)) if index is None else index
 
-    def contains(self, word: str | Word2) -> bool:
+    def contains(self, word: str | Word) -> bool:
         pos = bisect_left(self.words, str(word), key=lambda w: w.value)
         return pos < len(self) and self.words[pos].value == str(word)
 
-    def find_index(self, word: str) -> int:
-        pos = bisect_left(self.words, word, key=lambda w: w.value)
-        idx = self.series.index[pos]
-        if self.series.words[pos].value != word:
-            raise KeyError(f'The series does not contain the word "{word}"')
-        return idx
+    def find_index(self, word: str | Word | np.ndarray) -> int | np.ndarray:
+        if isinstance(word, np.ndarray):
+            find_func = np.vectorize(self.__find_index)
+            return find_func(word)
+
+        return self.__find_index(word)
+
+    def __find_index(self, word: str | Word) -> int:
+        pos = bisect_left(self.words, str(word), key=lambda w: w.value)
+        if pos < len(self) and self.words[pos] == word:
+            return pos
+        return -1
 
     def __getitem__(self, s: slice) -> WordSeries:
 
         is_slice = isinstance(s, slice)
         is_mask = isinstance(s, np.ndarray) and s.dtype == np.bool8
-        can_index = is_slice or is_mask
+        is_index = isinstance(s, np.ndarray) and s.dtype == np.int32
+        can_index = is_slice or is_mask or is_index
 
         if can_index:
             sliced_words = self.words[s]
@@ -159,12 +130,11 @@ class WordSeries:
         return _WordLoc(self)
 
 
-
 class _WordLoc:
     def __init__(self, series: WordSeries) -> None:
         self.series = series
 
-    def __getitem__(self, indexer: int) -> Word2:
+    def __getitem__(self, indexer: int) -> Word:
         if isinstance(indexer, int):
             return self.series.words[indexer]
 

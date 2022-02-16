@@ -5,7 +5,7 @@ from typing import DefaultDict, Dict, Set
 import numpy as np
 from numba import int8, int32, jit
 
-from .words import Word, WordSeries, Word2
+from .words import Word, WordSeries
 
 
 class Scorer:
@@ -23,10 +23,12 @@ class Scorer:
     def is_perfect_score(self, score: int) -> bool:
         return score == self.perfect_score
 
-    def score_word(self, solution: Word2, guess: Word2) -> int:
+    def score_word(self, solution: Word, guess: Word) -> int:
         return score_word_jit(solution.vector, guess.vector, self._powers)
 
-    def get_solutions_by_score(self, potential_solns: WordSeries, guess: Word2) -> Dict[int, WordSeries]:
+    def get_solutions_by_score(
+        self, potential_solns: WordSeries, guess: Word
+    ) -> Dict[int, WordSeries]:
 
         score_func = np.vectorize(self.score_word)
         scores = score_func(potential_solns.words, guess)
@@ -40,8 +42,9 @@ class Scorer:
 
         return solns_by_score
 
-
-    def get_solutions_by_score_old(self, potential_solns: Set[str], guess: str) -> Dict[int, Set[str]]:
+    def get_solutions_by_score_old(
+        self, potential_solns: Set[str], guess: str
+    ) -> Dict[int, Set[str]]:
         solns_by_score = defaultdict(set)
         for soln in potential_solns:
             score = self.score_word(soln, guess)
@@ -49,13 +52,11 @@ class Scorer:
 
         return solns_by_score
 
-
-    def get_histogram(self, potential_solns: WordSeries, guess: Word2) -> Dict[int, int]:
+    def get_histogram(self, potential_solns: WordSeries, guess: Word) -> Dict[int, int]:
         score_func = np.vectorize(self.score_word)
         scores = score_func(potential_solns.words, guess)
         unique_scores, counts = np.unique(scores, return_counts=True)
         return {score: count for score, count in zip(unique_scores, counts)}
-
 
 
 def get_fast_ternary_lookup(size: int) -> np.ndarray:

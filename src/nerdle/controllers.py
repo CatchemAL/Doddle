@@ -1,10 +1,12 @@
 from functools import partial
 
+import numpy as np
+
 from .benchmark import benchmark
 from .solver import Solver
 from .views import AbstractRunView, BenchmarkView, HideView, SilentRunView, SolveView
-from .words import WordLoader, Word2
-import numpy as np
+from .words import Word, WordLoader
+
 
 class RunController:
     def __init__(self, loader: WordLoader, solver: Solver, view: AbstractRunView) -> None:
@@ -12,27 +14,29 @@ class RunController:
         self.solver = solver
         self.view = view
 
-    def run(self, solution: str, first_guess: str) -> int:
+    def run(self, solution: Word, best_guess: Word) -> int:
 
         MAX_ITERS = 10
 
-        all_words, available_answers = self.loader({solution, first_guess})
+        all_words, available_answers = self.loader({str(solution), str(best_guess)})
 
-        # Random rubbish
-        sliced = all_words[8:20]
-        word6 = sliced.iloc[6]
-
-        for word in sliced:
-            print(word)
-
-        best_guess = Word2(first_guess) # todo cast this in the arg parser!
-        solution = Word2(solution)
+        # # Random rubbish
+        # sliced = all_words[8:20]
+        # word6 = sliced.iloc[6]
+        #
+        # for word in sliced:
+        #     print(word)
 
         for i in range(MAX_ITERS):
             histogram = self.solver.scorer.get_solutions_by_score(available_answers, best_guess)
             observed_score = self.solver.scorer.score_word(solution, best_guess)
             available_answers = histogram[observed_score]
-            self.view.report_score(str(solution), str(best_guess), np.base_repr(observed_score, base=3) , available_answers)
+            self.view.report_score(
+                str(solution),
+                str(best_guess),
+                np.base_repr(observed_score, base=3),
+                available_answers,
+            )
             if best_guess == solution:
                 return i + 1
 

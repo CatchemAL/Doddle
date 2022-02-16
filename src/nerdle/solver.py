@@ -7,15 +7,44 @@ from math import isclose
 from typing import Dict, Iterator, List, Protocol, Set
 
 import numpy as np
+from numba import njit
 
 from nerdle.words import WordSeries
 
 from .scoring import Scorer
-from numba import njit
+
 
 class Guess(Protocol):
     word: str
     is_common_word: bool
+
+
+class HistogramBuilder:
+    pass
+
+
+class PrecalculatedScores:
+    def __init__(self, potential_solns: WordSeries, all_words: WordSeries, scorer: Scorer) -> None:
+        self.all_words = all_words
+        self.potential_solns = potential_solns
+        self.scorer = scorer
+
+        rows, cols = all_words.index.max() + 1, potential_solns.index.max() + 1
+        self.is_calculated = np.zeros(cols, dtype=bool)
+        self.score_matrix = np.full((rows, cols), -1, dtype=int)
+
+    def precompute(self, potential_solns: WordSeries | None = None) -> None:
+
+        solns = potential_solns or self.potential_solns
+        if np.all(self.is_calculated[solns.index]):
+            return
+
+        f = np.vectorize(self.scorer.score_word)
+        row_words = self.all_words.words[:, np.newaxis]
+        col_words = solns.words[np.newaxis, :]
+        self.score_matrix[:, solns.index] = f(row_words, col_words)
+        self.is_calculated[solns.index] = True
+
 
 class Solver(abc.ABC):
     def __init__(self, scorer: Scorer) -> None:
@@ -31,35 +60,35 @@ class Solver(abc.ABC):
         if self.is_initialized:
             return
 
-        rows, cols = all_words.index.max(), potential_solutions.index.max()
-        self.storage = np.zeros((rows+1, cols+1), dtype=int)
-
-        score_func = np.vectorize(self.scorer.score_word)
-        row_words = all_words.words[:, np.newaxis]
-        col_words = potential_solutions.words[np.newaxis, :]
-        self.storage[:, potential_solutions.index] = score_func(row_words, col_words)
-
+        self.storage = PrecalculatedScores(potential_solutions, all_words, self.scorer)
         self.is_initialized = True
 
-    def all_guesses(self, potential_solutions: WordSeries, all_words: WordSeries) -> Iterator[Guess]:
+    def all_guesses(
+        self, potential_solutions: WordSeries, all_words: WordSeries
+    ) -> Iterator[Guess]:
 
-        words = all_words if len(all_words) > 2 else potential_solutions
+        # First we precompute the score against all possible words
+        self.initialize(potential_solutions, all_words)  # this is a hack
+        self.storage.precompute(potential_solutions)  # this is not
 
-        self.initialize(potential_solutions, all_words)
-        matrix = self.storage[:, potential_solutions.index]
+        indices = all_words.find_index(potential_solutions.words)
 
-        histogram = np.zeros(3 ** self.scorer.size, dtype=int)
+        if len(potential_solutions) > 2:
+            words = all_words
+            is_common = np.zeros(len(all_words), dtype=bool)
+            is_common[indices] = True
+            scores = self.storage.score_matrix[:, potential_solutions.index]
+        else:
+            words = all_words[indices]
+            is_common = np.ones(len(words), dtype=bool)
+            scores = self.storage.score_matrix[words.index, :][:, potential_solutions.index]
+
+        histogram = np.zeros(3**self.scorer.size, dtype=int)
         for i, word in enumerate(words):
-            populate_histogram(matrix, i, histogram)
+            populate_histogram(scores, i, histogram)
             num_buckets = np.count_nonzero(histogram)
             largest_bucket = histogram.max()
-            yield MinimaxGuess(word, potential_solutions.contains(word), num_buckets, largest_bucket)
-            # row = matrix[i,  :]
-            #unique_scores, counts = np.unique(row, return_counts=True)
-            #histogram = {score: count for score, count in zip(unique_scores, counts)}
-            # histogram = self.scorer.get_histogram(potential_solutions, word)
-            #guess = self.create_guess(word, potential_solutions, histogram)
-            # yield guess
+            yield MinimaxGuess(word, is_common[i], num_buckets, largest_bucket)
 
     @abc.abstractmethod
     def create_guess(word: str, potential_solutions: Set[str], histogram: Dict[int, int]) -> Guess:
@@ -78,6 +107,7 @@ class Solver(abc.ABC):
         }
 
         return seed_by_size[size]
+
 
 @njit
 def populate_histogram(matrix: np.ndarray, row: int, hist: np.ndarray) -> None:
