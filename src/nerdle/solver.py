@@ -8,7 +8,7 @@ from typing import Dict, Iterator, List, Protocol, Set
 import numpy as np
 from numba import njit
 
-from nerdle.words import WordSeries
+from .words import Word, WordSeries
 
 from .scoring import Scorer
 
@@ -22,7 +22,7 @@ class HistogramBuilder:
     pass
 
 
-class PrecalculatedScores:
+class ScoreMatrix:
     def __init__(self, potential_solns: WordSeries, all_words: WordSeries, scorer: Scorer) -> None:
         self.all_words = all_words
         self.potential_solns = potential_solns
@@ -30,7 +30,7 @@ class PrecalculatedScores:
 
         rows, cols = all_words.index.max() + 1, potential_solns.index.max() + 1
         self.is_calculated = np.zeros(cols, dtype=bool)
-        self.score_matrix = np.full((rows, cols), -1, dtype=int)
+        self.storage = np.full((rows, cols), -1, dtype=int)
 
     def precompute(self, potential_solns: WordSeries | None = None) -> None:
 
@@ -41,7 +41,7 @@ class PrecalculatedScores:
         f = np.vectorize(self.scorer.score_word)
         row_words = self.all_words.words[:, np.newaxis]
         col_words = solns.words[np.newaxis, :]
-        self.score_matrix[:, solns.index] = f(row_words, col_words)
+        self.storage[:, solns.index] = f(row_words, col_words)
         self.is_calculated[solns.index] = True
 
 
@@ -49,7 +49,7 @@ class Solver(abc.ABC):
     def __init__(self, scorer: Scorer) -> None:
         self.scorer = scorer
         self.is_initialized = False
-        self.storage = None
+        self.score_matrix = None
 
     @abc.abstractmethod
     def get_best_guess(self, potential_solutions: Set[str], all_words: Set[str]) -> Guess:
@@ -59,28 +59,28 @@ class Solver(abc.ABC):
         if self.is_initialized:
             return
 
-        self.storage = PrecalculatedScores(potential_solutions, all_words, self.scorer)
+        self.score_matrix = ScoreMatrix(potential_solutions, all_words, self.scorer)
         self.is_initialized = True
 
     def all_guesses(
         self, potential_solutions: WordSeries, all_words: WordSeries
     ) -> Iterator[Guess]:
 
+        if len(potential_solutions) <= 2:
+            yield MinimaxGuess(potential_solutions.iloc[0], True, 1, 1)
+            return
+
         # First we precompute the score against all possible words
         self.initialize(potential_solutions, all_words)  # this is a hack
-        self.storage.precompute(potential_solutions)  # this is not
+        self.score_matrix.precompute(potential_solutions)  # this is not
 
         indices = all_words.find_index(potential_solutions.words)
-
-        if len(potential_solutions) > 2:
-            words = all_words
-            is_common = np.zeros(len(all_words), dtype=bool)
-            is_common[indices] = True
-            scores = self.storage.score_matrix[:, potential_solutions.index]
-        else:
-            words = all_words[indices]
-            is_common = np.ones(len(words), dtype=bool)
-            scores = self.storage.score_matrix[words.index, :][:, potential_solutions.index]
+            
+        words = all_words
+        is_common = np.zeros(len(all_words), dtype=bool)
+        is_common[indices] = True
+        scores = self.score_matrix.storage[:, potential_solutions.index]
+            
 
         histogram = np.zeros(3**self.scorer.size, dtype=int)
         for i, word in enumerate(words):
@@ -105,7 +105,7 @@ class Solver(abc.ABC):
             9: "SECRETION",
         }
 
-        return seed_by_size[size]
+        return Word(seed_by_size[size])
 
 
 @njit
