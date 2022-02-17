@@ -83,7 +83,7 @@ class DeepMinimaxSolver(MinimaxSolver):
 
         best_guess_str = min(deep_worst_best_guess_by_guess, key=deep_worst_best_guess_by_guess.get)
         best_guess = next(guess for guess in best_guesses if guess.word == best_guess_str)
-        return best_guess # TODO bug. Guess needs to convey depth of lower levels! Will affect 3+
+        return best_guess  # TODO bug. Guess needs to convey depth of lower levels! Will affect 3+
 
 
 @dataclass
