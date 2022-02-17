@@ -21,7 +21,7 @@ def run(args: Namespace) -> None:
 def solve(args: Namespace) -> None:
 
     size = len(args.guess) if args.guess else args.size
-    controller = create_solve_controller(size, args.depth)
+    controller = create_solve_controller(size)
     controller.solve(args.guess)
 
 

@@ -6,13 +6,10 @@ from .view_models import Keyboard, KeyboardPrinter, Scoreboard, ScoreboardPrinte
 from .words import Word, WordSeries
 
 
-class AbstractRunView:
-    @abc.abstractmethod
-    def report_score(self, solution: str, guess: str, score: int, available_answers: Set[str]) -> None:
-        pass
 
 
-class RunView(AbstractRunView):
+
+class RunView:
     def __init__(self, size: int) -> None:
         self.size = size
         self.scoreboard = Scoreboard()
@@ -27,7 +24,7 @@ class RunView(AbstractRunView):
         sb_printer.print_next(self.scoreboard)
 
 
-class SilentRunView(AbstractRunView):
+class NullRunView(RunView):
     """View that doesn't show anything."""
 
     def report_score(

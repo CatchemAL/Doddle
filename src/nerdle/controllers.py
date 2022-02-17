@@ -6,12 +6,12 @@ from .factory import create_models
 
 from .benchmark import benchmark
 
-from .views import AbstractRunView, BenchmarkView, HideView, SilentRunView, SolveView
+from .views import RunView, BenchmarkView, HideView, NullRunView, SolveView
 from .words import Word, WordLoader
 
 
 class RunController:
-    def __init__(self, loader: WordLoader, view: AbstractRunView) -> None:
+    def __init__(self, loader: WordLoader, view: RunView) -> None:
         self.loader = loader
         self.view = view
 
@@ -116,7 +116,7 @@ class BenchmarkController:
         _, _, solver = create_models(available_answers, all_words, depth)
         best_guess = first_guess or solver.seed(all_words.word_length)
 
-        controller = RunController(self.loader, self.solver, SilentRunView())
+        controller = RunController(self.loader, self.solver, NullRunView(all_words.word_length))
         f = partial(controller.run, best_guess=best_guess)
 
         histogram = benchmark(f, available_answers)
