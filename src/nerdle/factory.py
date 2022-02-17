@@ -13,7 +13,7 @@ def create_models(
     scorer = Scorer(all_words.word_length)
     histogram_builder = HistogramBuilder(scorer, available_answers, all_words)
 
-    solver = MinimaxSolver(scorer)
+    solver = MinimaxSolver(histogram_builder)
     for _ in range(1, depth):
         solver = DeepMinimaxSolver(solver)
 

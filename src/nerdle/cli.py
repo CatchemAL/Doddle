@@ -14,7 +14,7 @@ def run(args: Namespace) -> None:
 
     solution = args.answer
     size = len(solution)
-    controller = create_run_controller(size, args.depth)
+    controller = create_run_controller(size)
     controller.run(solution, args.guess)
 
 
