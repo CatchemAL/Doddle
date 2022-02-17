@@ -1,5 +1,3 @@
-from functools import lru_cache
-
 import numpy as np
 from numba import int8, int32, jit
 
@@ -11,7 +9,7 @@ class Scorer:
 
     def __init__(self, size: int = 5) -> None:
         self.size = size
-        self._ternaries = get_fast_ternary_lookup(size)
+        self._ternaries = self.get_fast_ternary_lookup(size)
         self._powers = (3 ** np.arange(size - 1, -1, -1)).astype(np.int32)
 
     @property
@@ -22,18 +20,13 @@ class Scorer:
         return score == self.perfect_score
 
     def score_word(self, solution: Word, guess: Word) -> int:
+        # return score_word_slow(solution.value, guess.value) # (x50 slower!)
         return score_word_jit(solution.vector, guess.vector, self._powers)
 
-
-def get_fast_ternary_lookup(size: int) -> np.ndarray:
-    vector = [np.base_repr(i, base=3) for i in range(3**size)]
-    return np.array(vector, dtype=np.int32)
-
-
-@lru_cache(maxsize=None)
-def to_vector(word: str) -> np.ndarray:
-    asciis = [ord(c) - 64 for c in word.upper()]
-    return np.array(asciis, dtype=np.int8)
+    @staticmethod
+    def get_fast_ternary_lookup(size: int) -> np.ndarray:
+        vector = [np.base_repr(i, base=3) for i in range(3**size)]
+        return np.array(vector, dtype=np.int32)
 
 
 @jit(int32(int8[:], int8[:], int32[:]), nopython=True)
@@ -69,14 +62,17 @@ def score_word_jit(solution_array: np.ndarray, guess_array: np.ndarray, powers: 
     return value
 
 
-def score_word_slow(solution_array: str, guess_array: str) -> int:
+def score_word_slow(soln: str, guess: str) -> int:
     """
     This is no longer used but is kept because it is a more
     readable reference implementation of the above, more
     optimised code.
     """
+    size = len(soln)
+    solution_array = np.array(list(soln))
+    guess_array = np.array(list(guess))
 
-    indices = np.arange(5, 0, -1) - 1
+    indices = np.arange(size, 0, -1) - 1
     powers = 3**indices
 
     # First we tackle exact matches

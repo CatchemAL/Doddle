@@ -17,7 +17,7 @@ class RunController:
 
     def run(self, solution: Word, best_guess: Word) -> int:
 
-        MAX_ITERS = 10
+        MAX_ITERS = 15
 
         all_words, available_answers = self.loader({solution, best_guess})
 
