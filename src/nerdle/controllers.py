@@ -114,7 +114,7 @@ class BenchmarkController:
         _, _, solver = create_models(available_answers, all_words, depth)
         best_guess = first_guess or solver.seed(all_words.word_length)
 
-        controller = RunController(self.loader, self.solver, NullRunView(all_words.word_length))
+        controller = RunController(self.loader, NullRunView(all_words.word_length))
         f = partial(controller.run, best_guess=best_guess)
 
         histogram = benchmark(f, available_answers)
