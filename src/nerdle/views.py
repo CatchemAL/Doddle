@@ -114,7 +114,7 @@ class HideView:
         message = "You win! 🙌 👏 🙌"
         print(message)
 
-    def get_user_guess(self) -> str:
+    def get_user_guess(self) -> Word:
         guess = ""
         while len(guess) != self.size or not guess.isalpha():
             guess = input("Please enter your guess:\n").upper()

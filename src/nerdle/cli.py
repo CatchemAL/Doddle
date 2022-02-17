@@ -1,6 +1,6 @@
 from argparse import ArgumentParser, Namespace
 
-from .factory import (
+from .controller_factory import (
     create_benchmark_controller,
     create_hide_controller,
     create_run_controller,

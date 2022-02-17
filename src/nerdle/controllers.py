@@ -2,16 +2,10 @@ from functools import partial
 
 import numpy as np
 
+from .factory import create_models
+
 from .benchmark import benchmark
-from .scoring import Scorer
-from .solver import (
-    DeepEntropySolver,
-    DeepMinimaxSolver,
-    EntropySolver,
-    HistogramBuilder,
-    MinimaxSolver,
-    Solver,
-)
+
 from .views import AbstractRunView, BenchmarkView, HideView, SilentRunView, SolveView
 from .words import Word, WordLoader
 
@@ -27,11 +21,8 @@ class RunController:
 
         all_words, available_answers = self.loader(soln=solution, guess=first_guess)
 
-        # TODO sort out proper composition root
-        scorer = Scorer(all_words.word_length)
-        histogram_builder = HistogramBuilder(scorer, available_answers, all_words)
-        inner = MinimaxSolver(histogram_builder)
-        solver = inner # DeepMinimaxSolver(histogram_builder, inner)
+        depth = 1 # TODO depth
+        scorer, histogram_builder, solver = create_models(available_answers, all_words, depth)
         best_guess = first_guess or solver.seed(all_words.word_length)
 
         for i in range(MAX_ITERS):
@@ -58,11 +49,8 @@ class SolveController:
 
         all_words, available_answers = self.loader(guess=first_guess)
 
-        # TODO sort out proper composition root
-        scorer = Scorer(all_words.word_length)
-        histogram_builder = HistogramBuilder(scorer, available_answers, all_words)
-        inner = MinimaxSolver(histogram_builder)
-        solver = inner # DeepMinimaxSolver(histogram_builder, inner)
+        depth = 1 # TODO depth
+        scorer, histogram_builder, solver = create_models(available_answers, all_words, depth)
         best_guess = first_guess or solver.seed(all_words.word_length)
 
         while True:
@@ -83,21 +71,17 @@ class SolveController:
 
 
 class HideController:
-    def __init__(self, loader: WordLoader, solver: Solver, view: HideView) -> None:
+    def __init__(self, loader: WordLoader, view: HideView) -> None:
         self.loader = loader
-        self.solver = solver
         self.view = view
 
     def hide(self, first_guess: Word) -> None:
 
         all_words, available_answers = self.loader(guess=first_guess)
 
-        # TODO sort out proper composition root
-        scorer = Scorer(all_words.word_length)
-        histogram_builder = HistogramBuilder(scorer, available_answers, all_words)
-        inner = MinimaxSolver(histogram_builder)
-        solver = inner # DeepMinimaxSolver(histogram_builder, inner)
-        guess = first_guess or solver.seed(all_words.word_length)
+        depth = 1 # TODO depth
+        scorer, histogram_builder, _ = create_models(available_answers, all_words, depth)
+        guess = first_guess or self.view.get_user_guess()
 
         while True:
 
@@ -120,17 +104,21 @@ class HideController:
 
 
 class BenchmarkController:
-    def __init__(self, loader: WordLoader, solver: Solver, view: BenchmarkView) -> None:
+    def __init__(self, loader: WordLoader, view: BenchmarkView) -> None:
         self.loader = loader
-        self.solver = solver
         self.view = view
 
-    def run(self, initial_guess: str) -> None:
+    def run(self, first_guess: Word) -> None:
 
-        solutions = self.loader.common_words
+        all_words, available_answers = self.loader(guess=first_guess)
+
+        depth = 1 # TODO depth
+        _, _, solver = create_models(available_answers, all_words, depth)
+        best_guess = first_guess or solver.seed(all_words.word_length)
+
         controller = RunController(self.loader, self.solver, SilentRunView())
-        f = partial(controller.run, best_guess=initial_guess)
+        f = partial(controller.run, best_guess=best_guess)
 
-        histogram = benchmark(f, solutions)
+        histogram = benchmark(f, available_answers)
 
         self.view.display(histogram)
