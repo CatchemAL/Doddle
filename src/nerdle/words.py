@@ -65,6 +65,10 @@ class WordSeries:
 
         self.index = np.arange(len(sorted_words)) if index is None else index
 
+    @property
+    def word_length(self) -> int:
+        return 0 if len(self) == 0 else len(self.words[0])
+
     def contains(self, word: str | Word) -> bool:
         pos = bisect_left(self.words, str(word), key=lambda w: w.value)
         return pos < len(self) and self.words[pos].value == str(word)
@@ -145,9 +149,7 @@ class WordLoader:
     def __init__(self, size: int) -> None:
         self.size = size
 
-    def __call__(
-        self, words_to_add: Iterable[str] | Iterable[Word]
-    ) -> tuple[WordSeries, WordSeries]:
+    def __call__(self, words_to_add: Iterable[str] | Iterable[Word]) -> tuple[WordSeries, WordSeries]:
 
         if self.size == 5:
             # Use the official Wordle list for the real game

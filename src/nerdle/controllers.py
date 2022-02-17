@@ -2,8 +2,10 @@ from functools import partial
 
 import numpy as np
 
+from nerdle.scoring import Scorer
+
 from .benchmark import benchmark
-from .solver import Solver
+from .solver import HistogramBuilder, MinimaxSolver, Solver
 from .views import AbstractRunView, BenchmarkView, HideView, SilentRunView, SolveView
 from .words import Word, WordLoader
 
@@ -20,26 +22,20 @@ class RunController:
 
         all_words, available_answers = self.loader({solution, best_guess})
 
-
-        # solver = solver_factory.create() Need to think about this
-
-        # # Random rubbish
-        # sliced = all_words[8:20]
-        # word6 = sliced.iloc[6]
-        #
-        # for word in sliced:
-        #     print(word)
+        scorer = Scorer(all_words.word_length)
+        histogram_builder = HistogramBuilder(scorer, available_answers, all_words)
+        solver = MinimaxSolver(histogram_builder)  # Need to think about this
 
         for i in range(MAX_ITERS):
-            histogram = self.solver.scorer.get_solutions_by_score(available_answers, best_guess)
-            observed_score = self.solver.scorer.score_word(solution, best_guess)
+            histogram = scorer.get_solutions_by_score(available_answers, best_guess) # wrong
+            observed_score = scorer.score_word(solution, best_guess)
             available_answers = histogram[observed_score]
             ternary_score = np.base_repr(observed_score, base=3)  # yuk
             self.view.report_score(solution, best_guess, ternary_score, available_answers)
             if best_guess == solution:
                 return i + 1
 
-            best_guess = self.solver.get_best_guess(available_answers, all_words).word
+            best_guess = solver.get_best_guess(available_answers, all_words).word
 
         raise LookupError(f"Failed to converge after {MAX_ITERS} iterations.")
 

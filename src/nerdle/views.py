@@ -8,9 +8,7 @@ from .words import Word, WordSeries
 
 class AbstractRunView:
     @abc.abstractmethod
-    def report_score(
-        self, solution: str, guess: str, score: int, available_answers: Set[str]
-    ) -> None:
+    def report_score(self, solution: str, guess: str, score: int, available_answers: Set[str]) -> None:
         pass
 
 
