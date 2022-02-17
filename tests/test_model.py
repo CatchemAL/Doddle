@@ -1,6 +1,8 @@
+import numpy as np
 import pytest
 
 from nerdle.scoring import Scorer
+from nerdle.words import Word
 
 
 @pytest.mark.parametrize(
@@ -44,7 +46,7 @@ from nerdle.scoring import Scorer
         ("ARGUE", "ARGUE", "22222"),
     ],
 )
-def test_answer(solution, guess, expected):
+def test_answer(solution: str, guess: str, expected: str) -> None:
     scorer = Scorer()
-    score = scorer.score_word(solution, guess)
-    assert score == int(expected)
+    score = scorer.score_word(Word(solution), Word(guess))
+    assert int(np.base_repr(score, base=3)) == int(expected)
