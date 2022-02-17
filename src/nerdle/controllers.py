@@ -24,20 +24,21 @@ class RunController:
 
         scorer = Scorer(all_words.word_length)
         histogram_builder = HistogramBuilder(scorer, available_answers, all_words)
-        solver = MinimaxSolver(histogram_builder)  # Need to think about this
+        solver = MinimaxSolver(histogram_builder)  # TODO sort out proper composition root
 
         for i in range(MAX_ITERS):
-            histogram = scorer.get_solutions_by_score(available_answers, best_guess) # wrong
+            histogram = histogram_builder.get_solns_by_score(available_answers, best_guess)
             observed_score = scorer.score_word(solution, best_guess)
             available_answers = histogram[observed_score]
-            ternary_score = np.base_repr(observed_score, base=3)  # yuk
+            ternary_score = np.base_repr(observed_score, base=3)  # TODO unacceptable busines logic
             self.view.report_score(solution, best_guess, ternary_score, available_answers)
+
             if best_guess == solution:
                 return i + 1
 
             best_guess = solver.get_best_guess(available_answers, all_words).word
 
-        raise LookupError(f"Failed to converge after {MAX_ITERS} iterations.")
+        raise LookupError(f"Failed to converge after {MAX_ITERS} iterations.")  # TODO custom error
 
 
 class SolveController:
