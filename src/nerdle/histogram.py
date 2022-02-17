@@ -98,6 +98,7 @@ class ScoreMatrix:
         row_words = self.all_words.words[:, np.newaxis]
         col_words = solns.words[np.newaxis, :]
 
+        # TODO investigate performance of np.vectorize
         func = np.vectorize(self.scorer.score_word)
         self.storage[:, solns.index] = func(row_words, col_words)
         self.is_calculated[solns.index] = True

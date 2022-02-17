@@ -4,28 +4,35 @@ import numpy as np
 
 from .benchmark import benchmark
 from .scoring import Scorer
-from .solver import DeepMinimaxSolver, HistogramBuilder, MinimaxSolver, Solver
+from .solver import (
+    DeepEntropySolver,
+    DeepMinimaxSolver,
+    EntropySolver,
+    HistogramBuilder,
+    MinimaxSolver,
+    Solver,
+)
 from .views import AbstractRunView, BenchmarkView, HideView, SilentRunView, SolveView
 from .words import Word, WordLoader
 
 
 class RunController:
-    def __init__(self, loader: WordLoader, solver: Solver, view: AbstractRunView) -> None:
+    def __init__(self, loader: WordLoader, view: AbstractRunView) -> None:
         self.loader = loader
-        self.solver = solver
         self.view = view
 
-    def run(self, solution: Word, best_guess: Word) -> int:
+    def run(self, solution: Word, first_guess: Word | None) -> int:
 
         MAX_ITERS = 15
 
-        all_words, available_answers = self.loader({solution, best_guess})
+        all_words, available_answers = self.loader(soln=solution, guess=first_guess)
 
         # TODO sort out proper composition root
         scorer = Scorer(all_words.word_length)
         histogram_builder = HistogramBuilder(scorer, available_answers, all_words)
         inner = MinimaxSolver(histogram_builder)
-        solver = DeepMinimaxSolver(histogram_builder, inner)
+        solver = inner # DeepMinimaxSolver(histogram_builder, inner)
+        best_guess = first_guess or solver.seed(all_words.word_length)
 
         for i in range(MAX_ITERS):
             histogram = histogram_builder.get_solns_by_score(available_answers, best_guess)
@@ -43,30 +50,35 @@ class RunController:
 
 
 class SolveController:
-    def __init__(self, loader: WordLoader, solver: Solver, view: SolveView) -> None:
+    def __init__(self, loader: WordLoader, view: SolveView) -> None:
         self.loader = loader
-        self.solver = solver
         self.view = view
 
-    def solve(self, best_guess: str) -> None:
+    def solve(self, first_guess: Word | None) -> None:
 
-        all_words = self.loader.all_words
-        available_answers = self.loader.common_words
+        all_words, available_answers = self.loader(guess=first_guess)
+
+        # TODO sort out proper composition root
+        scorer = Scorer(all_words.word_length)
+        histogram_builder = HistogramBuilder(scorer, available_answers, all_words)
+        inner = MinimaxSolver(histogram_builder)
+        solver = inner # DeepMinimaxSolver(histogram_builder, inner)
+        best_guess = first_guess or solver.seed(all_words.word_length)
 
         while True:
             (observed_score, best_guess) = self.view.get_user_score(best_guess)
-            if self.solver.scorer.is_perfect_score(observed_score):
+            if scorer.is_perfect_score(observed_score):
                 self.view.report_success()
                 break
 
-            histogram = self.solver.scorer.get_solutions_by_score(available_answers, best_guess)
-            available_answers = histogram[observed_score]
+            histogram = histogram_builder.get_solns_by_score(available_answers, best_guess)
+            available_answers = histogram.get(observed_score, None)
 
             if not available_answers:
                 self.view.report_no_solution()
                 break
 
-            best_guess = self.solver.get_best_guess(available_answers, all_words).word
+            best_guess = solver.get_best_guess(available_answers, all_words).word
             self.view.report_best_guess(best_guess)
 
 
@@ -94,7 +106,7 @@ class HideController:
             available_answers = solns_by_score[highest_score]
             self.view.update(guess, highest_score, available_answers)
 
-            if self.solver.scorer.is_perfect_score(highest_score):
+            if scorer.is_perfect_score(highest_score):
                 self.view.report_success()
                 break
 

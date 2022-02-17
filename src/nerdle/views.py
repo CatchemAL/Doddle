@@ -56,7 +56,7 @@ class SolveView:
         message = f"\nThe best guess is {best_guess}"
         print(message)
 
-    def get_user_score(self, guess: str) -> Tuple[int, str]:
+    def get_user_score(self, guess: Word) -> Tuple[int, Word]:
 
         is_valid = False
 
@@ -67,19 +67,28 @@ class SolveView:
 
         return (observed_score, guess)
 
-    def _parse_response(self, guess: str, response: str) -> Tuple[int, str, bool]:
+    def _parse_response(self, guess: Word, response: str) -> Tuple[int, Word, bool]:
 
         if len(response) == self.size and self.score_expr.match(response):
-            observed_score = int(response)
+            observed_score = self._ternary_to_dec(response)
             return (observed_score, guess, True)
 
         m = self.word_expr.match(response)
 
         if len(response) == (2 * self.size + 1) and response[self.size] == "=" and m:
             (user_guess, score) = m.groups()
-            return (int(score), user_guess, True)
+            return (self._ternary_to_dec(score), Word(user_guess), True)
 
         return (-1, guess, False)
+
+    @staticmethod
+    def _ternary_to_dec(ternary: str) -> int:
+        # TODO move to utils class
+        value = 0
+        digits = [int(digit) for digit in reversed(list(ternary))]
+        for i, num in enumerate(digits):
+            value += num * (3**i)
+        return value
 
 
 class HideView:

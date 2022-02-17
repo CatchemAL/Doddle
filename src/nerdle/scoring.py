@@ -14,7 +14,7 @@ class Scorer:
 
     @property
     def perfect_score(self) -> int:
-        return self._ternaries[-1]
+        return (3 ** self.size) - 1
 
     def is_perfect_score(self, score: int) -> bool:
         return score == self.perfect_score

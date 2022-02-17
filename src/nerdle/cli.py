@@ -14,17 +14,15 @@ def run(args: Namespace) -> None:
 
     solution = args.answer
     size = len(solution)
-    best_guess = args.guess or MinimaxSolver.seed(size)
     controller = create_run_controller(size, args.depth)
-    controller.run(solution, best_guess)
+    controller.run(solution, args.guess)
 
 
 def solve(args: Namespace) -> None:
 
     size = len(args.guess) if args.guess else args.size
-    best_guess = args.guess or MinimaxSolver.seed(size)
     controller = create_solve_controller(size, args.depth)
-    controller.solve(best_guess)
+    controller.solve(args.guess)
 
 
 def hide(args: Namespace) -> None:
@@ -55,8 +53,8 @@ def main() -> None:
 
     solve_parser = subparsers.add_parser("solve")
     solve_group = solve_parser.add_mutually_exclusive_group()
-    solve_group.add_argument("--guess", type=lambda s: s.upper())
-    solve_group.add_argument("--size", type=int, default=5)
+    solve_group.add_argument("--guess", type=Word)
+    solve_group.add_argument("--size", required=False, type=int, default=5)
     solve_parser.add_argument("--depth", required=False, default=1, type=int)
     solve_parser.set_defaults(func=solve)
 

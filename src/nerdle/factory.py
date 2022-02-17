@@ -8,15 +8,15 @@ from .words import WordLoader
 
 
 def create_run_controller(size: int, depth: int) -> RunController:
-    loader, solver = _create(size, depth)
+    loader = WordLoader(size)
     view = RunView(size)
-    return RunController(loader, solver, view)
+    return RunController(loader, view)
 
 
 def create_solve_controller(size: int, depth: int) -> SolveController:
-    loader, solver = _create(size, depth)
+    loader = WordLoader(size)
     view = SolveView(size)
-    return SolveController(loader, solver, view)
+    return SolveController(loader, view)
 
 
 def create_hide_controller(size: int) -> HideController:
