@@ -10,7 +10,7 @@ from .words import Word, WordSeries
 
 
 class Guess(Protocol):
-    word: str
+    word: Word
     is_common_word: bool
 
 

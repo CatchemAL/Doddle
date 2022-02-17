@@ -12,9 +12,6 @@ from .words import Word, WordSeries
 
 
 class Solver(abc.ABC):
-    def __init__(self, histogram_builder: HistogramBuilder) -> None:
-        self.hist_builder = histogram_builder
-
     @abc.abstractmethod
     def get_best_guess(self, potential_solns: WordSeries, all_words: WordSeries) -> Guess:
         pass
@@ -30,6 +27,8 @@ class Solver(abc.ABC):
 
 
 class MinimaxSolver(Solver):
+    def __init__(self, histogram_builder: HistogramBuilder) -> None:
+        self.hist_builder = histogram_builder
 
     # todo: potentially an implict vs explicit implementation
     def get_best_guess(self, potential_solns: WordSeries, all_words: WordSeries) -> MinimaxGuess:
@@ -89,7 +88,7 @@ class DeepMinimaxSolver(MinimaxSolver):
 @dataclass
 class MinimaxGuess:
 
-    word: str
+    word: Word
     is_common_word: bool
     number_of_buckets: int
     size_of_largest_bucket: int
@@ -110,7 +109,7 @@ class MinimaxGuess:
         return self.word < other.word
 
     def __str__(self) -> str:
-        return self.word
+        return str(self.word)
 
     def __repr__(self) -> str:
         flag = "Common" if self.is_common_word else "Uncommon"
@@ -127,6 +126,9 @@ class MinimaxGuess:
 
 
 class EntropySolver(Solver):
+    def __init__(self, histogram_builder: HistogramBuilder) -> None:
+        self.hist_builder = histogram_builder
+
     def get_best_guess(self, potential_solns: WordSeries, all_words: WordSeries) -> EntropyGuess:
         return min(self.all_guesses(potential_solns, all_words))
 
@@ -186,7 +188,7 @@ class DeepEntropySolver(EntropySolver):
 @dataclass
 class EntropyGuess:
 
-    word: str
+    word: Word
     is_common_word: bool
     entropy: float
 

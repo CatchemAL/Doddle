@@ -15,11 +15,11 @@ def create_models(
 
     solver = MinimaxSolver(histogram_builder)
     for _ in range(1, depth):
-        solver = DeepMinimaxSolver(solver)
+        solver = DeepMinimaxSolver(histogram_builder, solver)
 
     if False:
-        solver = EntropySolver(scorer)
+        solver = EntropySolver(histogram_builder)
         for _ in range(1, depth):
-            solver = DeepEntropySolver(solver)
+            solver = DeepEntropySolver(histogram_builder, solver)
 
     return scorer, histogram_builder, solver

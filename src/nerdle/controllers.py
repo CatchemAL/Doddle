@@ -13,6 +13,18 @@ class RunController:
         self.loader = loader
         self.view = view
 
+    """
+    def __init__(
+        self,
+        dictionary,
+        scorer: Scorer,
+        histogram_builder: HistogramBuilder,
+        solver: Solver,
+        view: RunView,
+    ) -> None:
+        pass
+    """
+
     def run(self, solution: Word, first_guess: Word | None) -> int:
 
         MAX_ITERS = 15
