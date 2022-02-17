@@ -2,11 +2,9 @@ from functools import partial
 
 import numpy as np
 
-from .factory import create_models
-
 from .benchmark import benchmark
-
-from .views import RunView, BenchmarkView, HideView, NullRunView, SolveView
+from .factory import create_models
+from .views import BenchmarkView, HideView, NullRunView, RunView, SolveView
 from .words import Word, WordLoader
 
 
@@ -21,7 +19,7 @@ class RunController:
 
         all_words, available_answers = self.loader(soln=solution, guess=first_guess)
 
-        depth = 1 # TODO depth
+        depth = 1  # TODO depth
         scorer, histogram_builder, solver = create_models(available_answers, all_words, depth)
         best_guess = first_guess or solver.seed(all_words.word_length)
 
@@ -49,7 +47,7 @@ class SolveController:
 
         all_words, available_answers = self.loader(guess=first_guess)
 
-        depth = 1 # TODO depth
+        depth = 1  # TODO depth
         scorer, histogram_builder, solver = create_models(available_answers, all_words, depth)
         best_guess = first_guess or solver.seed(all_words.word_length)
 
@@ -79,7 +77,7 @@ class HideController:
 
         all_words, available_answers = self.loader(guess=first_guess)
 
-        depth = 1 # TODO depth
+        depth = 1  # TODO depth
         scorer, histogram_builder, _ = create_models(available_answers, all_words, depth)
         guess = first_guess or self.view.get_user_guess()
 
@@ -112,7 +110,7 @@ class BenchmarkController:
 
         all_words, available_answers = self.loader(guess=first_guess)
 
-        depth = 1 # TODO depth
+        depth = 1  # TODO depth
         _, _, solver = create_models(available_answers, all_words, depth)
         best_guess = first_guess or solver.seed(all_words.word_length)
 

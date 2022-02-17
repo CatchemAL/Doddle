@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 from bisect import bisect_left
 from pathlib import Path
-from typing import Iterable, Sequence, Set
+from typing import Sequence
 
 import numpy as np
 
@@ -171,7 +171,7 @@ class WordLoader:
         all_series = WordSeries(all_words)
         return all_series, common_series
 
-    def _load_from_file(self, file_name: str) -> Set[str]:
+    def _load_from_file(self, file_name: str) -> set[str]:
 
         path = Path(__file__).parent.absolute()
         SUB_FOLDER = "dictionaries"
