@@ -88,23 +88,29 @@ class HideController:
         self.solver = solver
         self.view = view
 
-    def hide(self, guess: str) -> None:
+    def hide(self, first_guess: Word) -> None:
 
-        available_answers = self.loader.common_words
+        all_words, available_answers = self.loader(guess=first_guess)
 
-        guess = guess or self.view.get_user_guess()
+        # TODO sort out proper composition root
+        scorer = Scorer(all_words.word_length)
+        histogram_builder = HistogramBuilder(scorer, available_answers, all_words)
+        inner = MinimaxSolver(histogram_builder)
+        solver = inner # DeepMinimaxSolver(histogram_builder, inner)
+        guess = first_guess or solver.seed(all_words.word_length)
 
         while True:
 
-            solns_by_score = self.solver.scorer.get_solutions_by_score(available_answers, guess)
+            histogram = histogram_builder.get_solns_by_score(available_answers, guess)
 
             def rank_score(score: int) -> int:
-                solutions = solns_by_score[score]
+                solutions = histogram[score]
                 return 0 if guess in solutions else len(solutions)
 
-            highest_score = max(solns_by_score, key=rank_score)
-            available_answers = solns_by_score[highest_score]
-            self.view.update(guess, highest_score, available_answers)
+            highest_score = max(histogram, key=rank_score)
+            available_answers = histogram[highest_score]
+            ternary_score = np.base_repr(highest_score, base=3)  # TODO busines log. TF callback?
+            self.view.update(guess, ternary_score, available_answers)
 
             if scorer.is_perfect_score(highest_score):
                 self.view.report_success()

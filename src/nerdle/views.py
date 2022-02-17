@@ -97,17 +97,17 @@ class HideView:
         self.keyboard = Keyboard()
         self.size = size
 
-    def update(self, word: str, score: int, available_answers: Set[str]) -> None:
+    def update(self, word: Word, score: int, available_answers: Set[str]) -> None:
 
         sb_printer = ScoreboardPrinter(self.size)
         kb_printer = KeyboardPrinter()
 
         num_left = len(available_answers)
-        soln = word if num_left == 1 and word in available_answers else None
-        self.scoreboard.add_row(soln, word, score, num_left)
+        soln = str(word) if num_left == 1 and word in available_answers else None
+        self.scoreboard.add_row(soln, str(word), score, num_left)
         sb_printer.print(self.scoreboard)
 
-        self.keyboard.update(word, score)
+        self.keyboard.update(str(word), score)
         kb_printer.print(self.keyboard)
 
     def report_success(self) -> None:
@@ -119,7 +119,7 @@ class HideView:
         while len(guess) != self.size or not guess.isalpha():
             guess = input("Please enter your guess:\n").upper()
 
-        return guess
+        return Word(guess)
 
 
 class BenchmarkView:

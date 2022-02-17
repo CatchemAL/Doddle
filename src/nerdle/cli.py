@@ -60,7 +60,7 @@ def main() -> None:
 
     hide_parser = subparsers.add_parser("hide")
     hide_group = hide_parser.add_mutually_exclusive_group()
-    hide_group.add_argument("--guess", type=lambda s: s.upper())
+    hide_group.add_argument("--guess", type=Word)
     hide_group.add_argument("--size", type=int, default=5)
     hide_parser.set_defaults(func=hide)
 
