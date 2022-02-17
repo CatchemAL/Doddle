@@ -4,7 +4,7 @@ import numpy as np
 
 from .benchmark import benchmark
 from .scoring import Scorer
-from .solver import HistogramBuilder, MinimaxSolver, Solver
+from .solver import DeepMinimaxSolver, HistogramBuilder, MinimaxSolver, Solver
 from .views import AbstractRunView, BenchmarkView, HideView, SilentRunView, SolveView
 from .words import Word, WordLoader
 
@@ -24,13 +24,14 @@ class RunController:
         # TODO sort out proper composition root
         scorer = Scorer(all_words.word_length)
         histogram_builder = HistogramBuilder(scorer, available_answers, all_words)
-        solver = MinimaxSolver(histogram_builder)
+        inner = MinimaxSolver(histogram_builder)
+        solver = DeepMinimaxSolver(histogram_builder, inner)
 
         for i in range(MAX_ITERS):
             histogram = histogram_builder.get_solns_by_score(available_answers, best_guess)
             observed_score = scorer.score_word(solution, best_guess)
             available_answers = histogram[observed_score]
-            ternary_score = np.base_repr(observed_score, base=3)  # TODO unacceptable busines logic
+            ternary_score = np.base_repr(observed_score, base=3)  # TODO busines log. TF callback?
             self.view.report_score(solution, best_guess, ternary_score, available_answers)
 
             if best_guess == solution:

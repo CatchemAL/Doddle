@@ -56,9 +56,9 @@ class MinimaxSolver(Solver):
 
 
 class DeepMinimaxSolver(MinimaxSolver):
-    def __init__(self, inner_solver: MinimaxSolver) -> None:
-        super().__init__(inner_solver.scorer)
-        self.solver = inner_solver
+    def __init__(self, histogram_builder: HistogramBuilder, inner_solver: MinimaxSolver) -> None:
+        super().__init__(histogram_builder)
+        self.inner = inner_solver
 
     def get_best_guess(self, potential_solns: WordSeries, all_words: WordSeries) -> MinimaxGuess:
 
@@ -68,24 +68,22 @@ class DeepMinimaxSolver(MinimaxSolver):
         guesses = self.all_guesses(potential_solns, all_words)
         best_guesses = sorted(guesses)[:N_GUESSES]
 
-        nested_worst_best_guess_by_guess: dict[str, Guess] = {}
+        deep_worst_best_guess_by_guess: dict[str, MinimaxGuess] = {}
 
         for guess in best_guesses:
-            solns_by_score = self.scorer.get_solutions_by_score(potential_solns, guess.word)
+            solns_by_score = self.hist_builder.get_solns_by_score(potential_solns, guess.word)
             worst_outcomes = sorted(solns_by_score, key=lambda s: -len(solns_by_score[s]))
             nested_best_guesses: list[Guess] = []
             for worst_outcome in worst_outcomes[:N_BRANCHES]:
                 nested_potential_solns = solns_by_score[worst_outcome]
-                nested_best_guess = self.solver.get_best_guess(nested_potential_solns, all_words)
+                nested_best_guess = self.inner.get_best_guess(nested_potential_solns, all_words)
                 nested_best_guesses.append(nested_best_guess)
             worst_best_guess = max(nested_best_guesses)
-            nested_worst_best_guess_by_guess[guess.word] = worst_best_guess
+            deep_worst_best_guess_by_guess[guess.word] = worst_best_guess
 
-        kvps = nested_worst_best_guess_by_guess.items()
-        best_nested_worst_best_guess = min(nested_worst_best_guess_by_guess.values())
-        best_guess_str = next(key for key, value in kvps if value == best_nested_worst_best_guess)
+        best_guess_str = min(deep_worst_best_guess_by_guess, key=deep_worst_best_guess_by_guess.get)
         best_guess = next(guess for guess in best_guesses if guess.word == best_guess_str)
-        return best_guess
+        return best_guess # TODO bug. Guess needs to convey depth of lower levels! Will affect 3+
 
 
 @dataclass
