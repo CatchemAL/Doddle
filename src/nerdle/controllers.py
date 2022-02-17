@@ -2,9 +2,8 @@ from functools import partial
 
 import numpy as np
 
-from nerdle.scoring import Scorer
-
 from .benchmark import benchmark
+from .scoring import Scorer
 from .solver import HistogramBuilder, MinimaxSolver, Solver
 from .views import AbstractRunView, BenchmarkView, HideView, SilentRunView, SolveView
 from .words import Word, WordLoader
@@ -22,9 +21,10 @@ class RunController:
 
         all_words, available_answers = self.loader({solution, best_guess})
 
+        # TODO sort out proper composition root
         scorer = Scorer(all_words.word_length)
         histogram_builder = HistogramBuilder(scorer, available_answers, all_words)
-        solver = MinimaxSolver(histogram_builder)  # TODO sort out proper composition root
+        solver = MinimaxSolver(histogram_builder)
 
         for i in range(MAX_ITERS):
             histogram = histogram_builder.get_solns_by_score(available_answers, best_guess)
