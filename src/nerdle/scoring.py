@@ -1,57 +1,32 @@
-from collections import defaultdict
-from functools import lru_cache
-from typing import DefaultDict, Dict, Set
-
 import numpy as np
 from numba import int8, int32, jit
 
+from .words import Word
+
 
 class Scorer:
+    __slots__ = ["size", "_ternaries", "_powers"]
+
     def __init__(self, size: int = 5) -> None:
         self.size = size
-        self._ternaries = get_fast_ternary_lookup(size)
+        self._ternaries = self.get_fast_ternary_lookup(size)
         self._powers = (3 ** np.arange(size - 1, -1, -1)).astype(np.int32)
 
     @property
     def perfect_score(self) -> int:
-        return self._ternaries[-1]
+        return (3**self.size) - 1
 
     def is_perfect_score(self, score: int) -> bool:
         return score == self.perfect_score
 
-    def score_word(self, solution: str, guess: str) -> int:
-        solution_array = to_vector(solution)
-        guess_array = to_vector(guess)
-        score = score_word_jit(solution_array, guess_array, self._powers)
-        ternary = self._ternaries[score]
-        return ternary
+    def score_word(self, solution: Word, guess: Word) -> int:
+        # return score_word_slow(solution.value, guess.value) # (x50 slower!)
+        return score_word_jit(solution.vector, guess.vector, self._powers)
 
-    def get_solutions_by_score(self, potential_solns: Set[str], guess: str) -> Dict[int, Set[str]]:
-        solns_by_score = defaultdict(set)
-        for soln in potential_solns:
-            score = self.score_word(soln, guess)
-            solns_by_score[score].add(soln)
-
-        return solns_by_score
-
-    def get_histogram(self, potential_solns: Set[str], guess: str) -> DefaultDict[int, int]:
-        histogram: DefaultDict[int, int] = defaultdict(int)
-        for soln in potential_solns:
-            score = self.score_word(soln, guess)
-            histogram[score] += 1
-
-        return histogram
-
-
-def get_fast_ternary_lookup(size: int) -> np.ndarray:
-    vector = [np.base_repr(i, base=3) for i in range(3**size)]
-    return np.array(vector, dtype=np.int32)
-
-
-@lru_cache(maxsize=None)
-def to_vector(word: str) -> np.ndarray:
-    asciis = [ord(c) - 64 for c in word.upper()]
-    return np.array(asciis, dtype=np.int8)
+    @staticmethod
+    def get_fast_ternary_lookup(size: int) -> np.ndarray:
+        vector = [np.base_repr(i, base=3) for i in range(3**size)]
+        return np.array(vector, dtype=np.int32)
 
 
 @jit(int32(int8[:], int8[:], int32[:]), nopython=True)
@@ -87,14 +62,17 @@ def score_word_jit(solution_array: np.ndarray, guess_array: np.ndarray, powers: 
     return value
 
 
-def score_word_slow(solution_array: str, guess_array: str) -> int:
+def score_word_slow(soln: str, guess: str) -> int:
     """
     This is no longer used but is kept because it is a more
     readable reference implementation of the above, more
     optimised code.
     """
+    size = len(soln)
+    solution_array = np.array(list(soln))
+    guess_array = np.array(list(guess))
 
-    indices = np.arange(5, 0, -1) - 1
+    indices = np.arange(size, 0, -1) - 1
     powers = 3**indices
 
     # First we tackle exact matches

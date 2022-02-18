@@ -12,7 +12,7 @@
 ## Install
 ![example workflow](https://github.com/CatchemAl/Nerdle/actions/workflows/python-app.yml/badge.svg)
 
-`pip install git+https://github.com/CatchemAl/Nerdle.git`
+`pip install nerdle`
 
 ## Commands
 ### Run

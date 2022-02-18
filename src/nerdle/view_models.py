@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from collections import defaultdict
 from dataclasses import dataclass
-from typing import Iterator, List
+from typing import Iterator
 
 import colorama
 from colorama import Fore
@@ -24,7 +24,7 @@ class ScoreboardRow:
 
 class Scoreboard:
     def __init__(self) -> None:
-        self.rows: List[ScoreboardRow] = []
+        self.rows: list[ScoreboardRow] = []
 
     def add_row(self, soln: str | None, guess: str, score: int, num_left: int) -> ScoreboardRow:
 
@@ -71,7 +71,7 @@ class ScoreboardPrinter:
 
     def build_string(self, scoreboard: Scoreboard) -> str:
 
-        scoreboard_str_repr: List[str] = []
+        scoreboard_str_repr: list[str] = []
         header = self.build_header()
         scoreboard_str_repr.append(header)
 

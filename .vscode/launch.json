@@ -9,14 +9,14 @@
             "type": "python",
             "request": "launch",
             "module": "src.nerdle",
-            "args": ["run", "--answer=POWER", "--guess=RAISE", "--depth=2"]
+            "args": ["run", "--answer=POWER"]
         },
         {
             "name": "Nerdle (Solve)",
             "type": "python",
             "request": "launch",
             "module": "src.nerdle",
-            "args": ["solve", "--guess=RAISE"]
+            "args": ["solve", "--guess=LUNAR", "--depth=1"]
         },
         {
             "name": "Nerdle (Hide)",

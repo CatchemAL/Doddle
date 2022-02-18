@@ -1,47 +1,84 @@
-from typing import Tuple
+from typing import Sequence
 
-from .controllers import BenchmarkController, HideController, RunController, SolveController
+from .histogram import HistogramBuilder
 from .scoring import Scorer
-from .solver import DeepEntropySolver, DeepMinimaxSolver, EntropySolver, MinimaxSolver, Solver
-from .views import BenchmarkView, HideView, RunView, SolveView
-from .words import WordLoader
+from .simulation import Benchmarker, Simulator
+from .solver import (
+    DeepEntropySolver,
+    DeepMinimaxSolver,
+    EntropySolver,
+    MinimaxSolver,
+    Solver,
+    SolverType,
+)
+from .views import BenchmarkView, NullRunView, RunView
+from .words import Dictionary, Word, load_dictionary
 
 
-def create_run_controller(size: int, depth: int) -> RunController:
-    loader, solver = _create(size, depth)
-    view = RunView(size)
-    return RunController(loader, solver, view)
+def create_simulator(
+    size: int,
+    *,
+    solver_type: SolverType = SolverType.MINIMAX,
+    depth: int = 1,
+    extras: Sequence[Word | None] | None = None,
+    lazy_eval: bool = True,
+    reporter: RunView | None = None,
+) -> Simulator:
+
+    dictionary, scorer, histogram_builder, solver = create_models(
+        size, solver_type=solver_type, depth=depth, extras=extras, lazy_eval=lazy_eval
+    )
+
+    reporter = reporter or RunView(size)
+    return Simulator(dictionary, scorer, histogram_builder, solver, reporter)
 
 
-def create_solve_controller(size: int, depth: int) -> SolveController:
-    loader, solver = _create(size, depth)
-    view = SolveView(size)
-    return SolveController(loader, solver, view)
+def create_benchmarker(
+    size: int,
+    *,
+    solver_type: SolverType = SolverType.MINIMAX,
+    depth: int = 1,
+    extras: Sequence[Word | None] | None = None,
+) -> Benchmarker:
+    simulator = create_simulator(
+        size,
+        solver_type=solver_type,
+        depth=depth,
+        extras=extras,
+        lazy_eval=False,
+        reporter=NullRunView(size),
+    )
+
+    reporter = BenchmarkView()
+    return Benchmarker(simulator, reporter)
 
 
-def create_hide_controller(size: int) -> HideController:
-    loader, solver = _create(size, 1)
-    view = HideView(size)
-    return HideController(loader, solver, view)
+def create_models(
+    size: int,
+    *,
+    solver_type: SolverType = SolverType.MINIMAX,
+    depth: int = 1,
+    extras: Sequence[Word | None] | None = None,
+    lazy_eval: bool = True,
+) -> tuple[Dictionary, Scorer, HistogramBuilder, Solver]:
 
+    dictionary = load_dictionary(size, extras=extras)
+    all_words, potential_solns = dictionary.words
 
-def create_benchmark_controller(size: int, depth: int) -> BenchmarkController:
-    loader, solver = _create(size, depth)
-    view = BenchmarkView()
-    return BenchmarkController(loader, solver, view)
-
-
-def _create(size: int, depth: int) -> Tuple[WordLoader, Solver]:
-    loader = WordLoader(size)
     scorer = Scorer(size)
+    histogram_builder = HistogramBuilder(scorer, potential_solns, all_words, lazy_eval)
 
-    solver = MinimaxSolver(scorer)
-    for _ in range(1, depth):
-        solver = DeepMinimaxSolver(solver)
-
-    if False:
-        solver = EntropySolver(scorer)
+    if solver_type == SolverType.MINIMAX:
+        solver = MinimaxSolver(histogram_builder)
         for _ in range(1, depth):
-            solver = DeepEntropySolver(solver)
+            solver = DeepMinimaxSolver(histogram_builder, solver)
 
-    return loader, solver
+    elif solver_type == SolverType.ENTROPY:
+        solver = EntropySolver(histogram_builder)
+        for _ in range(1, depth):
+            solver = DeepEntropySolver(histogram_builder, solver)
+
+    else:
+        raise ValueError(f"Solver type {solver_type} not recognised.")
+
+    return dictionary, scorer, histogram_builder, solver
