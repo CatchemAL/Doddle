@@ -16,6 +16,19 @@ class SolverType(Enum):
     MINIMAX = "MINIMAX"
     ENTROPY = "ENTROPY"
 
+    @staticmethod
+    def from_str(value: str) -> SolverType:
+        if value.upper() == "MINIMAX":
+            return SolverType.MINIMAX
+        if value.upper() == "ENTROPY":
+            return SolverType.ENTROPY
+        supported_types = ", ".join(list(SolverType))
+        message = (
+            f"{value} not recognised as a valid solver type. "
+            + f"Supported types are {supported_types}."
+        )
+        raise ValueError(message)
+
 
 class Solver(abc.ABC):
     @abc.abstractmethod

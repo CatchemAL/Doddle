@@ -71,7 +71,7 @@ class ScoreboardPrinter:
 
     def build_string(self, scoreboard: Scoreboard) -> str:
 
-        scoreboard_str_repr: List[str] = []
+        scoreboard_str_repr: list[str] = []
         header = self.build_header()
         scoreboard_str_repr.append(header)
 

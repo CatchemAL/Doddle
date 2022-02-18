@@ -12,7 +12,7 @@ from .solver import (
     SolverType,
 )
 from .views import BenchmarkView, NullRunView, RunView
-from .words import Word, WordSeries, load_dictionary
+from .words import Dictionary, Word, load_dictionary
 
 
 def create_simulator(
@@ -21,9 +21,46 @@ def create_simulator(
     solver_type: SolverType = SolverType.MINIMAX,
     depth: int = 1,
     extras: Sequence[Word | None] | None = None,
-    reporter: RunView | None = None,
     lazy_eval: bool = True,
+    reporter: RunView | None = None,
 ) -> Simulator:
+
+    dictionary, scorer, histogram_builder, solver = create_models(
+        size, solver_type=solver_type, depth=depth, extras=extras, lazy_eval=lazy_eval
+    )
+
+    reporter = reporter or RunView(size)
+    return Simulator(dictionary, scorer, histogram_builder, solver, reporter)
+
+
+def create_benchmarker(
+    size: int,
+    *,
+    solver_type: SolverType = SolverType.MINIMAX,
+    depth: int = 1,
+    extras: Sequence[Word | None] | None = None,
+) -> Benchmarker:
+    simulator = create_simulator(
+        size,
+        solver_type=solver_type,
+        depth=depth,
+        extras=extras,
+        lazy_eval=False,
+        reporter=NullRunView(size),
+    )
+
+    reporter = BenchmarkView()
+    return Benchmarker(simulator, reporter)
+
+
+def create_models(
+    size: int,
+    *,
+    solver_type: SolverType = SolverType.MINIMAX,
+    depth: int = 1,
+    extras: Sequence[Word | None] | None = None,
+    lazy_eval: bool = True,
+) -> tuple[Dictionary, Scorer, HistogramBuilder, Solver]:
 
     dictionary = load_dictionary(size, extras=extras)
     all_words, potential_solns = dictionary.words
@@ -44,43 +81,4 @@ def create_simulator(
     else:
         raise ValueError(f"Solver type {solver_type} not recognised.")
 
-    reporter = reporter or RunView(size)
-    return Simulator(dictionary, scorer, histogram_builder, solver, reporter)
-
-
-def create_benchmarker(
-    size: int,
-    *,
-    solver_type: SolverType = SolverType.MINIMAX,
-    depth: int = 1,
-    extras: Sequence[Word | None] | None = None,
-) -> Benchmarker:
-    simulator = create_simulator(
-        size,
-        solver_type=solver_type,
-        depth=depth,
-        extras=extras,
-        reporter=NullRunView(size),
-        lazy_eval=False,
-    )
-
-    reporter = BenchmarkView()
-    return Benchmarker(simulator, reporter)
-
-
-def create_models(
-    available_answers: WordSeries, all_words: WordSeries, depth: int
-) -> tuple[Scorer, HistogramBuilder, Solver]:
-    scorer = Scorer(all_words.word_length)
-    histogram_builder = HistogramBuilder(scorer, available_answers, all_words)
-
-    solver = MinimaxSolver(histogram_builder)
-    for _ in range(1, depth):
-        solver = DeepMinimaxSolver(histogram_builder, solver)
-
-    if False:
-        solver = EntropySolver(histogram_builder)
-        for _ in range(1, depth):
-            solver = DeepEntropySolver(histogram_builder, solver)
-
-    return scorer, histogram_builder, solver
+    return dictionary, scorer, histogram_builder, solver
