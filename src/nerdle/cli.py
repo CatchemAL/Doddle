@@ -3,19 +3,28 @@ from argparse import ArgumentParser, Namespace
 from .controller_factory import (
     create_benchmark_controller,
     create_hide_controller,
-    create_run_controller,
     create_solve_controller,
 )
-from .solver import MinimaxSolver
+from .factory import create_simulator
+from .solver import MinimaxSolver, SolverType
 from .words import Word
 
 
 def run(args: Namespace) -> None:
 
-    solution = args.answer
+    solution: Word = args.answer
+    guess: Word = args.guess
+    depth: int = args.depth
     size = len(solution)
-    controller = create_run_controller(size)
-    controller.run(solution, args.guess)
+
+    simulator = create_simulator(
+        size,
+        solver_type=SolverType.MINIMAX,
+        depth=depth,
+        extras=[solution, guess],
+    )
+
+    simulator.run(solution, guess)
 
 
 def solve(args: Namespace) -> None:

@@ -2,62 +2,20 @@ from functools import partial
 
 import numpy as np
 
-from .benchmark import benchmark
 from .factory import create_models
 from .views import BenchmarkView, HideView, NullRunView, RunView, SolveView
-from .words import Word, WordLoader
-
-
-class RunController:
-    def __init__(self, loader: WordLoader, view: RunView) -> None:
-        self.loader = loader
-        self.view = view
-
-    """
-    def __init__(
-        self,
-        dictionary,
-        scorer: Scorer,
-        histogram_builder: HistogramBuilder,
-        solver: Solver,
-        view: RunView,
-    ) -> None:
-        pass
-    """
-
-    def run(self, solution: Word, first_guess: Word | None) -> int:
-
-        MAX_ITERS = 15
-
-        all_words, available_answers = self.loader(soln=solution, guess=first_guess)
-
-        depth = 1  # TODO depth
-        scorer, histogram_builder, solver = create_models(available_answers, all_words, depth)
-        best_guess = first_guess or solver.seed(all_words.word_length)
-
-        for i in range(MAX_ITERS):
-            histogram = histogram_builder.get_solns_by_score(available_answers, best_guess)
-            observed_score = scorer.score_word(solution, best_guess)
-            available_answers = histogram[observed_score]
-            ternary_score = np.base_repr(observed_score, base=3)  # TODO busines log. TF callback?
-            self.view.report_score(solution, best_guess, ternary_score, available_answers)
-
-            if best_guess == solution:
-                return i + 1
-
-            best_guess = solver.get_best_guess(available_answers, all_words).word
-
-        raise LookupError(f"Failed to converge after {MAX_ITERS} iterations.")  # TODO custom error
+from .words import Dictionary, Word, load_dictionary
 
 
 class SolveController:
-    def __init__(self, loader: WordLoader, view: SolveView) -> None:
+    def __init__(self, loader, view: SolveView) -> None:
         self.loader = loader
         self.view = view
 
     def solve(self, first_guess: Word | None) -> None:
 
-        all_words, available_answers = self.loader(guess=first_guess)
+        dictionary = load_dictionary(size, guess=first_guess)
+        all_words, available_answers = dictionary.words
 
         depth = 1  # TODO depth
         scorer, histogram_builder, solver = create_models(available_answers, all_words, depth)
@@ -81,7 +39,7 @@ class SolveController:
 
 
 class HideController:
-    def __init__(self, loader: WordLoader, view: HideView) -> None:
+    def __init__(self, loader, view: HideView) -> None:
         self.loader = loader
         self.view = view
 
@@ -114,7 +72,7 @@ class HideController:
 
 
 class BenchmarkController:
-    def __init__(self, loader: WordLoader, view: BenchmarkView) -> None:
+    def __init__(self, loader, view: BenchmarkView) -> None:
         self.loader = loader
         self.view = view
 

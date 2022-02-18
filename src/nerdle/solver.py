@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import abc
 from dataclasses import dataclass
+from enum import Enum
 from math import isclose
 from typing import Iterator
 
@@ -9,6 +10,11 @@ import numpy as np
 
 from .histogram import Guess, HistogramBuilder
 from .words import Word, WordSeries
+
+
+class SolverType(Enum):
+    MINIMAX = "MINIMAX"
+    ENTROPY = "ENTROPY"
 
 
 class Solver(abc.ABC):

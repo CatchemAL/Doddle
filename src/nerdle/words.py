@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 from bisect import bisect_left
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Sequence
 
@@ -145,38 +146,47 @@ class _WordLoc:
         raise ValueError("Indexer must be an integer.")
 
 
-class WordLoader:
-    def __init__(self, size: int) -> None:
-        self.size = size
+@dataclass
+class Dictionary:
+    all_words: WordSeries
+    common_words: WordSeries
 
-    def __call__(
-        self, *, soln: Word | None = None, guess: Word | None = None
-    ) -> tuple[WordSeries, WordSeries]:
+    @property
+    def word_length(self) -> int:
+        return self.all_words.word_length
 
-        if self.size == 5:
-            # Use the official Wordle list for the real game
-            all_words = self._load_from_file("dictionary-full-official.json")
-            common_words = self._load_from_file("dictionary-answers-official.json")
-        else:
-            all_words = self._load_from_file("dictionary-full.json")
-            common_words = self._load_from_file("dictionary-answers.json")
+    @property
+    def words(self) -> tuple[WordSeries, WordSeries]:
+        return self.all_words, self.common_words
 
-        # Add the starting word in case it is missing from the official dictionary
-        # Better to solve an unofficial word than bomb out later.
-        words_to_add = [soln, guess]
-        extras = {str(word) for word in words_to_add if word}
-        common_words.update(extras)
-        all_words.update(common_words)
-        common_series = WordSeries(common_words)
-        all_series = WordSeries(all_words)
-        return all_series, common_series
 
-    def _load_from_file(self, file_name: str) -> set[str]:
+def load_dictionary(size, extras: Sequence[Word] | None = None) -> Dictionary:
 
-        path = Path(__file__).parent.absolute()
-        SUB_FOLDER = "dictionaries"
+    if size == 5:
+        # Use the official Wordle list for the real game
+        all_words = _load_from_file("dictionary-full-official.json", size)
+        common_words = _load_from_file("dictionary-answers-official.json", size)
+    else:
+        all_words = _load_from_file("dictionary-full.json", size)
+        common_words = _load_from_file("dictionary-answers.json", size)
 
-        with open(path / SUB_FOLDER / file_name) as file:
-            word_list = json.load(file)
+    # Add any extra words in case they're missing from the official dictionary
+    # Better to solve an unofficial word than bomb out later.
+    extras = [str(word) for word in extras if word] if extras else []
+    common_words.update(extras)
+    all_words.update(common_words)
 
-        return {word.upper() for word in word_list if len(word) == self.size}
+    common_series = WordSeries(common_words)
+    all_series = WordSeries(all_words)
+    return Dictionary(all_series, common_series)
+
+
+def _load_from_file(file_name: str, size: int) -> set[str]:
+
+    SUB_FOLDER = "dictionaries"
+    path = Path(__file__).parent.absolute()
+
+    with open(path / SUB_FOLDER / file_name) as file:
+        word_list = json.load(file)
+
+    return {word.upper() for word in word_list if len(word) == size}
