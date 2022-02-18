@@ -55,13 +55,10 @@ class HistogramBuilder:
 
         scores = self.score_matrix.storage[:, potential_solns.index]
 
-        guesses = []
         histogram = self.allocate_histogram_vector(all_words.word_length)
         for i, word in enumerate(all_words):
             populate_histogram(scores, i, histogram)
-            print(i, word)
-            guess = guess_factory(word, is_common[i], histogram)
-            guesses.append(guess)
+            yield guess_factory(word, is_common[i], histogram)
 
     @staticmethod
     def allocate_histogram_vector(word_length: int) -> np.ndarray:

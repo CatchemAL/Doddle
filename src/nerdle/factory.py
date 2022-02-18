@@ -25,7 +25,7 @@ def create_simulator(
 ) -> Simulator:
 
     dictionary = load_dictionary(size, extras=extras)
-    potential_solns, all_words = dictionary.words
+    all_words, potential_solns = dictionary.words
 
     scorer = Scorer(size)
     histogram_builder = HistogramBuilder(scorer, potential_solns, all_words)
