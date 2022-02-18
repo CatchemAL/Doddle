@@ -1,13 +1,23 @@
 from argparse import ArgumentParser, Namespace
 
-from .controller_factory import (
-    create_benchmark_controller,
-    create_hide_controller,
-    create_solve_controller,
-)
-from .factory import create_simulator
-from .solver import MinimaxSolver, SolverType
+from .controller_factory import create_hide_controller, create_solve_controller
+from .factory import create_benchmarker, create_simulator
+from .solver import SolverType
 from .words import Word
+
+
+def solve(args: Namespace) -> None:
+
+    size = len(args.guess) if args.guess else args.size
+    controller = create_solve_controller(size)
+    controller.solve(args.guess)
+
+
+def hide(args: Namespace) -> None:
+
+    size = len(args.guess) if args.guess else args.size
+    controller = create_hide_controller(size)
+    controller.hide(args.guess)
 
 
 def run(args: Namespace) -> None:
@@ -27,26 +37,20 @@ def run(args: Namespace) -> None:
     simulator.run(solution, guess)
 
 
-def solve(args: Namespace) -> None:
-
-    size = len(args.guess) if args.guess else args.size
-    controller = create_solve_controller(size)
-    controller.solve(args.guess)
-
-
-def hide(args: Namespace) -> None:
-
-    size = len(args.guess) if args.guess else args.size
-    controller = create_hide_controller(size)
-    controller.hide(args.guess)
-
-
 def benchmark_performance(args: Namespace) -> None:
 
-    size = len(args.guess) if args.guess else args.size
-    initial_guess = args.guess or MinimaxSolver.seed(size)
-    controller = create_benchmark_controller(args.size, args.depth)
-    controller.run(initial_guess)
+    size: int = len(args.guess) if args.guess else args.size
+    depth: int = args.depth
+    initial_guess: Word | None = args.guess
+
+    benchmarker = create_benchmarker(
+        size,
+        solver_type=SolverType.MINIMAX,
+        depth=depth,
+        extras=[initial_guess],
+    )
+
+    benchmarker.run_benchmark(initial_guess)
 
 
 def main() -> None:

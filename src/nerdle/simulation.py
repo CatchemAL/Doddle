@@ -22,7 +22,6 @@ class Simulator:
     reporter: RunView
 
     def run(self, solution: Word, first_guess: Word | None) -> int:  # TODO return more
-
         all_words, available_answers = self.dictionary.words
         best_guess = first_guess or self.solver.seed(all_words.word_length)
 
@@ -51,6 +50,7 @@ class Benchmarker:
 
         dictionary = self.simulator.dictionary
         f = partial(self.simulator.run, first_guess=first_guess)
+
         with ProcessPoolExecutor(max_workers=8) as executor:
             n_guess = executor.map(f, dictionary.common_words)
 

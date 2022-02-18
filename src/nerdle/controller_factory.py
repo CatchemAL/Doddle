@@ -1,5 +1,5 @@
-from .controllers import BenchmarkController, HideController, SolveController
-from .views import BenchmarkView, HideView, SolveView
+from .controllers import HideController, SolveController
+from .views import HideView, SolveView
 
 
 def create_solve_controller(size: int) -> SolveController:
@@ -12,9 +12,3 @@ def create_hide_controller(size: int) -> HideController:
     loader = WordLoader(size)
     view = HideView(size)
     return HideController(loader, view)
-
-
-def create_benchmark_controller(size: int) -> BenchmarkController:
-    loader = WordLoader(size)
-    view = BenchmarkView()
-    return BenchmarkController(loader, view)

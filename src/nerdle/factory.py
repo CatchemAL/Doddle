@@ -22,13 +22,14 @@ def create_simulator(
     depth: int = 1,
     extras: Sequence[Word | None] | None = None,
     reporter: RunView | None = None,
+    lazy_eval: bool = True,
 ) -> Simulator:
 
     dictionary = load_dictionary(size, extras=extras)
     all_words, potential_solns = dictionary.words
 
     scorer = Scorer(size)
-    histogram_builder = HistogramBuilder(scorer, potential_solns, all_words)
+    histogram_builder = HistogramBuilder(scorer, potential_solns, all_words, lazy_eval)
 
     if solver_type == SolverType.MINIMAX:
         solver = MinimaxSolver(histogram_builder)
@@ -52,14 +53,15 @@ def create_benchmarker(
     *,
     solver_type: SolverType = SolverType.MINIMAX,
     depth: int = 1,
-    guess: Word | None = None,
+    extras: Sequence[Word | None] | None = None,
 ) -> Benchmarker:
     simulator = create_simulator(
         size,
         solver_type=solver_type,
         depth=depth,
-        extras=[guess],
+        extras=extras,
         reporter=NullRunView(size),
+        lazy_eval=False,
     )
 
     reporter = BenchmarkView()

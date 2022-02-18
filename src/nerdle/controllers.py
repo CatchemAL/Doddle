@@ -1,10 +1,8 @@
-from functools import partial
-
 import numpy as np
 
 from .factory import create_models
-from .views import BenchmarkView, HideView, NullRunView, RunView, SolveView
-from .words import Dictionary, Word, load_dictionary
+from .views import HideView, SolveView
+from .words import Word, load_dictionary
 
 
 class SolveController:
@@ -69,24 +67,3 @@ class HideController:
                 break
 
             guess = self.view.get_user_guess()
-
-
-class BenchmarkController:
-    def __init__(self, loader, view: BenchmarkView) -> None:
-        self.loader = loader
-        self.view = view
-
-    def run(self, first_guess: Word) -> None:
-
-        all_words, available_answers = self.loader(guess=first_guess)
-
-        depth = 1  # TODO depth
-        _, _, solver = create_models(available_answers, all_words, depth)
-        best_guess = first_guess or solver.seed(all_words.word_length)
-
-        controller = RunController(self.loader, NullRunView(all_words.word_length))
-        f = partial(controller.run, best_guess=best_guess)
-
-        histogram = benchmark(f, available_answers)
-
-        self.view.display(histogram)
