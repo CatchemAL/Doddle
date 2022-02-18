@@ -1,5 +1,5 @@
 import re
-from typing import DefaultDict, Set, Tuple
+from collections import defaultdict
 
 from .view_models import Keyboard, KeyboardPrinter, Scoreboard, ScoreboardPrinter
 from .words import Word, WordSeries
@@ -49,7 +49,7 @@ class SolveView:
         message = f"\nThe best guess is {best_guess}"
         print(message)
 
-    def get_user_score(self, guess: Word) -> Tuple[int, Word]:
+    def get_user_score(self, guess: Word) -> tuple[int, Word]:
 
         is_valid = False
 
@@ -60,7 +60,7 @@ class SolveView:
 
         return (observed_score, guess)
 
-    def _parse_response(self, guess: Word, response: str) -> Tuple[int, Word, bool]:
+    def _parse_response(self, guess: Word, response: str) -> tuple[int, Word, bool]:
 
         if len(response) == self.size and self.score_expr.match(response):
             observed_score = self._ternary_to_dec(response)
@@ -90,7 +90,7 @@ class HideView:
         self.keyboard = Keyboard()
         self.size = size
 
-    def update(self, word: Word, score: int, available_answers: Set[str]) -> None:
+    def update(self, word: Word, score: int, available_answers: set[str]) -> None:
 
         sb_printer = ScoreboardPrinter(self.size)
         kb_printer = KeyboardPrinter()
@@ -116,7 +116,7 @@ class HideView:
 
 
 class BenchmarkView:
-    def display(self, histogram: DefaultDict[int, int]) -> None:
+    def display(self, histogram: defaultdict[int, int]) -> None:
         print("| # | Count |")
         print("|---|-------|")
 

@@ -1,4 +1,4 @@
-from typing import Sequence, Tuple
+from typing import Sequence
 
 from .histogram import HistogramBuilder
 from .scoring import Scorer
@@ -70,7 +70,7 @@ def create_benchmarker(
 
 def create_models(
     available_answers: WordSeries, all_words: WordSeries, depth: int
-) -> Tuple[Scorer, HistogramBuilder, Solver]:
+) -> tuple[Scorer, HistogramBuilder, Solver]:
     scorer = Scorer(all_words.word_length)
     histogram_builder = HistogramBuilder(scorer, available_answers, all_words)
 
