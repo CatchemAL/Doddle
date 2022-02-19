@@ -85,7 +85,7 @@ class DeepMinimaxSolver(MinimaxSolver):
         guesses = self.all_guesses(potential_solns, all_words)
         best_guesses = sorted(guesses)[:N_GUESSES]
 
-        deep_worst_best_guess_by_guess: dict[str, MinimaxGuess] = {}
+        deep_worst_best_guess_by_guess: dict[Word, MinimaxGuess] = {}
 
         for guess in best_guesses:
             # TODO If perfect guess...
@@ -192,7 +192,7 @@ class DeepEntropySolver(EntropySolver):
             if guess.is_common_word and all(len(s) == 1 for s in solns_by_outcome.values()):
                 return guess
 
-            avg_entropy_reduction = 0
+            avg_entropy_reduction = 0.0
             for nested_potential_solns in solns_by_outcome.values():
                 probability = len(nested_potential_solns) / len(potential_solns)
                 nested_best_guess = self.inner.get_best_guess(nested_potential_solns, all_words)

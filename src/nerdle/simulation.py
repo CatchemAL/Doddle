@@ -6,7 +6,6 @@ from functools import partial
 import numpy as np
 
 from .exceptions import FailedToFindASolutionError
-
 from .histogram import HistogramBuilder
 from .scoring import Scorer
 from .solver import Solver
