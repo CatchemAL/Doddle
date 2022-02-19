@@ -1,3 +1,4 @@
+from sqlite3 import NotSupportedError
 from typing import Sequence
 
 from .histogram import HistogramBuilder
@@ -79,6 +80,6 @@ def create_models(
             solver = DeepEntropySolver(histogram_builder, solver)
 
     else:
-        raise ValueError(f"Solver type {solver_type} not recognised.")
+        raise NotSupportedError(f"Solver type {solver_type} not recognised.")
 
     return dictionary, scorer, histogram_builder, solver
