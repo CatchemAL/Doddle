@@ -5,6 +5,8 @@ from functools import partial
 
 import numpy as np
 
+from .exceptions import FailedToFindASolutionError
+
 from .histogram import HistogramBuilder
 from .scoring import Scorer
 from .solver import Solver
@@ -38,7 +40,7 @@ class Simulator:
 
             best_guess = self.solver.get_best_guess(available_answers, all_words).word
 
-        raise LookupError(f"Failed to converge after {MAX_ITERS} iterations.")  # TODO custom error
+        raise FailedToFindASolutionError(f"Failed to converge after {MAX_ITERS} iterations.")
 
 
 class Benchmarker:
