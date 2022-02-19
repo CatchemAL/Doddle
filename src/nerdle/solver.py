@@ -32,7 +32,7 @@ class SolverType(Enum):
 
 class Solver(abc.ABC):
     @abc.abstractmethod
-    def get_best_guess(self, potential_solns: WordSeries, all_words: WordSeries) -> Guess:
+    def get_best_guess(self, all_words: WordSeries, potential_solns: WordSeries) -> Guess:
         pass
 
     @property
@@ -50,15 +50,15 @@ class MinimaxSolver(Solver):
         self.hist_builder = histogram_builder
 
     # todo: potentially an implict vs explicit implementation
-    def get_best_guess(self, potential_solns: WordSeries, all_words: WordSeries) -> MinimaxGuess:
-        return min(self.all_guesses(potential_solns, all_words))
+    def get_best_guess(self, all_words: WordSeries, potential_solns: WordSeries) -> MinimaxGuess:
+        return min(self.all_guesses(all_words, potential_solns))
 
-    def all_guesses(self, potential_solns: WordSeries, all_words: WordSeries) -> Iterator[MinimaxGuess]:
+    def all_guesses(self, all_words: WordSeries, potential_solns: WordSeries) -> Iterator[MinimaxGuess]:
 
         if len(potential_solns) <= 2:
             yield MinimaxGuess(potential_solns.words[0], True, 1, 1)
         else:
-            yield from self.hist_builder.stream(potential_solns, all_words, self._create_guess)
+            yield from self.hist_builder.stream(all_words, potential_solns, self._create_guess)
 
     @property
     def all_seeds(self) -> list[Word]:
@@ -77,12 +77,12 @@ class DeepMinimaxSolver(MinimaxSolver):
         super().__init__(histogram_builder)
         self.inner = inner_solver
 
-    def get_best_guess(self, potential_solns: WordSeries, all_words: WordSeries) -> MinimaxGuess:
+    def get_best_guess(self, all_words: WordSeries, potential_solns: WordSeries) -> MinimaxGuess:
 
         N_GUESSES = 50
         N_BRANCHES = 10
 
-        guesses = self.all_guesses(potential_solns, all_words)
+        guesses = self.all_guesses(all_words, potential_solns)
         best_guesses = sorted(guesses)[:N_GUESSES]
 
         deep_worst_best_guess_by_guess: dict[Word, MinimaxGuess] = {}
@@ -94,7 +94,7 @@ class DeepMinimaxSolver(MinimaxSolver):
             nested_best_guesses: list[Guess] = []
             for worst_outcome in worst_outcomes[:N_BRANCHES]:
                 nested_potential_solns = solns_by_score[worst_outcome]
-                nested_best_guess = self.inner.get_best_guess(nested_potential_solns, all_words)
+                nested_best_guess = self.inner.get_best_guess(all_words, nested_potential_solns)
                 nested_best_guesses.append(nested_best_guess)
             worst_best_guess = max(nested_best_guesses)
             deep_worst_best_guess_by_guess[guess.word] = worst_best_guess
@@ -148,15 +148,15 @@ class EntropySolver(Solver):
     def __init__(self, histogram_builder: HistogramBuilder) -> None:
         self.hist_builder = histogram_builder
 
-    def get_best_guess(self, potential_solns: WordSeries, all_words: WordSeries) -> EntropyGuess:
-        return min(self.all_guesses(potential_solns, all_words))
+    def get_best_guess(self, all_words: WordSeries, potential_solns: WordSeries) -> EntropyGuess:
+        return min(self.all_guesses(all_words, potential_solns))
 
-    def all_guesses(self, potential_solns: WordSeries, all_words: WordSeries) -> Iterator[EntropyGuess]:
+    def all_guesses(self, all_words: WordSeries, potential_solns: WordSeries) -> Iterator[EntropyGuess]:
 
         if len(potential_solns) <= 2:
             yield EntropyGuess(potential_solns.words[0], True, 1)
         else:
-            yield from self.hist_builder.stream(potential_solns, all_words, self._create_guess)
+            yield from self.hist_builder.stream(all_words, potential_solns, self._create_guess)
 
     @property
     def all_seeds(self) -> list[Word]:
@@ -178,11 +178,11 @@ class DeepEntropySolver(EntropySolver):
         super().__init__(histogram_builder)
         self.inner = inner_solver
 
-    def get_best_guess(self, potential_solns: WordSeries, all_words: WordSeries) -> EntropyGuess:
+    def get_best_guess(self, all_words: WordSeries, potential_solns: WordSeries) -> EntropyGuess:
 
         N_GUESSES = 10
 
-        guesses = self.all_guesses(potential_solns, all_words)
+        guesses = self.all_guesses(all_words, potential_solns)
         best_guesses = sorted(guesses)[:N_GUESSES]
         deep_guesses: list[EntropyGuess] = []
 
@@ -195,7 +195,7 @@ class DeepEntropySolver(EntropySolver):
             avg_entropy_reduction = 0.0
             for nested_potential_solns in solns_by_outcome.values():
                 probability = len(nested_potential_solns) / len(potential_solns)
-                nested_best_guess = self.inner.get_best_guess(nested_potential_solns, all_words)
+                nested_best_guess = self.inner.get_best_guess(all_words, nested_potential_solns)
                 entropy_reduction = nested_best_guess.entropy * probability
                 avg_entropy_reduction += entropy_reduction
             deep_guesses.append(guess + avg_entropy_reduction)

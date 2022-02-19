@@ -67,7 +67,7 @@ def create_models(
     all_words, potential_solns = dictionary.words
 
     scorer = Scorer(size)
-    histogram_builder = HistogramBuilder(scorer, potential_solns, all_words, lazy_eval)
+    histogram_builder = HistogramBuilder(scorer, all_words, potential_solns, lazy_eval)
 
     if solver_type == SolverType.MINIMAX:
         solver = MinimaxSolver(histogram_builder)
