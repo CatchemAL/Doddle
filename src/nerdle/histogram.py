@@ -8,7 +8,6 @@ from numba import njit
 from .scoring import Scorer
 from .words import Word, WordSeries
 
-
 class Guess(Protocol):
     word: Word
     is_common_word: bool
@@ -37,6 +36,29 @@ class HistogramBuilder:
             solns_by_score[unique_score] = filtered_solns
 
         return solns_by_score
+
+    def stream2(
+        self,
+        all_words: WordSeries,
+        potential_solns_list: list(WordSeries),
+        guess_factory: Callable[[Word, bool, np.ndarray], TGuess],
+    ) -> TGuess:
+
+        # First, we precompute the scores for all remaining solutions
+        for potential_solns in potential_solns_list:
+            self.score_matrix.precompute(potential_solns)
+
+            # Efficiently flag words that could feasibly be a solution
+            indices = all_words.find_index(potential_solns.words)
+            is_common = np.zeros(len(all_words), dtype=bool)
+            is_common[indices] = True
+
+        scores = self.score_matrix.storage[:, potential_solns.index]
+
+        histogram = self.allocate_histogram_vector(all_words.word_length)
+        for i, word in enumerate(all_words):
+            populate_histogram(scores, i, histogram)
+            yield guess_factory(word, is_common[i], histogram)
 
     def stream(
         self,

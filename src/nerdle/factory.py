@@ -9,6 +9,7 @@ from .solver import (
     DeepMinimaxSolver,
     EntropySolver,
     MinimaxSolver,
+    QuordleSolver,
     Solver,
     SolverType,
 )
@@ -81,5 +82,7 @@ def create_models(
 
     else:
         raise NotSupportedError(f"Solver type {solver_type} not recognised.")
+
+    solver = QuordleSolver(histogram_builder)
 
     return dictionary, scorer, histogram_builder, solver

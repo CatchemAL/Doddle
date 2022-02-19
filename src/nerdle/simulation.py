@@ -13,6 +13,7 @@ from .views import BenchmarkView, RunView
 from .words import Dictionary, Word
 
 
+
 @dataclass
 class Simulator:
 
@@ -21,6 +22,34 @@ class Simulator:
     histogram_builder: HistogramBuilder
     solver: Solver
     reporter: RunView
+
+    def run_quordle(self, solutions: list[Word], first_guess: Word | None) -> int:  # TODO return more
+        all_words, common_words = self.dictionary.words
+        best_guess = first_guess or self.solver.seed(all_words.word_length)
+        available_answers_list = [common_words] * len(solutions)
+
+        MAX_ITERS = 15
+        for i in range(MAX_ITERS):
+            for i, solution in enumerate(solutions):
+                available_answers = available_answers_list[i]
+                histogram = self.histogram_builder.get_solns_by_score(available_answers, best_guess)
+                observed_score = self.scorer.score_word(solution, best_guess)
+                available_answers = histogram[observed_score]
+                available_answers_list[i] = available_answers
+                ternary_score = np.base_repr(observed_score, base=3)  # TODO inappropriate bus. logic
+                self.reporter.report_score(solution, best_guess, ternary_score, available_answers)
+
+                if best_guess == solution:
+                    available_answers_list.pop(i)
+                    solutions.pop(i) # mutating a list we are iterating over
+                    if len(solutions) == 0:
+                        return
+
+            best_guess = self.solver.get_best_guess(all_words, available_answers_list).word
+
+        raise FailedToFindASolutionError(f"Failed to converge after {MAX_ITERS} iterations.")
+
+
 
     def run(self, solution: Word, first_guess: Word | None) -> int:  # TODO return more
         all_words, available_answers = self.dictionary.words
