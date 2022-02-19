@@ -19,7 +19,7 @@ class Simulator:
     dictionary: Dictionary
     scorer: Scorer
     histogram_builder: HistogramBuilder
-    solver: Solver  # TODO depth
+    solver: Solver
     reporter: RunView
 
     def run(self, solution: Word, first_guess: Word | None) -> int:  # TODO return more
