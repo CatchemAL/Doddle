@@ -19,7 +19,7 @@ class Simulator:
     dictionary: Dictionary
     scorer: Scorer
     histogram_builder: HistogramBuilder
-    solver: Solver  # TODO depth
+    solver: Solver
     reporter: RunView
 
     def run(self, solution: Word, first_guess: Word | None) -> int:  # TODO return more
@@ -37,7 +37,7 @@ class Simulator:
             if best_guess == solution:
                 return i + 1
 
-            best_guess = self.solver.get_best_guess(available_answers, all_words).word
+            best_guess = self.solver.get_best_guess(all_words, available_answers).word
 
         raise FailedToFindASolutionError(f"Failed to converge after {MAX_ITERS} iterations.")
 

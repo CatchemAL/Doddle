@@ -1,3 +1,4 @@
+from sqlite3 import NotSupportedError
 from typing import Sequence
 
 from .histogram import HistogramBuilder
@@ -66,7 +67,7 @@ def create_models(
     all_words, potential_solns = dictionary.words
 
     scorer = Scorer(size)
-    histogram_builder = HistogramBuilder(scorer, potential_solns, all_words, lazy_eval)
+    histogram_builder = HistogramBuilder(scorer, all_words, potential_solns, lazy_eval)
 
     if solver_type == SolverType.MINIMAX:
         solver = MinimaxSolver(histogram_builder)
@@ -79,6 +80,6 @@ def create_models(
             solver = DeepEntropySolver(histogram_builder, solver)
 
     else:
-        raise ValueError(f"Solver type {solver_type} not recognised.")
+        raise NotSupportedError(f"Solver type {solver_type} not recognised.")
 
     return dictionary, scorer, histogram_builder, solver

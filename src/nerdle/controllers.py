@@ -36,7 +36,7 @@ class SolveController:
                 self.view.report_no_solution()
                 break
 
-            best_guess = self.solver.get_best_guess(available_answers, all_words).word
+            best_guess = self.solver.get_best_guess(all_words, available_answers).word
             self.view.report_best_guess(best_guess)
 
 

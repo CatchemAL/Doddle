@@ -19,9 +19,9 @@ TGuess = TypeVar("TGuess", bound=Guess)
 
 class HistogramBuilder:
     def __init__(
-        self, scorer: Scorer, potential_solns: WordSeries, all_words: WordSeries, lazy_eval: bool = True
+        self, scorer: Scorer, all_words: WordSeries, potential_solns: WordSeries, lazy_eval: bool = True
     ) -> None:
-        self.score_matrix = ScoreMatrix(scorer, potential_solns, all_words, lazy_eval)
+        self.score_matrix = ScoreMatrix(scorer, all_words, potential_solns, lazy_eval)
         self.scorer = scorer
 
     def get_solns_by_score(self, potential_solns: WordSeries, guess: Word) -> dict[int, WordSeries]:
@@ -40,8 +40,8 @@ class HistogramBuilder:
 
     def stream(
         self,
-        potential_solns: WordSeries,
         all_words: WordSeries,
+        potential_solns: WordSeries,
         guess_factory: Callable[[Word, bool, np.ndarray], TGuess],
     ) -> TGuess:
 
@@ -75,7 +75,7 @@ def populate_histogram(matrix: np.ndarray, row: int, hist: np.ndarray) -> None:
 
 class ScoreMatrix:
     def __init__(
-        self, scorer: Scorer, potential_solns: WordSeries, all_words: WordSeries, lazy_eval: bool = True
+        self, scorer: Scorer, all_words: WordSeries, potential_solns: WordSeries, lazy_eval: bool = True
     ) -> None:
         self.scorer = scorer
         self.potential_solns = potential_solns
@@ -95,11 +95,11 @@ class ScoreMatrix:
         if self.is_fully_initialized or np.all(self.is_calculated[solns.index]):
             return
 
-        row_words = self.all_words.words[:, np.newaxis]
-        col_words = solns.words[np.newaxis, :]
+        row_words = self.all_words.words[np.newaxis, :]
+        col_words = solns.words[:, np.newaxis]
 
         # TODO investigate performance of np.vectorize
         func = np.vectorize(self.scorer.score_word)
-        self.storage[:, solns.index] = func(row_words, col_words)
+        self.storage[:, solns.index] = func(col_words, row_words).T
         self.is_calculated[solns.index] = True
         self.is_fully_initialized = np.all(self.is_calculated)
