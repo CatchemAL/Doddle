@@ -55,6 +55,9 @@ class Word:
     def __iter__(self) -> Iterator[str]:
         return iter(self.value)
 
+    def split(self, separator: str):
+        return list(Word(s) for s in self.value.split(separator))
+
     @staticmethod
     def to_vector(word: str) -> np.ndarray:
         asciis = [ord(c) - 64 for c in word.upper()]

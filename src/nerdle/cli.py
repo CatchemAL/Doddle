@@ -41,13 +41,17 @@ def run(args: Namespace) -> None:
     guess: Word | None = args.guess
     depth: int = args.depth
     solver_type: SolverType = args.solver
-    size = len(solution)
 
-    guess = Word("RAISE")
-    solutions = [Word("ultra"), Word("salad"), Word("MAGIC"), Word("input")]
+    solutions = solution.split(",")
+    extras = solutions + [guess]
+    size = len(solutions[0])
 
-    simulator = create_simulator(size, solver_type=solver_type, depth=depth, extras=[solution, guess])
-    simulator.run_quordle(solutions, guess)
+    if len(solutions) > 1:
+        simulator = create_simulator(size, solver_type=solver_type, depth=depth, extras=extras)
+        simulator.run_quordle(solutions, guess)
+    else:
+        simulator = create_simulator(size, solver_type=solver_type, depth=depth, extras=extras)
+        simulator.run(solutions, guess)
 
 
 def run2(args: Namespace) -> None:

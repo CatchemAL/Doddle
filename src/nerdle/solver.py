@@ -45,6 +45,29 @@ class Solver(abc.ABC):
         return seed_by_size[size]
 
 
+class QuordleGame:
+    def __init__(self, available_answers: WordSeries, soln: Word | None = None) -> None:
+        self.available_answers = available_answers
+        self.soln = soln
+        self.is_solved = False
+        self.guesses_to_solve = -1
+
+    def __repr__(self) -> str:
+
+        soln = self.soln if self.soln else Word("?" * self.available_answers.word_length)
+
+        if self.is_solved:
+            message = f"solved in {self.guesses_to_solve} guesses"
+        else:
+            message = f"unsolved - {len(self.available_answers)} possible solutions"
+
+        return f"{soln} ({message})"
+
+    @staticmethod
+    def games(available_answers: WordSeries, solns: list[Word]) -> list[QuordleGame]:
+        return [QuordleGame(available_answers, soln) for soln in solns]
+
+
 @dataclass
 class QuordleGuess:
 
@@ -105,15 +128,12 @@ class QuordleSolver:
         self.hist_builder = histogram_builder
 
     # todo: potentially an implict vs explicit implementation
-    def get_best_guess(
-        self, all_words: WordSeries, potential_solns_list: list(WordSeries)
-    ) -> MinimaxGuess:
-        return min(self.all_guesses(all_words, potential_solns_list))
+    def get_best_guess(self, all_words: WordSeries, games: list[QuordleGame]) -> MinimaxGuess:
+        return min(self.all_guesses(all_words, games))
 
-    def all_guesses(
-        self, all_words: WordSeries, potential_solns_list: list(WordSeries)
-    ) -> Iterator[MinimaxGuess]:
+    def all_guesses(self, all_words: WordSeries, games: list[QuordleGame]) -> Iterator[MinimaxGuess]:
 
+        potential_solns_list = [game.available_answers for game in games if not game.is_solved]
         for potential_solns in potential_solns_list:
             if len(potential_solns) == 1:
                 yield MinimaxGuess(potential_solns.words[0], True, 1, 1)

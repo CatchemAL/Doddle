@@ -8,7 +8,7 @@ import numpy as np
 from .exceptions import FailedToFindASolutionError
 from .histogram import HistogramBuilder
 from .scoring import Scorer
-from .solver import QuordleSolver, Solver
+from .solver import QuordleGame, QuordleSolver, Solver
 from .views import BenchmarkView, RunView
 from .words import Dictionary, Word
 
@@ -25,30 +25,26 @@ class Simulator:
     def run_quordle(self, solutions: list[Word], first_guess: Word | None) -> int:  # TODO return more
         all_words, common_words = self.dictionary.words
         best_guess = first_guess or self.solver.seed(all_words.word_length)
-        available_answers_list = [common_words] * len(solutions)
+        games = QuordleGame.games(common_words, solutions)
 
         MAX_ITERS = 15
         for i in range(MAX_ITERS):
-            to_pop = -1
-            for j, solution in enumerate(solutions):
-                available_answers = available_answers_list[j]
+            for game in games:
+                if game.is_solved:
+                    continue
+                available_answers = game.available_answers
                 histogram = self.histogram_builder.get_solns_by_score(available_answers, best_guess)
-                observed_score = self.scorer.score_word(solution, best_guess)
-                new_available_answers = histogram[observed_score]
+                observed_score = self.scorer.score_word(game.soln, best_guess)
+                updated_answers = histogram[observed_score]
                 ternary_score = np.base_repr(observed_score, base=3)  # TODO inappropriate bus. logic
-                self.reporter.report_score(i, solution, best_guess, ternary_score, new_available_answers)
-                available_answers_list[j] = new_available_answers
+                self.reporter.report_score(i, game.soln, best_guess, ternary_score, updated_answers)
+                game.available_answers = updated_answers
+                game.is_solved = best_guess == game.soln  # TODO set number of moves
 
-                if best_guess == solution:
-                    to_pop = j
+            if all((game.is_solved for game in games)):
+                return i + 1  # TODO return games I suppose
 
-            if to_pop >= 0:
-                solutions.pop(to_pop)
-                available_answers_list.pop(to_pop)
-                if len(solutions) == 0:
-                    return
-
-            best_guess = self.solver.get_best_guess(all_words, available_answers_list).word
+            best_guess = self.solver.get_best_guess(all_words, games).word
 
         raise FailedToFindASolutionError(f"Failed to converge after {MAX_ITERS} iterations.")
 

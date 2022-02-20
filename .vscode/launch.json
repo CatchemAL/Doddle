@@ -9,7 +9,7 @@
             "type": "python",
             "request": "launch",
             "module": "src.nerdle",
-            "args": ["run", "--answer=POWER", "--guess=BLADE"]
+            "args": ["run", "--answer=BLISS,NEIGH,BATTY,WASTE", "--guess=CLOTH"]
         },
         {
             "name": "Nerdle (Solve)",
