@@ -14,7 +14,7 @@ from .words import Dictionary, Word
 
 
 @dataclass
-class Simulator:
+class MultiSimulator:
 
     dictionary: Dictionary
     scorer: Scorer
@@ -22,7 +22,7 @@ class Simulator:
     solver: QuordleSolver
     reporter: RunView
 
-    def run_quordle(self, solutions: list[Word], first_guess: Word | None) -> int:  # TODO return more
+    def run_multi(self, solutions: list[Word], first_guess: Word | None) -> int:  # TODO return more
         all_words, common_words = self.dictionary.words
         best_guess = first_guess or self.solver.seed(all_words.word_length)
         games = QuordleGame.games(common_words, solutions)
@@ -47,6 +47,17 @@ class Simulator:
             best_guess = self.solver.get_best_guess(all_words, games).word
 
         raise FailedToFindASolutionError(f"Failed to converge after {MAX_ITERS} iterations.")
+
+
+
+@dataclass
+class Simulator:
+
+    dictionary: Dictionary
+    scorer: Scorer
+    histogram_builder: HistogramBuilder
+    solver: Solver
+    reporter: RunView
 
     def run(self, solution: Word, first_guess: Word | None) -> int:  # TODO return more
         all_words, available_answers = self.dictionary.words

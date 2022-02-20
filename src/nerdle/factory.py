@@ -3,7 +3,7 @@ from typing import Sequence
 
 from .histogram import HistogramBuilder
 from .scoring import Scorer
-from .simulation import Benchmarker, Simulator
+from .simulation import Benchmarker, MultiSimulator, Simulator
 from .solver import (
     DeepEntropySolver,
     DeepMinimaxSolver,
@@ -17,6 +17,23 @@ from .views import BenchmarkView, NullRunView, RunView
 from .words import Dictionary, Word, load_dictionary
 
 
+def create_multi_simulator(
+    size: int,
+    *,
+    solver_type: SolverType = SolverType.MINIMAX,
+    depth: int = 1,
+    extras: Sequence[Word | None] | None = None,
+    lazy_eval: bool = True,
+    reporter: RunView | None = None,
+) -> MultiSimulator:
+
+    dictionary, scorer, histogram_builder, _, multi_solver = create_models(
+        size, solver_type=solver_type, depth=depth, extras=extras, lazy_eval=lazy_eval
+    )
+
+    reporter = reporter or RunView(size)
+    return MultiSimulator(dictionary, scorer, histogram_builder, multi_solver, reporter)
+
 def create_simulator(
     size: int,
     *,
@@ -27,7 +44,7 @@ def create_simulator(
     reporter: RunView | None = None,
 ) -> Simulator:
 
-    dictionary, scorer, histogram_builder, solver = create_models(
+    dictionary, scorer, histogram_builder, solver, _ = create_models(
         size, solver_type=solver_type, depth=depth, extras=extras, lazy_eval=lazy_eval
     )
 
@@ -62,7 +79,7 @@ def create_models(
     depth: int = 1,
     extras: Sequence[Word | None] | None = None,
     lazy_eval: bool = True,
-) -> tuple[Dictionary, Scorer, HistogramBuilder, Solver]:
+) -> tuple[Dictionary, Scorer, HistogramBuilder, Solver, QuordleSolver]:
 
     dictionary = load_dictionary(size, extras=extras)
     all_words, potential_solns = dictionary.words
@@ -83,6 +100,6 @@ def create_models(
     else:
         raise NotSupportedError(f"Solver type {solver_type} not recognised.")
 
-    solver = QuordleSolver(histogram_builder)
+    multi_solver = QuordleSolver(histogram_builder)
 
-    return dictionary, scorer, histogram_builder, solver
+    return dictionary, scorer, histogram_builder, solver, multi_solver
