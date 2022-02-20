@@ -43,8 +43,8 @@ def run(args: Namespace) -> None:
     solver_type: SolverType = args.solver
     size = len(solution)
 
-    guess = Word('LUNAR')
-    solutions = [Word('ultra'), Word('VIPER'), Word('MAGIC'), Word('input')]
+    guess = Word('RAISE')
+    solutions = [Word('ultra'), Word('salad'), Word('MAGIC'), Word('input')]
 
     simulator = create_simulator(size, solver_type=solver_type, depth=depth, extras=[solution, guess])
     simulator.run_quordle(solutions, guess)

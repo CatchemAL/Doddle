@@ -29,21 +29,25 @@ class Simulator:
         available_answers_list = [common_words] * len(solutions)
 
         MAX_ITERS = 15
-        for i in range(MAX_ITERS):
-            for i, solution in enumerate(solutions):
-                available_answers = available_answers_list[i]
+        for _ in range(MAX_ITERS):
+            to_pop = -1
+            for j, solution in enumerate(solutions):
+                available_answers = available_answers_list[j]
                 histogram = self.histogram_builder.get_solns_by_score(available_answers, best_guess)
                 observed_score = self.scorer.score_word(solution, best_guess)
-                available_answers = histogram[observed_score]
-                available_answers_list[i] = available_answers
+                new_available_answers = histogram[observed_score]
+                available_answers_list[j] = new_available_answers
                 ternary_score = np.base_repr(observed_score, base=3)  # TODO inappropriate bus. logic
-                self.reporter.report_score(solution, best_guess, ternary_score, available_answers)
+                self.reporter.report_score(solution, best_guess, ternary_score, new_available_answers)
 
                 if best_guess == solution:
-                    available_answers_list.pop(i)
-                    solutions.pop(i) # mutating a list we are iterating over
-                    if len(solutions) == 0:
-                        return
+                    to_pop = j
+
+            if to_pop >=0:
+                solutions.pop(to_pop)
+                available_answers_list.pop(to_pop)
+                if len(solutions) == 0:
+                    return
 
             best_guess = self.solver.get_best_guess(all_words, available_answers_list).word
 

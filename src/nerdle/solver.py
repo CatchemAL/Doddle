@@ -59,9 +59,11 @@ class QuordleGuess:
     min_pct: float
     max_pct: float
     pct_product: float
+    num_buckets: int
 
 
     def improves_upon(self, other: QuordleGuess) -> bool:
+
 
 
 
@@ -81,6 +83,9 @@ class QuordleGuess:
 
         if self.max != other.max:
             return self.max < other.max
+
+        if self.num_buckets != other.num_buckets:
+            return self.num_buckets > other.num_buckets
 
         return self.word < other.word
 
@@ -127,16 +132,17 @@ class QuordleSolver:
             guessed_word = quad_guess[0].word
             is_common_word = quad_guess[0].is_common_word
             largest_sizes = np.array([g.size_of_largest_bucket for g in quad_guess])
+            num_buckets = sum([g.number_of_buckets for g in quad_guess])
             largest_sizes_pct = largest_sizes / num_solutions
-            sum = largest_sizes.sum()
-            min = largest_sizes.min()
-            max = largest_sizes.max()
-            sum_pct = largest_sizes_pct.sum() # .dot(largest_sizes_pct)
-            min_pct = largest_sizes_pct.min()
-            max_pct = largest_sizes_pct.max()
-            pct_product = largest_sizes_pct.prod()
+            sum_abs = sum(largest_sizes)
+            min_abs = min(largest_sizes)
+            max_abs = max(largest_sizes)
+            sum_pct = sum(largest_sizes_pct)
+            min_pct = min(largest_sizes_pct)
+            max_pct = max(largest_sizes_pct)
+            pct_product = sum(largest_sizes_pct ** 4)
 
-            yield QuordleGuess(guessed_word, is_common_word, sum, min, max, sum_pct, min_pct, max_pct, pct_product)
+            yield QuordleGuess(guessed_word, is_common_word, sum_abs, min_abs, max_abs, sum_pct, min_pct, max_pct, pct_product, num_buckets)
 
     @property
     def all_seeds(self) -> list[Word]:
