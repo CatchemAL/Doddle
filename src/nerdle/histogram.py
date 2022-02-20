@@ -8,6 +8,7 @@ from numba import njit
 from .scoring import Scorer
 from .words import Word, WordSeries
 
+
 class Guess(Protocol):
     word: Word
     is_common_word: bool

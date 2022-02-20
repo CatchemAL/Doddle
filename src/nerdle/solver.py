@@ -45,8 +45,6 @@ class Solver(abc.ABC):
         return seed_by_size[size]
 
 
-
-
 @dataclass
 class QuordleGuess:
 
@@ -61,11 +59,7 @@ class QuordleGuess:
     pct_product: float
     num_buckets: int
 
-
     def improves_upon(self, other: QuordleGuess) -> bool:
-
-
-
 
         if not isclose(self.pct_product, other.pct_product, abs_tol=1e-9):
             return self.pct_product < other.pct_product
@@ -106,22 +100,25 @@ class QuordleGuess:
         return other.improves_upon(self)
 
 
-
 class QuordleSolver:
     def __init__(self, histogram_builder: HistogramBuilder) -> None:
         self.hist_builder = histogram_builder
 
     # todo: potentially an implict vs explicit implementation
-    def get_best_guess(self, all_words: WordSeries, potential_solns_list: list(WordSeries)) -> MinimaxGuess:
+    def get_best_guess(
+        self, all_words: WordSeries, potential_solns_list: list(WordSeries)
+    ) -> MinimaxGuess:
         return min(self.all_guesses(all_words, potential_solns_list))
 
-    def all_guesses(self, all_words: WordSeries, potential_solns_list: list(WordSeries)) -> Iterator[MinimaxGuess]:
+    def all_guesses(
+        self, all_words: WordSeries, potential_solns_list: list(WordSeries)
+    ) -> Iterator[MinimaxGuess]:
 
         for potential_solns in potential_solns_list:
             if len(potential_solns) == 1:
                 yield MinimaxGuess(potential_solns.words[0], True, 1, 1)
                 return
-    
+
         streams = []
         for potential_solns in potential_solns_list:
             stream = self.hist_builder.stream(all_words, potential_solns, self._create_guess)
@@ -140,9 +137,20 @@ class QuordleSolver:
             sum_pct = sum(largest_sizes_pct)
             min_pct = min(largest_sizes_pct)
             max_pct = max(largest_sizes_pct)
-            pct_product = sum(largest_sizes_pct ** 4)
+            pct_product = sum(largest_sizes_pct**4)
 
-            yield QuordleGuess(guessed_word, is_common_word, sum_abs, min_abs, max_abs, sum_pct, min_pct, max_pct, pct_product, num_buckets)
+            yield QuordleGuess(
+                guessed_word,
+                is_common_word,
+                sum_abs,
+                min_abs,
+                max_abs,
+                sum_pct,
+                min_pct,
+                max_pct,
+                pct_product,
+                num_buckets,
+            )
 
     @property
     def all_seeds(self) -> list[Word]:
@@ -154,7 +162,6 @@ class QuordleSolver:
         num_buckets = np.count_nonzero(histogram)
         size_of_largest_bucket = histogram.max()
         return MinimaxGuess(word, is_common_word, num_buckets, size_of_largest_bucket)
-
 
 
 class MinimaxSolver(Solver):

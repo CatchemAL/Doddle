@@ -13,7 +13,6 @@ from .views import BenchmarkView, RunView
 from .words import Dictionary, Word
 
 
-
 @dataclass
 class Simulator:
 
@@ -43,7 +42,7 @@ class Simulator:
                 if best_guess == solution:
                     to_pop = j
 
-            if to_pop >=0:
+            if to_pop >= 0:
                 solutions.pop(to_pop)
                 available_answers_list.pop(to_pop)
                 if len(solutions) == 0:
@@ -52,8 +51,6 @@ class Simulator:
             best_guess = self.solver.get_best_guess(all_words, available_answers_list).word
 
         raise FailedToFindASolutionError(f"Failed to converge after {MAX_ITERS} iterations.")
-
-
 
     def run(self, solution: Word, first_guess: Word | None) -> int:  # TODO return more
         all_words, available_answers = self.dictionary.words
