@@ -48,12 +48,12 @@ class HideController:
     histogram_builder: HistogramBuilder
     view: HideView
 
-    def hide(self, first_guess: Word) -> None:
+    def hide(self, first_guess: Word | None) -> None:
 
         available_answers = self.dictionary.common_words
         guess = first_guess or self.view.get_user_guess()
 
-        while True:
+        for i in range(100):
 
             histogram = self.histogram_builder.get_solns_by_score(available_answers, guess)
 
@@ -64,7 +64,7 @@ class HideController:
             highest_score = max(histogram, key=rank_score)
             available_answers = histogram[highest_score]
             ternary_score = np.base_repr(highest_score, base=3)  # TODO busines log. TF callback?
-            self.view.update(guess, ternary_score, available_answers)
+            self.view.update(i, guess, ternary_score, available_answers)
 
             if self.scorer.is_perfect_score(highest_score):
                 self.view.report_success()

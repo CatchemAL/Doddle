@@ -11,10 +11,10 @@ class RunView:
         self.scoreboard = Scoreboard()
 
     def report_score(
-        self, solution: Word, guess: Word, score: int, available_answers: WordSeries
+        self, n: int, solution: Word, guess: Word, score: int, available_answers: WordSeries
     ) -> None:
 
-        self.scoreboard.add_row(str(solution), str(guess), score, len(available_answers))
+        self.scoreboard.add_row(n, solution, guess, score, len(available_answers))
 
         sb_printer = ScoreboardPrinter(self.size)
         sb_printer.print_next(self.scoreboard)
@@ -90,17 +90,17 @@ class HideView:
         self.keyboard = Keyboard()
         self.size = size
 
-    def update(self, word: Word, score: int, available_answers: set[str]) -> None:
+    def update(self, n: int, word: Word, score: int, available_answers: WordSeries) -> None:
 
         sb_printer = ScoreboardPrinter(self.size)
         kb_printer = KeyboardPrinter()
 
         num_left = len(available_answers)
-        soln = str(word) if num_left == 1 and word in available_answers else None
-        self.scoreboard.add_row(soln, str(word), score, num_left)
+        soln = word if num_left == 1 and word in available_answers else None
+        self.scoreboard.add_row(n, soln, word, score, num_left)
         sb_printer.print(self.scoreboard)
 
-        self.keyboard.update(str(word), score)
+        self.keyboard.update(word, score)
         kb_printer.print(self.keyboard)
 
     def report_success(self) -> None:
