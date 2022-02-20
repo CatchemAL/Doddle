@@ -27,12 +27,12 @@ jobs:
         # sort this out
         pip install .
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-        nerdle run --answer=SALTY
+        doddle run --answer=SALTY
     
     - name: Test with pytest
       run: |
         pip install pytest-cov
-        pytest -v --cov=nerdle --cov-report term:skip-covered tests/
+        pytest -v --cov=doddle --cov-report term:skip-covered tests/
     
     - name: Check formatting using Black
       run: |

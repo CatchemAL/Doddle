@@ -42,7 +42,7 @@ class SolveView:
         print(message)
 
     def report_no_solution(self) -> None:
-        message = "\nOh no! Nerdle does not know of any words that match those scores! 😭 😭 😭"
+        message = "\nOh no! Doddle does not know of any words that match those scores! 😭 😭 😭"
         print(message)
 
     def report_best_guess(self, best_guess: Word) -> None:

@@ -1,8 +1,8 @@
 import numpy as np
 import pytest
 
-from nerdle.scoring import Scorer
-from nerdle.words import Word
+from doddle.scoring import Scorer
+from doddle.words import Word
 
 
 @pytest.mark.parametrize(
