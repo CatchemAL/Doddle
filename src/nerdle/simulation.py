@@ -49,7 +49,6 @@ class MultiSimulator:
         raise FailedToFindASolutionError(f"Failed to converge after {MAX_ITERS} iterations.")
 
 
-
 @dataclass
 class Simulator:
 

@@ -54,7 +54,6 @@ def run(args: Namespace) -> None:
         simulator.run(solution, guess)
 
 
-
 def benchmark_performance(args: Namespace) -> None:
 
     guess: Word | None = args.guess

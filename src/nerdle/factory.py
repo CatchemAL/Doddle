@@ -34,6 +34,7 @@ def create_multi_simulator(
     reporter = reporter or RunView(size)
     return MultiSimulator(dictionary, scorer, histogram_builder, multi_solver, reporter)
 
+
 def create_simulator(
     size: int,
     *,
