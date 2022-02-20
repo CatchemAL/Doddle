@@ -117,11 +117,11 @@ class ScoreMatrix:
         if self.is_fully_initialized or np.all(self.is_calculated[solns.index]):
             return
 
-        row_words = self.all_words.words[:, np.newaxis]
-        col_words = solns.words[np.newaxis, :]
+        row_words = self.all_words.words[np.newaxis, :]
+        col_words = solns.words[:, np.newaxis]
 
         # TODO investigate performance of np.vectorize
         func = np.vectorize(self.scorer.score_word)
-        self.storage[:, solns.index] = func(row_words, col_words)
+        self.storage[:, solns.index] = func(col_words, row_words).T
         self.is_calculated[solns.index] = True
         self.is_fully_initialized = np.all(self.is_calculated)
