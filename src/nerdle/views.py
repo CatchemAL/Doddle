@@ -90,7 +90,7 @@ class HideView:
         self.keyboard = Keyboard()
         self.size = size
 
-    def update(self, n:int, word: Word, score: int, available_answers: WordSeries) -> None:
+    def update(self, n: int, word: Word, score: int, available_answers: WordSeries) -> None:
 
         sb_printer = ScoreboardPrinter(self.size)
         kb_printer = KeyboardPrinter()
