@@ -4,7 +4,7 @@ import json
 from bisect import bisect_left
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Sequence
+from typing import Iterator, Sequence
 
 import numpy as np
 
@@ -48,6 +48,12 @@ class Word:
 
     def __hash__(self) -> int:
         return hash(self.value)
+
+    def __add__(self, other: str) -> str:
+        return self.value + other
+
+    def __iter__(self) -> Iterator[str]:
+        return iter(self.value)
 
     @staticmethod
     def to_vector(word: str) -> np.ndarray:

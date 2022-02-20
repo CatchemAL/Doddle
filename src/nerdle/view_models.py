@@ -7,14 +7,16 @@ from typing import Iterator
 import colorama
 from colorama import Fore
 
+from .words import Word
+
 colorama.init()
 
 
 @dataclass
 class ScoreboardRow:
     n: int
-    soln: str
-    guess: str
+    soln: Word
+    guess: Word
     score: int
     num_left: int
 
@@ -26,18 +28,15 @@ class Scoreboard:
     def __init__(self) -> None:
         self.rows: list[ScoreboardRow] = []
 
-    def add_row(self, soln: str | None, guess: str, score: int, num_left: int) -> ScoreboardRow:
-
-        if any(self.rows):
-            n = self.rows[-1].n + 1
-        else:
-            n = 1
+    def add_row(
+        self, n: int, soln: Word | None, guess: Word, score: int, num_left: int
+    ) -> ScoreboardRow:
 
         if not soln:
             size = len(guess)
             soln = "?" * size
 
-        row = ScoreboardRow(n, soln, guess, score, num_left)
+        row = ScoreboardRow(n + 1, soln, guess, score, num_left)
         self.rows.append(row)
         return row
 
@@ -89,7 +88,7 @@ class ScoreboardPrinter:
         header += f"|---|-------{dashes}|-------{dashes}|-------{dashes}|-------{dashes}|"
         return header
 
-    def build_row(self, n: int, soln: str, guess: str, score: int, num_left: int) -> str:
+    def build_row(self, n: int, soln: Word, guess: Word, score: int, num_left: int) -> str:
 
         padding = " " * max(0, 5 - self.size)
         padded_score = f"{score}".zfill(self.size)
@@ -103,7 +102,7 @@ class ScoreboardPrinter:
         return f"| {n} | {pretty_soln} | {pretty_guess} | {pretty_score} | {padded_num_left} |"
 
     @staticmethod
-    def _color_code(word: str, score: int) -> str:
+    def _color_code(word: Word | str, score: int) -> str:
 
         size = len(word)
         padded_score = f"{score}".zfill(size)
@@ -131,7 +130,7 @@ class Keyboard:
     def __init__(self) -> None:
         self.digit_by_char = defaultdict(lambda: -1)
 
-    def update(self, word: str, score: int) -> None:
+    def update(self, word: Word | str, score: int) -> None:
 
         size = len(word)
         padded_score = f"{score}".zfill(size)

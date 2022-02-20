@@ -93,10 +93,10 @@ class QuordleGuess:
             + f"Num. buckets={self.number_of_buckets}"
         )
 
-    def __lt__(self, other: MinimaxGuess):
+    def __lt__(self, other: QuordleGuess):
         return self.improves_upon(other)
 
-    def __gt__(self, other: MinimaxGuess):
+    def __gt__(self, other: QuordleGuess):
         return other.improves_upon(self)
 
 

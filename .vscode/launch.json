@@ -9,7 +9,7 @@
             "type": "python",
             "request": "launch",
             "module": "src.nerdle",
-            "args": ["run", "--answer=POWER"]
+            "args": ["run", "--answer=POWER", "--guess=BLADE"]
         },
         {
             "name": "Nerdle (Solve)",
