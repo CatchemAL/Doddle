@@ -168,7 +168,7 @@ class MinimaxSolver(Solver):
     def __init__(self, histogram_builder: HistogramBuilder) -> None:
         self.hist_builder = histogram_builder
 
-    # todo: potentially an implict vs explicit implementation
+    # TODO: potentially an implict vs explicit implementation
     def get_best_guess(self, all_words: WordSeries, potential_solns: WordSeries) -> MinimaxGuess:
         return min(self.all_guesses(all_words, potential_solns))
 
