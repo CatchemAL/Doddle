@@ -5,31 +5,31 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Nerdle (Run)",
+            "name": "Doddle (Run)",
             "type": "python",
             "request": "launch",
-            "module": "src.nerdle",
-            "args": ["run", "--answer=POWER"]
+            "module": "src.doddle",
+            "args": ["run", "--answer=BLISS,NEIGH,BATTY,WASTE", "--guess=CLOTH"]
         },
         {
-            "name": "Nerdle (Solve)",
+            "name": "Doddle (Solve)",
             "type": "python",
             "request": "launch",
-            "module": "src.nerdle",
+            "module": "src.doddle",
             "args": ["solve", "--guess=LUNAR", "--depth=1"]
         },
         {
-            "name": "Nerdle (Hide)",
+            "name": "Doddle (Hide)",
             "type": "python",
             "request": "launch",
-            "module": "src.nerdle",
+            "module": "src.doddle",
             "args": ["hide", "--guess=EXITS"]
         },
         {
-            "name": "Nerdle (Benchmark)",
+            "name": "Doddle (Benchmark)",
             "type": "python",
             "request": "launch",
-            "module": "src.nerdle",
+            "module": "src.doddle",
             "args": ["benchmark", "--size=5"]
         },
         {
