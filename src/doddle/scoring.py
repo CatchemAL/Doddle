@@ -23,8 +23,6 @@ class Scorer:
         return score_word_jit(solution.vector, guess.vector, self._powers)
 
 
-
-
 @jit(int32(int8[:], int8[:], int32[:]), nopython=True)
 def score_word_jit(solution_array: np.ndarray, guess_array: np.ndarray, powers: np.ndarray) -> int:
 
@@ -100,6 +98,7 @@ def from_ternary(ternary: str) -> int:
     for i, num in enumerate(digits):
         value += num * (3**i)
     return value
+
 
 def to_ternary(score: int, size: int) -> str:
     return np.base_repr(score, base=3).zfill(size)

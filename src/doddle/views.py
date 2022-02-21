@@ -1,9 +1,10 @@
 import re
 from collections import defaultdict
 
+from .scoring import to_ternary
 from .view_models import Keyboard, KeyboardPrinter, Scoreboard, ScoreboardPrinter
 from .words import Word, WordSeries
-from .scoring import to_ternary
+
 
 class RunView:
     def __init__(self, size: int) -> None:
@@ -13,7 +14,7 @@ class RunView:
     def report_score(
         self, n: int, solution: Word, guess: Word, decimal_score: int, available_answers: WordSeries
     ) -> None:
-        
+
         ternary_score = to_ternary(decimal_score, self.size)
         self.scoreboard.add_row(n, solution, guess, ternary_score, len(available_answers))
 
@@ -74,8 +75,6 @@ class SolveView:
             return (self._ternary_to_dec(score), Word(user_guess), True)
 
         return (-1, guess, False)
-
-
 
 
 class HideView:

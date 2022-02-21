@@ -3,8 +3,6 @@ from concurrent.futures import ProcessPoolExecutor
 from dataclasses import dataclass
 from functools import partial
 
-import numpy as np
-
 from .exceptions import FailedToFindASolutionError
 from .histogram import HistogramBuilder
 from .quordle import QuordleGame, QuordleSolver

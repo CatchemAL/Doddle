@@ -1,7 +1,5 @@
 from dataclasses import dataclass
 
-import numpy as np
-
 from .histogram import HistogramBuilder
 from .scoring import Scorer
 from .solver import Solver
