@@ -63,8 +63,7 @@ class HideController:
 
             highest_score = max(histogram, key=rank_score)
             available_answers = histogram[highest_score]
-            ternary_score = np.base_repr(highest_score, base=3)  # TODO busines log. TF callback?
-            self.view.update(i, guess, ternary_score, available_answers)
+            self.view.update(i, guess, highest_score, available_answers)
 
             if self.scorer.is_perfect_score(highest_score):
                 self.view.report_success()

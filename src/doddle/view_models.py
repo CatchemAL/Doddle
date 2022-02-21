@@ -17,7 +17,7 @@ class ScoreboardRow:
     n: int
     soln: Word
     guess: Word
-    score: int
+    score: str
     num_left: int
 
     def __repr__(self) -> str:
@@ -29,7 +29,7 @@ class Scoreboard:
         self.rows: list[ScoreboardRow] = []
 
     def add_row(
-        self, n: int, soln: Word | None, guess: Word, score: int, num_left: int
+        self, n: int, soln: Word | None, guess: Word, score: str, num_left: int
     ) -> ScoreboardRow:
 
         if not soln:
@@ -97,30 +97,26 @@ class ScoreboardPrinter:
         dashes = "-" * repetitions
         return f"|---|-------{dashes}|-------{dashes}|-------{dashes}|-------{dashes}|"
 
-    def build_row(self, n: int, soln: Word, guess: Word, score: int, num_left: int) -> str:
+    def build_row(self, n: int, soln: Word, guess: Word, score: str, num_left: int) -> str:
 
         n2 = str(n).rjust(2, " ")
 
         padding = " " * max(0, 5 - self.size)
-        padded_score = f"{score}".zfill(self.size)
         num_left_str = " " if guess == soln else f"{num_left}"
         padded_num_left = num_left_str.rjust(max(5, self.size), " ")
 
         pretty_soln = soln + padding
         pretty_guess = self._color_code(guess, score) + padding
-        pretty_score = self._color_code(padded_score, score) + padding
+        pretty_score = self._color_code(score, score) + padding
 
         return f"|{n2} | {pretty_soln} | {pretty_guess} | {pretty_score} | {padded_num_left} |"
 
     @staticmethod
-    def _color_code(word: Word | str, score: int) -> str:
-
-        size = len(word)
-        padded_score = f"{score}".zfill(size)
+    def _color_code(word: Word | str, score: str) -> str:
 
         prev_digit = "0"
         pretty_chars = []
-        for (char, digit) in zip(word, padded_score):
+        for (char, digit) in zip(word, score):
             if digit == prev_digit:
                 pretty_chars.append(char)
             elif digit == "2":
@@ -141,11 +137,9 @@ class Keyboard:
     def __init__(self) -> None:
         self.digit_by_char = defaultdict(lambda: -1)
 
-    def update(self, word: Word | str, score: int) -> None:
+    def update(self, word: Word | str, score: str) -> None:
 
-        size = len(word)
-        padded_score = f"{score}".zfill(size)
-        for (char, digit_str) in zip(word, padded_score):
+        for (char, digit_str) in zip(word, score):
             digit = int(digit_str)
             current_digit = self.digit_by_char[char]
             self.digit_by_char[char] = max(current_digit, digit)

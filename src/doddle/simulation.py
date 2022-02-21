@@ -35,10 +35,9 @@ class MultiSimulator:
                     continue
                 available_answers = game.available_answers
                 histogram = self.histogram_builder.get_solns_by_score(available_answers, best_guess)
-                observed_score = self.scorer.score_word(game.soln, best_guess)
-                updated_answers = histogram[observed_score]
-                ternary_score = np.base_repr(observed_score, base=3)  # TODO inappropriate bus. logic
-                self.reporter.report_score(i, game.soln, best_guess, ternary_score, updated_answers)
+                score = self.scorer.score_word(game.soln, best_guess)
+                updated_answers = histogram[score]
+                self.reporter.report_score(i, game.soln, best_guess, score, updated_answers)
                 game.available_answers = updated_answers
                 game.is_solved = best_guess == game.soln  # TODO set number of moves
 
@@ -66,10 +65,9 @@ class Simulator:
         MAX_ITERS = 15
         for i in range(MAX_ITERS):
             histogram = self.histogram_builder.get_solns_by_score(available_answers, best_guess)
-            observed_score = self.scorer.score_word(solution, best_guess)
-            available_answers = histogram[observed_score]
-            ternary_score = np.base_repr(observed_score, base=3)  # TODO inappropriate bus. logic
-            self.reporter.report_score(i, solution, best_guess, ternary_score, available_answers)
+            score = self.scorer.score_word(solution, best_guess)
+            available_answers = histogram[score]
+            self.reporter.report_score(i, solution, best_guess, score, available_answers)
 
             if best_guess == solution:
                 return i + 1
