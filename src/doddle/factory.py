@@ -1,18 +1,12 @@
 from sqlite3 import NotSupportedError
 from typing import Sequence
 
+from .enums import SolverType
 from .histogram import HistogramBuilder
+from .quordle import QuordleSolver
 from .scoring import Scorer
 from .simulation import Benchmarker, MultiSimulator, Simulator
-from .solver import (
-    DeepEntropySolver,
-    DeepMinimaxSolver,
-    EntropySolver,
-    MinimaxSolver,
-    QuordleSolver,
-    Solver,
-    SolverType,
-)
+from .solver import DeepEntropySolver, DeepMinimaxSolver, EntropySolver, MinimaxSolver, Solver
 from .views import BenchmarkView, NullRunView, RunView
 from .words import Dictionary, Word, load_dictionary
 

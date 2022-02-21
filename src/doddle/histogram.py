@@ -1,18 +1,13 @@
 from __future__ import annotations
 
-from typing import Callable, Protocol, TypeVar
+from typing import Callable, TypeVar
 
 import numpy as np
 from numba import njit
 
+from .guess import Guess
 from .scoring import Scorer
 from .words import Word, WordSeries
-
-
-class Guess(Protocol):
-    word: Word
-    is_common_word: bool
-
 
 TGuess = TypeVar("TGuess", bound=Guess)
 

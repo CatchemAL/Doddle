@@ -7,8 +7,9 @@ import numpy as np
 
 from .exceptions import FailedToFindASolutionError
 from .histogram import HistogramBuilder
+from .quordle import QuordleGame, QuordleSolver
 from .scoring import Scorer
-from .solver import QuordleGame, QuordleSolver, Solver
+from .solver import Solver
 from .views import BenchmarkView, RunView
 from .words import Dictionary, Word
 

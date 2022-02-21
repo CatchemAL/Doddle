@@ -24,7 +24,7 @@ class NullRunView(RunView):
     """View that doesn't show anything."""
 
     def report_score(
-        self, solution: Word, guess: Word, score: int, available_answers: WordSeries
+        self, n: int, solution: Word, guess: Word, score: int, available_answers: WordSeries
     ) -> None:
         pass
 

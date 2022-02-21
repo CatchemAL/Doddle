@@ -181,8 +181,8 @@ def load_dictionary(size, extras: Sequence[Word] | None = None) -> Dictionary:
 
     # Add any extra words in case they're missing from the official dictionary
     # Better to solve an unofficial word than bomb out later.
-    extras = [str(word) for word in extras if word] if extras else []
-    common_words.update(extras)
+    extras_str = [str(word) for word in extras if word] if extras else []
+    common_words.update(extras_str)
     all_words.update(common_words)
 
     common_series = WordSeries(common_words)
