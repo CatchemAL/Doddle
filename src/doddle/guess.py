@@ -73,7 +73,7 @@ class EntropyGuess:
 
         if self.is_common_word != other.is_common_word:
             return self.is_common_word
-            
+
         return self.word < other.word
 
     def __str__(self) -> str:
@@ -93,7 +93,7 @@ class EntropyGuess:
         return EntropyGuess(self.word, self.is_common_word, self.entropy + entropy)
 
 
-@dataclass
+@dataclass(eq=True, frozen=True)
 class MinimaxSimulGuess:
 
     word: Word
