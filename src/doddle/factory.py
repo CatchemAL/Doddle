@@ -1,7 +1,7 @@
 from sqlite3 import NotSupportedError
 from typing import Sequence
 
-from .engine import Benchmarker, Engine, SimulEngine
+from .engine import Benchmarker, Engine, SimulBenchmarker, SimulEngine
 from .enums import SolverType
 from .histogram import HistogramBuilder
 from .scoring import Scorer
@@ -54,7 +54,7 @@ def create_benchmarker(
     depth: int = 1,
     extras: Sequence[Word] | None = None,
 ) -> Benchmarker:
-    simulator = create_engine(
+    engine = create_engine(
         size,
         solver_type=solver_type,
         depth=depth,
@@ -64,7 +64,27 @@ def create_benchmarker(
     )
 
     reporter = BenchmarkView()
-    return Benchmarker(simulator, reporter)
+    return Benchmarker(engine, reporter)
+
+
+def create_simul_benchmarker(
+    size: int,
+    *,
+    solver_type: SolverType = SolverType.MINIMAX,
+    depth: int = 1,
+    extras: Sequence[Word] | None = None,
+) -> SimulBenchmarker:
+    simul_engine = create_simul_engine(
+        size,
+        solver_type=solver_type,
+        depth=depth,
+        extras=extras,
+        lazy_eval=False,
+        reporter=NullRunView(),
+    )
+
+    reporter = BenchmarkView()
+    return SimulBenchmarker(simul_engine, reporter)
 
 
 def create_models(

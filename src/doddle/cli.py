@@ -2,7 +2,13 @@ from argparse import ArgumentParser, Namespace
 
 from .controllers import HideController, SolveController
 from .enums import SolverType
-from .factory import create_benchmarker, create_engine, create_models, create_simul_engine
+from .factory import (
+    create_benchmarker,
+    create_engine,
+    create_models,
+    create_simul_benchmarker,
+    create_simul_engine,
+)
 from .views import HideView, SolveView
 from .words import Word
 
@@ -62,10 +68,17 @@ def benchmark_performance(args: Namespace) -> None:
     depth: int = args.depth
     solver_type: SolverType = args.solver
     size: int = len(guess) if guess else args.size
+    simul: int = args.simul
     extras = [guess] if guess else None
 
-    benchmarker = create_benchmarker(size, solver_type=solver_type, depth=depth, extras=extras)
-    benchmarker.run_benchmark(guess)
+    if simul == 1:
+        benchmarker = create_benchmarker(size, solver_type=solver_type, depth=depth, extras=extras)
+        benchmarker.run_benchmark(guess)
+    else:
+        simul_benchmarker = create_simul_benchmarker(
+            size, solver_type=solver_type, depth=depth, extras=extras
+        )
+        simul_benchmarker.run_benchmark(guess, simul)
 
 
 def main() -> None:
@@ -100,6 +113,7 @@ def main() -> None:
     benchmark_group.add_argument("--size", type=int, default=5)
     benchmark_parser.add_argument("--solver", type=SolverType.from_str, default=SolverType.MINIMAX)
     benchmark_parser.add_argument("--depth", required=False, default=1, type=int)
+    benchmark_parser.add_argument("--simul", required=False, default=1, type=int)
     benchmark_parser.set_defaults(func=benchmark_performance)
 
     args = parser.parse_args()

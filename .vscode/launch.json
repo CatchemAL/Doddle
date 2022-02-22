@@ -30,7 +30,7 @@
             "type": "python",
             "request": "launch",
             "module": "src.doddle",
-            "args": ["benchmark", "--size=5"]
+            "args": ["benchmark", "--size=5", "--simul=4"]
         },
         {
             "name": "Python: Current File",
