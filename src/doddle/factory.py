@@ -1,17 +1,17 @@
 from sqlite3 import NotSupportedError
 from typing import Sequence
 
+from .engine import Benchmarker, Engine, SimulEngine
 from .enums import SolverType
 from .histogram import HistogramBuilder
-from .quordle import QuordleSolver
+from .quordle import SimulSolver
 from .scoring import Scorer
-from .simulation import Benchmarker, MultiSimulator, Simulator
 from .solver import DeepEntropySolver, DeepMinimaxSolver, EntropySolver, MinimaxSolver, Solver
 from .views import BenchmarkView, NullRunView, RunView
 from .words import Dictionary, Word, load_dictionary
 
 
-def create_multi_simulator(
+def create_simul_engine(
     size: int,
     *,
     solver_type: SolverType = SolverType.MINIMAX,
@@ -19,17 +19,17 @@ def create_multi_simulator(
     extras: Sequence[Word] | None = None,
     lazy_eval: bool = True,
     reporter: RunView | None = None,
-) -> MultiSimulator:
+) -> SimulEngine:
 
-    dictionary, scorer, histogram_builder, _, multi_solver = create_models(
+    dictionary, scorer, histogram_builder, _, simul_solver = create_models(
         size, solver_type=solver_type, depth=depth, extras=extras, lazy_eval=lazy_eval
     )
 
     reporter = reporter or RunView()
-    return MultiSimulator(dictionary, scorer, histogram_builder, multi_solver, reporter)
+    return SimulEngine(dictionary, scorer, histogram_builder, simul_solver, reporter)
 
 
-def create_simulator(
+def create_engine(
     size: int,
     *,
     solver_type: SolverType = SolverType.MINIMAX,
@@ -37,14 +37,14 @@ def create_simulator(
     extras: Sequence[Word] | None = None,
     lazy_eval: bool = True,
     reporter: RunView | None = None,
-) -> Simulator:
+) -> Engine:
 
     dictionary, scorer, histogram_builder, solver, _ = create_models(
         size, solver_type=solver_type, depth=depth, extras=extras, lazy_eval=lazy_eval
     )
 
     reporter = reporter or RunView()
-    return Simulator(dictionary, scorer, histogram_builder, solver, reporter)
+    return Engine(dictionary, scorer, histogram_builder, solver, reporter)
 
 
 def create_benchmarker(
@@ -54,7 +54,7 @@ def create_benchmarker(
     depth: int = 1,
     extras: Sequence[Word] | None = None,
 ) -> Benchmarker:
-    simulator = create_simulator(
+    simulator = create_engine(
         size,
         solver_type=solver_type,
         depth=depth,
@@ -74,7 +74,7 @@ def create_models(
     depth: int = 1,
     extras: Sequence[Word] | None = None,
     lazy_eval: bool = True,
-) -> tuple[Dictionary, Scorer, HistogramBuilder, Solver, QuordleSolver]:
+) -> tuple[Dictionary, Scorer, HistogramBuilder, Solver, SimulSolver]:
 
     dictionary = load_dictionary(size, extras=extras)
     all_words, potential_solns = dictionary.words
@@ -96,6 +96,6 @@ def create_models(
     else:
         raise NotSupportedError(f"Solver type {solver_type} not recognised.")
 
-    multi_solver = QuordleSolver(histogram_builder)
+    multi_solver = SimulSolver(histogram_builder)
 
     return dictionary, scorer, histogram_builder, solver, multi_solver

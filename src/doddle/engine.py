@@ -6,7 +6,7 @@ from functools import partial
 from .exceptions import FailedToFindASolutionError
 from .game import Game, SimultaneousGame
 from .histogram import HistogramBuilder
-from .quordle import QuordleSolver
+from .quordle import SimulSolver
 from .scoring import Scorer
 from .solver import Solver
 from .views import BenchmarkView, RunView
@@ -14,12 +14,12 @@ from .words import Dictionary, Word
 
 
 @dataclass
-class MultiSimulator:
+class SimulEngine:
 
     dictionary: Dictionary
     scorer: Scorer
     histogram_builder: HistogramBuilder
-    solver: QuordleSolver
+    solver: SimulSolver
     reporter: RunView
 
     def run(self, solns: list[Word], first_guess: Word | None) -> SimultaneousGame:
@@ -49,7 +49,7 @@ class MultiSimulator:
 
 
 @dataclass
-class Simulator:
+class Engine:
 
     dictionary: Dictionary
     scorer: Scorer
@@ -79,14 +79,14 @@ class Simulator:
 
 
 class Benchmarker:
-    def __init__(self, simulator: Simulator, reporter: BenchmarkView) -> None:
-        self.simulator = simulator
+    def __init__(self, engine: Engine, reporter: BenchmarkView) -> None:
+        self.engine = engine
         self.reporter = reporter
 
     def run_benchmark(self, first_guess: Word | None) -> None:
 
-        dictionary = self.simulator.dictionary
-        f = partial(self.simulator.run, first_guess=first_guess)
+        dictionary = self.engine.dictionary
+        f = partial(self.engine.run, first_guess=first_guess)
 
         with ProcessPoolExecutor(max_workers=8) as executor:
             games = executor.map(f, dictionary.common_words)

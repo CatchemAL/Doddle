@@ -10,7 +10,7 @@ from .histogram import HistogramBuilder
 from .words import Word, WordSeries
 
 
-class QuordleSolver:
+class SimulSolver:
     def __init__(self, histogram_builder: HistogramBuilder) -> None:
         self.hist_builder = histogram_builder
 

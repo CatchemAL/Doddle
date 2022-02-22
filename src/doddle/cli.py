@@ -2,7 +2,7 @@ from argparse import ArgumentParser, Namespace
 
 from .controllers import HideController, SolveController
 from .enums import SolverType
-from .factory import create_benchmarker, create_models, create_multi_simulator, create_simulator
+from .factory import create_benchmarker, create_engine, create_models, create_simul_engine
 from .views import HideView, SolveView
 from .words import Word
 
@@ -49,12 +49,10 @@ def run(args: Namespace) -> None:
     size = len(solutions[0])
 
     if len(solutions) > 1:
-        multi_simulator = create_multi_simulator(
-            size, solver_type=solver_type, depth=depth, extras=extras
-        )
-        multi_simulator.run(solutions, guess)
+        simul_engine = create_simul_engine(size, solver_type=solver_type, depth=depth, extras=extras)
+        simul_engine.run(solutions, guess)
     else:
-        simulator = create_simulator(size, solver_type=solver_type, depth=depth, extras=extras)
+        simulator = create_engine(size, solver_type=solver_type, depth=depth, extras=extras)
         simulator.run(solution, guess)
 
 
