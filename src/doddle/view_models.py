@@ -21,7 +21,9 @@ class ScoreboardRow:
     num_left: int
 
     def __repr__(self) -> str:
-        return f"{self.n=}, {self.soln=}, {self.guess=}, {self.score=}, {self.num_left=}"
+        a = f"n={self.n}, soln={self.soln}, guess={self.guess}, "
+        b = f"score={self.score}, num_left={self.num_left}"
+        return a + b
 
 
 class Scoreboard:
@@ -58,20 +60,23 @@ class ScoreboardPrinter:
         string_repr = self.build_string(scoreboard)
         print(string_repr)
 
-    def print_next(self, scoreboard: Scoreboard) -> None:
+    def print_last_round(self, scoreboard: Scoreboard) -> None:
 
-        if len(scoreboard) == 1:
+        if len(scoreboard) == 0:
+            return
+
+        if scoreboard.rows[-1].n == 1:
             header = self.build_header()
             print(header)
-        elif scoreboard.rows[-1].n > scoreboard.rows[-2].n:
-            is_multi_game_mode = len([row.n for row in scoreboard.rows if row.n == 1]) > 1
-            if is_multi_game_mode:
-                divider = self.build_divider()
-                print(divider)
+        elif len([row.n for row in scoreboard.rows if row.n == 1]) > 1:
+            divider = self.build_divider()
+            print(divider)
 
-        row = scoreboard.rows[-1]
-        row_str_repr = self.build_row(row.n, row.soln, row.guess, row.score, row.num_left)
-        print(row_str_repr)
+        last_round = scoreboard.rows[-1].n
+        last_rows = [row for row in scoreboard.rows if row.n == last_round]
+        for row in last_rows:
+            row_str_repr = self.build_row(row.n, row.soln, row.guess, row.score, row.num_left)
+            print(row_str_repr)
 
     def build_string(self, scoreboard: Scoreboard) -> str:
 

@@ -25,7 +25,7 @@ def create_multi_simulator(
         size, solver_type=solver_type, depth=depth, extras=extras, lazy_eval=lazy_eval
     )
 
-    reporter = reporter or RunView(size)
+    reporter = reporter or RunView()
     return MultiSimulator(dictionary, scorer, histogram_builder, multi_solver, reporter)
 
 
@@ -43,7 +43,7 @@ def create_simulator(
         size, solver_type=solver_type, depth=depth, extras=extras, lazy_eval=lazy_eval
     )
 
-    reporter = reporter or RunView(size)
+    reporter = reporter or RunView()
     return Simulator(dictionary, scorer, histogram_builder, solver, reporter)
 
 
@@ -60,7 +60,7 @@ def create_benchmarker(
         depth=depth,
         extras=extras,
         lazy_eval=False,
-        reporter=NullRunView(size),
+        reporter=NullRunView(),
     )
 
     reporter = BenchmarkView()

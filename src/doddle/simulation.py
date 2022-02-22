@@ -4,8 +4,9 @@ from dataclasses import dataclass
 from functools import partial
 
 from .exceptions import FailedToFindASolutionError
+from .game import Game, SimultaneousGame
 from .histogram import HistogramBuilder
-from .quordle import QuordleGame, QuordleSolver
+from .quordle import QuordleSolver
 from .scoring import Scorer
 from .solver import Solver
 from .views import BenchmarkView, RunView
@@ -21,10 +22,10 @@ class MultiSimulator:
     solver: QuordleSolver
     reporter: RunView
 
-    def run_multi(self, solutions: list[Word], first_guess: Word | None) -> int:  # TODO return more
+    def run(self, solns: list[Word], first_guess: Word | None) -> SimultaneousGame:
         all_words, common_words = self.dictionary.words
-        best_guess = first_guess or self.solver.seed(all_words.word_length)
-        games = QuordleGame.games(common_words, solutions)
+        guess = first_guess or self.solver.seed(all_words.word_length)
+        games = SimultaneousGame(common_words, solns)
 
         MAX_ITERS = 15
         for i in range(MAX_ITERS):
@@ -32,17 +33,17 @@ class MultiSimulator:
                 if game.is_solved:
                     continue
                 available_answers = game.available_answers
-                histogram = self.histogram_builder.get_solns_by_score(available_answers, best_guess)
-                score = self.scorer.score_word(game.soln, best_guess)
-                updated_answers = histogram[score]
-                self.reporter.report_score(i, game.soln, best_guess, score, updated_answers)
-                game.available_answers = updated_answers
-                game.is_solved = best_guess == game.soln  # TODO set number of moves
+                histogram = self.histogram_builder.get_solns_by_score(available_answers, guess)
+                score = self.scorer.score_word(game.soln, guess)
+                new_available_answers = histogram[score]
+                games.update(i, game, guess, score, new_available_answers)
 
-            if all((game.is_solved for game in games)):
-                return i + 1  # TODO return games I suppose
+            self.reporter.display(games)
 
-            best_guess = self.solver.get_best_guess(all_words, games).word
+            if games.is_solved:
+                return games
+
+            guess = self.solver.get_best_guess(all_words, games).word
 
         raise FailedToFindASolutionError(f"Failed to converge after {MAX_ITERS} iterations.")
 
@@ -56,21 +57,23 @@ class Simulator:
     solver: Solver
     reporter: RunView
 
-    def run(self, solution: Word, first_guess: Word | None) -> int:  # TODO return more
+    def run(self, solution: Word, first_guess: Word | None) -> Game:
         all_words, available_answers = self.dictionary.words
-        best_guess = first_guess or self.solver.seed(all_words.word_length)
+        guess = first_guess or self.solver.seed(all_words.word_length)
+        game = Game(available_answers, solution)
 
         MAX_ITERS = 15
         for i in range(MAX_ITERS):
-            histogram = self.histogram_builder.get_solns_by_score(available_answers, best_guess)
-            score = self.scorer.score_word(solution, best_guess)
+            histogram = self.histogram_builder.get_solns_by_score(available_answers, guess)
+            score = self.scorer.score_word(solution, guess)
             available_answers = histogram[score]
-            self.reporter.report_score(i, solution, best_guess, score, available_answers)
+            game.update(i, guess, score, available_answers)
+            self.reporter.display(game)
 
-            if best_guess == solution:
-                return i + 1
+            if game.is_solved:
+                return game
 
-            best_guess = self.solver.get_best_guess(all_words, available_answers).word
+            guess = self.solver.get_best_guess(all_words, available_answers).word
 
         raise FailedToFindASolutionError(f"Failed to converge after {MAX_ITERS} iterations.")
 
@@ -86,10 +89,10 @@ class Benchmarker:
         f = partial(self.simulator.run, first_guess=first_guess)
 
         with ProcessPoolExecutor(max_workers=8) as executor:
-            n_guess = executor.map(f, dictionary.common_words)
+            games = executor.map(f, dictionary.common_words)
 
         histogram: defaultdict[int, int] = defaultdict(int)
-        for n in n_guess:
-            histogram[n] += 1
+        for game in games:
+            histogram[game.rounds] += 1
 
         self.reporter.display(histogram)

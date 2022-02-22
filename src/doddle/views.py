@@ -1,33 +1,20 @@
 import re
 from collections import defaultdict
 
+from .game import DoddleGame
 from .scoring import to_ternary
 from .view_models import Keyboard, KeyboardPrinter, Scoreboard, ScoreboardPrinter
 from .words import Word, WordSeries
 
 
 class RunView:
-    def __init__(self, size: int) -> None:
-        self.size = size
-        self.scoreboard = Scoreboard()
-
-    def report_score(
-        self, n: int, solution: Word, guess: Word, decimal_score: int, available_answers: WordSeries
-    ) -> None:
-
-        ternary_score = to_ternary(decimal_score, self.size)
-        self.scoreboard.add_row(n, solution, guess, ternary_score, len(available_answers))
-
-        sb_printer = ScoreboardPrinter(self.size)
-        sb_printer.print_next(self.scoreboard)
+    def display(self, game: DoddleGame) -> None:
+        sb_printer = ScoreboardPrinter(game.word_length)
+        sb_printer.print_last_round(game.scoreboard)
 
 
 class NullRunView(RunView):
-    """View that doesn't show anything."""
-
-    def report_score(
-        self, n: int, solution: Word, guess: Word, score: int, available_answers: WordSeries
-    ) -> None:
+    def display(self, game: DoddleGame) -> None:
         pass
 
 

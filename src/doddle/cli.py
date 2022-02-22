@@ -50,7 +50,7 @@ def run(args: Namespace) -> None:
         multi_simulator = create_multi_simulator(
             size, solver_type=solver_type, depth=depth, extras=extras
         )
-        multi_simulator.run_multi(solutions, guess)
+        multi_simulator.run(solutions, guess)
     else:
         simulator = create_simulator(size, solver_type=solver_type, depth=depth, extras=extras)
         simulator.run(solution, guess)

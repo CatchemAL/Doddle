@@ -9,7 +9,7 @@
             "type": "python",
             "request": "launch",
             "module": "src.doddle",
-            "args": ["run", "--answer=BLISS,NEIGH,BATTY,WASTE", "--guess=CLOTH"]
+            "args": ["run", "--answer=BLISS,SPARE,ULTRA", "--guess=BURNS"]
         },
         {
             "name": "Doddle (Solve)",

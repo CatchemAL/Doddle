@@ -90,8 +90,6 @@ class ScoreMatrix:
         if self.is_fully_initialized or np.all(self.is_calculated[solns.index]):
             return
 
-        # TODO speed up subset pre-compute!
-
         row_words = self.all_words.words[np.newaxis, :]
         col_words = solns.words[:, np.newaxis]
 
