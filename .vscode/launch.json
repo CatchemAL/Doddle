@@ -9,7 +9,7 @@
             "type": "python",
             "request": "launch",
             "module": "src.doddle",
-            "args": ["run", "--answer=BLISS,SPARE,ULTRA", "--guess=BURNS"]
+            "args": ["run", "--answer=RIGHT,TOPAZ,AVAIL,BRAVO", "--guess=RAISE"]
         },
         {
             "name": "Doddle (Solve)",
@@ -23,7 +23,7 @@
             "type": "python",
             "request": "launch",
             "module": "src.doddle",
-            "args": ["hide", "--guess=EXITS"]
+            "args": ["hide"]
         },
         {
             "name": "Doddle (Benchmark)",

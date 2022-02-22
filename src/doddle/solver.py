@@ -81,7 +81,10 @@ class DeepMinimaxSolver(MinimaxSolver):
             worst_best_guess = max(nested_best_guesses)
             deep_worst_best_guess_by_guess[guess.word] = worst_best_guess
 
-        best_guess_str = min(deep_worst_best_guess_by_guess, key=deep_worst_best_guess_by_guess.get)
+        def get_guess_given_word(word: Word) -> MinimaxGuess:
+            return deep_worst_best_guess_by_guess[word]
+
+        best_guess_str = min(deep_worst_best_guess_by_guess, key=get_guess_given_word)
         best_guess = next(guess for guess in best_guesses if guess.word == best_guess_str)
         return best_guess  # TODO bug. Guess needs to convey depth of lower levels! Will affect 3+
 
@@ -140,7 +143,7 @@ class DeepEntropySolver(EntropySolver):
             avg_entropy_reduction = 0.0
             for nested_potential_solns in solns_by_outcome.values():
                 probability = len(nested_potential_solns) / len(potential_solns)
-                nested_best_guess = self.inner.get_best_guess(all_words, nested_potential_solns)
+                nested_best_guess = self.inner.get_entropy_guess(all_words, nested_potential_solns)
                 entropy_reduction = nested_best_guess.entropy * probability
                 avg_entropy_reduction += entropy_reduction
             deep_guesses.append(guess + avg_entropy_reduction)

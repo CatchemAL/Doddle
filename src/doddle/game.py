@@ -10,28 +10,32 @@ from .words import Word, WordSeries
 class DoddleGame(Protocol):
     word_length: int
     scoreboard: Scoreboard
-    rounds: int
     is_solved: bool
+
+    @property
+    def rounds(self) -> int:
+        ...
 
 
 class Game:
-    def __init__(self, potential_solns: WordSeries, soln: Word | None = None) -> None:
-        self.available_answers = potential_solns
+    def __init__(self, potential_solns: WordSeries, soln: Word) -> None:
+        self.potential_solns = potential_solns
         self.soln = soln
         self.scoreboard = Scoreboard()
         self.is_solved = False
         self.word_length = potential_solns.word_length
 
-    def update(self, n: int, guess: Word, score: int, available_answers: WordSeries) -> ScoreboardRow:
+    def update(self, n: int, guess: Word, score: int, potential_solns: WordSeries) -> ScoreboardRow:
         ternary_score = to_ternary(score, self.word_length)
-        self.available_answers = available_answers
-        row = self.scoreboard.add_row(n, self.soln, guess, ternary_score, len(available_answers))
+        self.potential_solns = potential_solns
+        row = self.scoreboard.add_row(n, self.soln, guess, ternary_score, len(potential_solns))
         self.is_solved = all([s == "2" for s in list(ternary_score)])
         return row
 
     @property
-    def num_remaining_answers(self) -> int:
-        return len(self.available_answers)
+    def num_potential_solns(self) -> int:
+        num_left = len(self.potential_solns)
+        return num_left
 
     @property
     def rounds(self) -> int:
@@ -42,14 +46,8 @@ class SimultaneousGame:
     def __init__(self, potential_solns: WordSeries, solns: list[Word]) -> None:
         self.games = [Game(potential_solns, soln) for soln in solns]
         self.scoreboard = Scoreboard()
-
-    @property
-    def is_solved(self) -> bool:
-        return all((g.is_solved for g in self.games))
-
-    @property
-    def word_length(self) -> int:
-        return self.games[0].word_length
+        self.is_solved = False
+        self.word_length = potential_solns.word_length
 
     @property
     def rounds(self) -> int:
@@ -60,6 +58,7 @@ class SimultaneousGame:
     ) -> ScoreboardRow:
         row = game.update(n, guess, score, potential_solns)
         self.scoreboard.rows.append(row)
+        self.is_solved = all((g.is_solved for g in self.games))
         return row
 
     def __iter__(self) -> Iterator[Game]:

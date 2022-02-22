@@ -15,18 +15,22 @@ class QuordleSolver:
         self.hist_builder = histogram_builder
 
     # TODO: potentially an implict vs explicit implementation
-    def get_best_guess(self, all_words: WordSeries, games: SimultaneousGame) -> MinimaxGuess:
+    def get_best_guess(self, all_words: WordSeries, games: SimultaneousGame) -> QuordleGuess:
         return min(self.all_guesses(all_words, games))
 
-    def all_guesses(self, all_words: WordSeries, games: SimultaneousGame) -> Iterator[MinimaxGuess]:
+    def seed(self, size: int) -> Word:
+        seed_by_size = {len(word): word for word in self.all_seeds}
+        return seed_by_size[size]
 
-        potential_solns_list = [game.available_answers for game in games if not game.is_solved]
+    def all_guesses(self, all_words: WordSeries, games: SimultaneousGame) -> Iterator[QuordleGuess]:
+
+        potential_solns_list = [game.potential_solns for game in games if not game.is_solved]
         for potential_solns in potential_solns_list:
             if len(potential_solns) == 1:
-                yield MinimaxGuess(potential_solns.words[0], True, 1, 1)
+                yield QuordleGuess(potential_solns.words[0], True, 1, 1, 1, 1, 1, 1, 1, 1)
                 return
 
-        streams = []
+        streams: list[Iterator[MinimaxGuess]] = []
         for potential_solns in potential_solns_list:
             stream = self.hist_builder.stream(all_words, potential_solns, self._create_guess)
             streams.append(stream)

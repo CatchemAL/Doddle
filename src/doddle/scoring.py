@@ -1,5 +1,5 @@
 import numpy as np
-from numba import int8, int32, jit
+from numba import int8, int32, jit  # type: ignore
 
 from .words import Word
 

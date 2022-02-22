@@ -8,8 +8,13 @@ from .words import Word
 
 
 class Guess(Protocol):
-    word: Word
-    is_common_word: bool
+    @property
+    def word(self) -> Word:
+        ...
+
+    @property
+    def is_common_word(self) -> bool:
+        ...
 
 
 @dataclass(eq=True, frozen=True)
@@ -54,7 +59,7 @@ class MinimaxGuess:
         return other.improves_upon(self)
 
 
-@dataclass
+@dataclass(eq=True, frozen=True)
 class EntropyGuess:
 
     __slots__ = ["word", "is_common_word", "entropy"]
@@ -74,7 +79,7 @@ class EntropyGuess:
         return self.word < other.word
 
     def __str__(self) -> str:
-        return self.word
+        return str(self.word)
 
     def __repr__(self) -> str:
         flag = "Common" if self.is_common_word else "Uncommon"

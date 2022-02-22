@@ -2,7 +2,7 @@ import re
 from collections import defaultdict
 
 from .game import DoddleGame
-from .scoring import to_ternary
+from .scoring import from_ternary, to_ternary
 from .view_models import Keyboard, KeyboardPrinter, Scoreboard, ScoreboardPrinter
 from .words import Word, WordSeries
 
@@ -52,14 +52,14 @@ class SolveView:
     def _parse_response(self, guess: Word, response: str) -> tuple[int, Word, bool]:
 
         if len(response) == self.size and self.score_expr.match(response):
-            observed_score = self._ternary_to_dec(response)
+            observed_score = from_ternary(response)
             return (observed_score, guess, True)
 
         m = self.word_expr.match(response)
 
         if len(response) == (2 * self.size + 1) and response[self.size] == "=" and m:
             (user_guess, score) = m.groups()
-            return (self._ternary_to_dec(score), Word(user_guess), True)
+            return (from_ternary(score), Word(user_guess), True)
 
         return (-1, guess, False)
 

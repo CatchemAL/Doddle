@@ -32,7 +32,7 @@ class MultiSimulator:
             for game in games:
                 if game.is_solved:
                     continue
-                available_answers = game.available_answers
+                available_answers = game.potential_solns
                 histogram = self.histogram_builder.get_solns_by_score(available_answers, guess)
                 score = self.scorer.score_word(game.soln, guess)
                 new_available_answers = histogram[score]

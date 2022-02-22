@@ -28,12 +28,11 @@ class SolveController:
                 break
 
             histogram = self.histogram_builder.get_solns_by_score(available_answers, best_guess)
-            available_answers = histogram.get(observed_score, None)
-
-            if not available_answers:
+            if observed_score not in histogram:
                 self.view.report_no_solution()
                 break
 
+            available_answers = histogram[observed_score]
             best_guess = self.solver.get_best_guess(all_words, available_answers).word
             self.view.report_best_guess(best_guess)
 

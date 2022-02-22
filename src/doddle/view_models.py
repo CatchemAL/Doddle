@@ -34,11 +34,8 @@ class Scoreboard:
         self, n: int, soln: Word | None, guess: Word, score: str, num_left: int
     ) -> ScoreboardRow:
 
-        if not soln:
-            size = len(guess)
-            soln = "?" * size
-
-        row = ScoreboardRow(n + 1, soln, guess, score, num_left)
+        answer = soln if soln else Word("?" * len(guess))
+        row = ScoreboardRow(n + 1, answer, guess, score, num_left)
         self.rows.append(row)
         return row
 
@@ -49,7 +46,7 @@ class Scoreboard:
         return iter(self.rows)
 
     def __next__(self) -> ScoreboardRow:
-        return next(self.rows)
+        return next(self.rows)  # type: ignore
 
 
 class ScoreboardPrinter:
@@ -140,7 +137,8 @@ class ScoreboardPrinter:
 
 class Keyboard:
     def __init__(self) -> None:
-        self.digit_by_char = defaultdict(lambda: -1)
+
+        self.digit_by_char: defaultdict[str, int] = defaultdict(lambda: -1)
 
     def update(self, word: Word | str, score: str) -> None:
 
@@ -173,6 +171,7 @@ class KeyboardPrinter:
 
             digit = keyboard.digit_by_char[char]
 
+            # TODO duplicate logic with other class
             if digit == prev_digit:
                 pretty_chars.append(char)
             elif digit == 2:

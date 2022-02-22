@@ -13,9 +13,10 @@ def solve(args: Namespace) -> None:
     depth: int = args.depth
     solver_type: SolverType = args.solver
     size: int = len(guess) if guess else args.size
+    extras = [guess] if guess else None
 
     dictionary, scorer, histogram_builder, solver, _ = create_models(
-        size, solver_type=solver_type, depth=depth, extras=[guess]
+        size, solver_type=solver_type, depth=depth, extras=extras
     )
 
     view = SolveView(size)
@@ -27,8 +28,9 @@ def hide(args: Namespace) -> None:
 
     guess: Word | None = args.guess
     size: int = len(guess) if guess else args.size
+    extras = [guess] if guess else None
 
-    dictionary, scorer, histogram_builder, _, _ = create_models(size, extras=[guess])
+    dictionary, scorer, histogram_builder, _, _ = create_models(size, extras=extras)
 
     view = HideView(size)
     controller = HideController(dictionary, scorer, histogram_builder, view)
@@ -43,7 +45,7 @@ def run(args: Namespace) -> None:
     solver_type: SolverType = args.solver
 
     solutions = solution.split(",")
-    extras = solutions + [guess]
+    extras = solutions + [guess] if guess else solutions
     size = len(solutions[0])
 
     if len(solutions) > 1:
@@ -62,8 +64,9 @@ def benchmark_performance(args: Namespace) -> None:
     depth: int = args.depth
     solver_type: SolverType = args.solver
     size: int = len(guess) if guess else args.size
+    extras = [guess] if guess else None
 
-    benchmarker = create_benchmarker(size, solver_type=solver_type, depth=depth, extras=[guess])
+    benchmarker = create_benchmarker(size, solver_type=solver_type, depth=depth, extras=extras)
     benchmarker.run_benchmark(guess)
 
 

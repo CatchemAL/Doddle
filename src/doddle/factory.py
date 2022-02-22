@@ -16,7 +16,7 @@ def create_multi_simulator(
     *,
     solver_type: SolverType = SolverType.MINIMAX,
     depth: int = 1,
-    extras: Sequence[Word | None] | None = None,
+    extras: Sequence[Word] | None = None,
     lazy_eval: bool = True,
     reporter: RunView | None = None,
 ) -> MultiSimulator:
@@ -34,7 +34,7 @@ def create_simulator(
     *,
     solver_type: SolverType = SolverType.MINIMAX,
     depth: int = 1,
-    extras: Sequence[Word | None] | None = None,
+    extras: Sequence[Word] | None = None,
     lazy_eval: bool = True,
     reporter: RunView | None = None,
 ) -> Simulator:
@@ -52,7 +52,7 @@ def create_benchmarker(
     *,
     solver_type: SolverType = SolverType.MINIMAX,
     depth: int = 1,
-    extras: Sequence[Word | None] | None = None,
+    extras: Sequence[Word] | None = None,
 ) -> Benchmarker:
     simulator = create_simulator(
         size,
@@ -72,7 +72,7 @@ def create_models(
     *,
     solver_type: SolverType = SolverType.MINIMAX,
     depth: int = 1,
-    extras: Sequence[Word | None] | None = None,
+    extras: Sequence[Word] | None = None,
     lazy_eval: bool = True,
 ) -> tuple[Dictionary, Scorer, HistogramBuilder, Solver, QuordleSolver]:
 
@@ -83,15 +83,16 @@ def create_models(
     histogram_builder = HistogramBuilder(scorer, all_words, potential_solns, lazy_eval)
 
     if solver_type == SolverType.MINIMAX:
-        solver = MinimaxSolver(histogram_builder)
+        minimax_solver = MinimaxSolver(histogram_builder)
         for _ in range(1, depth):
-            solver = DeepMinimaxSolver(histogram_builder, solver)
+            minimax_solver = DeepMinimaxSolver(histogram_builder, minimax_solver)
+        solver: Solver = minimax_solver
 
     elif solver_type == SolverType.ENTROPY:
-        solver = EntropySolver(histogram_builder)
+        entropy_solver = EntropySolver(histogram_builder)
         for _ in range(1, depth):
-            solver = DeepEntropySolver(histogram_builder, solver)
-
+            entropy_solver = DeepEntropySolver(histogram_builder, entropy_solver)
+        solver = entropy_solver
     else:
         raise NotSupportedError(f"Solver type {solver_type} not recognised.")
 
