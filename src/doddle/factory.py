@@ -4,8 +4,8 @@ from typing import Sequence
 from .engine import Benchmarker, Engine, SimulEngine
 from .enums import SolverType
 from .histogram import HistogramBuilder
-from .quordle import SimulSolver
 from .scoring import Scorer
+from .simul_solver import MinimaxSimulSolver, SimulSolver
 from .solver import DeepEntropySolver, DeepMinimaxSolver, EntropySolver, MinimaxSolver, Solver
 from .views import BenchmarkView, NullRunView, RunView
 from .words import Dictionary, Word, load_dictionary
@@ -96,6 +96,6 @@ def create_models(
     else:
         raise NotSupportedError(f"Solver type {solver_type} not recognised.")
 
-    multi_solver = SimulSolver(histogram_builder)
+    simul_solver: SimulSolver = MinimaxSimulSolver(histogram_builder)
 
-    return dictionary, scorer, histogram_builder, solver, multi_solver
+    return dictionary, scorer, histogram_builder, solver, simul_solver

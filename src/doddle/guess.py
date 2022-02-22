@@ -32,10 +32,8 @@ class MinimaxGuess:
         if self.size_of_largest_bucket != other.size_of_largest_bucket:
             return self.size_of_largest_bucket < other.size_of_largest_bucket
 
-        if self.is_common_word and not other.is_common_word:
-            return True
-        if other.is_common_word and not self.is_common_word:
-            return False
+        if self.is_common_word != other.is_common_word:
+            return self.is_common_word
 
         if self.number_of_buckets != other.number_of_buckets:
             return self.number_of_buckets > other.number_of_buckets
@@ -72,10 +70,10 @@ class EntropyGuess:
 
         if not isclose(self.entropy, other.entropy, abs_tol=1e-9):
             return self.entropy > other.entropy
-        if self.is_common_word and not other.is_common_word:
-            return True
-        if other.is_common_word and not self.is_common_word:
-            return False
+
+        if self.is_common_word != other.is_common_word:
+            return self.is_common_word
+            
         return self.word < other.word
 
     def __str__(self) -> str:
@@ -96,37 +94,32 @@ class EntropyGuess:
 
 
 @dataclass
-class QuordleGuess:
+class MinimaxSimulGuess:
 
     word: Word
     is_common_word: bool
-    sum: int
+    pct_left: float
     min: int
+    sum: int
     max: int
-    sum_pct: float
-    min_pct: float
-    max_pct: float
-    pct_product: float
     num_buckets: int
 
-    def improves_upon(self, other: QuordleGuess) -> bool:
+    def improves_upon(self, other: MinimaxSimulGuess) -> bool:
 
-        if not isclose(self.pct_product, other.pct_product, abs_tol=1e-9):
-            return self.pct_product < other.pct_product
-
-        if self.sum != other.sum:
-            return self.sum < other.sum
-
-        if self.is_common_word and not other.is_common_word:
-            return True
-        if other.is_common_word and not self.is_common_word:
-            return False
+        if not isclose(self.pct_left, other.pct_left, abs_tol=1e-9):
+            return self.pct_left < other.pct_left
 
         if self.min != other.min:
             return self.min < other.min
 
+        if self.sum != other.sum:
+            return self.sum < other.sum
+
         if self.max != other.max:
             return self.max < other.max
+
+        if self.is_common_word != other.is_common_word:
+            return self.is_common_word
 
         if self.num_buckets != other.num_buckets:
             return self.num_buckets > other.num_buckets
@@ -138,10 +131,10 @@ class QuordleGuess:
 
     def __repr__(self) -> str:
         flag = "Common" if self.is_common_word else "Uncommon"
-        return f"Word={self.word} ({flag})"
+        return f"Word={self.word} ({flag}), % Left={self.pct_left:.8f}"
 
-    def __lt__(self, other: QuordleGuess):
+    def __lt__(self, other: MinimaxSimulGuess):
         return self.improves_upon(other)
 
-    def __gt__(self, other: QuordleGuess):
+    def __gt__(self, other: MinimaxSimulGuess):
         return other.improves_upon(self)

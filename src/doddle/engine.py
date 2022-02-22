@@ -6,8 +6,8 @@ from functools import partial
 from .exceptions import FailedToFindASolutionError
 from .game import Game, SimultaneousGame
 from .histogram import HistogramBuilder
-from .quordle import SimulSolver
 from .scoring import Scorer
+from .simul_solver import SimulSolver
 from .solver import Solver
 from .views import BenchmarkView, RunView
 from .words import Dictionary, Word
