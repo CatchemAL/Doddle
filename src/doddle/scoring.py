@@ -1,15 +1,14 @@
 import numpy as np
-from numba import int8, int32, jit
+from numba import int8, int32, jit  # type: ignore
 
 from .words import Word
 
 
 class Scorer:
-    __slots__ = ["size", "_ternaries", "_powers"]
+    __slots__ = ["size", "_powers"]
 
     def __init__(self, size: int = 5) -> None:
         self.size = size
-        self._ternaries = self.get_fast_ternary_lookup(size)
         self._powers = (3 ** np.arange(size - 1, -1, -1)).astype(np.int32)
 
     @property
@@ -22,11 +21,6 @@ class Scorer:
     def score_word(self, solution: Word, guess: Word) -> int:
         # return score_word_slow(solution.value, guess.value) # (x50 slower!)
         return score_word_jit(solution.vector, guess.vector, self._powers)
-
-    @staticmethod
-    def get_fast_ternary_lookup(size: int) -> np.ndarray:
-        vector = [np.base_repr(i, base=3) for i in range(3**size)]
-        return np.array(vector, dtype=np.int32)
 
 
 @jit(int32(int8[:], int8[:], int32[:]), nopython=True)
@@ -96,3 +90,15 @@ def score_word_slow(soln: str, guess: str) -> int:
 
     value += unmatched_powers[partial_matches].sum()
     return value
+
+
+def from_ternary(ternary: str) -> int:
+    value = 0
+    digits = (int(digit) for digit in reversed(list(ternary)))
+    for i, num in enumerate(digits):
+        value += num * (3**i)
+    return value
+
+
+def to_ternary(score: int, size: int) -> str:
+    return np.base_repr(score, base=3).zfill(size)

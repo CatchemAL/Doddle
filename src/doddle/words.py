@@ -4,7 +4,7 @@ import json
 from bisect import bisect_left
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Iterator, Sequence
+from typing import Iterable, Iterator, Sequence, cast
 
 import numpy as np
 
@@ -13,14 +13,14 @@ class Word:
 
     __slots__ = ["value", "vector"]
 
-    def __init__(self, value: str | Word) -> None:
+    def __init__(self, word: str | Word) -> None:
 
-        if isinstance(value, Word):
-            self.value = value.value
-            self.vector = value.vector
+        if isinstance(word, Word):
+            self.value: str = word.value
+            self.vector: np.ndarray = word.vector
         else:
-            self.value = value.upper()
-            self.vector = Word.to_vector(value)
+            self.value = word.upper()
+            self.vector = Word.to_vector(word)
 
     def __str__(self) -> str:
         return self.value
@@ -65,7 +65,7 @@ class Word:
 
 
 class WordSeries:
-    def __init__(self, words: Sequence[str] | np.ndarray, index: np.ndarray | None = None) -> None:
+    def __init__(self, words: Iterable[str] | np.ndarray, index: np.ndarray | None = None) -> None:
 
         if isinstance(words, np.ndarray) and words.dtype == type(Word):
             self.words = words
@@ -80,7 +80,8 @@ class WordSeries:
         return 0 if len(self) == 0 else len(self.words[0])
 
     def contains(self, word: str | Word) -> bool:
-        pos = bisect_left(self.words, str(word), key=lambda w: w.value)
+        words = cast(Sequence[Word], self.words)
+        pos = bisect_left(words, str(word), key=str)
         return pos < len(self) and self.words[pos].value == str(word)
 
     def find_index(self, word: str | Word | np.ndarray) -> int | np.ndarray:
@@ -91,7 +92,8 @@ class WordSeries:
         return self.__find_index(word)
 
     def __find_index(self, word: str | Word) -> int:
-        pos = bisect_left(self.words, str(word), key=lambda w: w.value)
+        words = cast(Sequence[Word], self.words)
+        pos = bisect_left(words, str(word), key=str)
         if pos < len(self) and self.words[pos] == word:
             return pos
         return -1
@@ -181,8 +183,8 @@ def load_dictionary(size, extras: Sequence[Word] | None = None) -> Dictionary:
 
     # Add any extra words in case they're missing from the official dictionary
     # Better to solve an unofficial word than bomb out later.
-    extras = [str(word) for word in extras if word] if extras else []
-    common_words.update(extras)
+    extras_str = [str(word) for word in extras if word] if extras else []
+    common_words.update(extras_str)
     all_words.update(common_words)
 
     common_series = WordSeries(common_words)

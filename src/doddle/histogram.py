@@ -1,18 +1,13 @@
 from __future__ import annotations
 
-from typing import Callable, Protocol, TypeVar
+from typing import Callable, Iterator, TypeVar
 
 import numpy as np
-from numba import njit
+from numba import njit  # type: ignore
 
+from .guess import Guess
 from .scoring import Scorer
 from .words import Word, WordSeries
-
-
-class Guess(Protocol):
-    word: Word
-    is_common_word: bool
-
 
 TGuess = TypeVar("TGuess", bound=Guess)
 
@@ -43,7 +38,7 @@ class HistogramBuilder:
         all_words: WordSeries,
         potential_solns: WordSeries,
         guess_factory: Callable[[Word, bool, np.ndarray], TGuess],
-    ) -> TGuess:
+    ) -> Iterator[TGuess]:
 
         # First, we precompute the scores for all remaining solutions
         self.score_matrix.precompute(potential_solns)
@@ -95,8 +90,6 @@ class ScoreMatrix:
         if self.is_fully_initialized or np.all(self.is_calculated[solns.index]):
             return
 
-        # TODO speed up subset pre-compute!
-
         row_words = self.all_words.words[np.newaxis, :]
         col_words = solns.words[:, np.newaxis]
 
@@ -104,4 +97,4 @@ class ScoreMatrix:
         func = np.vectorize(self.scorer.score_word)
         self.storage[:, solns.index] = func(col_words, row_words).T
         self.is_calculated[solns.index] = True
-        self.is_fully_initialized = np.all(self.is_calculated)
+        self.is_fully_initialized = bool(np.all(self.is_calculated))

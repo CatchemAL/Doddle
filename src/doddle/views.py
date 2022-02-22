@@ -1,31 +1,20 @@
 import re
 from collections import defaultdict
 
+from .game import DoddleGame
+from .scoring import from_ternary, to_ternary
 from .view_models import Keyboard, KeyboardPrinter, Scoreboard, ScoreboardPrinter
 from .words import Word, WordSeries
 
 
 class RunView:
-    def __init__(self, size: int) -> None:
-        self.size = size
-        self.scoreboard = Scoreboard()
-
-    def report_score(
-        self, n: int, solution: Word, guess: Word, score: int, available_answers: WordSeries
-    ) -> None:
-
-        self.scoreboard.add_row(n, solution, guess, score, len(available_answers))
-
-        sb_printer = ScoreboardPrinter(self.size)
-        sb_printer.print_next(self.scoreboard)
+    def display(self, game: DoddleGame) -> None:
+        sb_printer = ScoreboardPrinter(game.word_length)
+        sb_printer.print_last_round(game.scoreboard)
 
 
 class NullRunView(RunView):
-    """View that doesn't show anything."""
-
-    def report_score(
-        self, solution: Word, guess: Word, score: int, available_answers: WordSeries
-    ) -> None:
+    def display(self, game: DoddleGame) -> None:
         pass
 
 
@@ -63,25 +52,16 @@ class SolveView:
     def _parse_response(self, guess: Word, response: str) -> tuple[int, Word, bool]:
 
         if len(response) == self.size and self.score_expr.match(response):
-            observed_score = self._ternary_to_dec(response)
+            observed_score = from_ternary(response)
             return (observed_score, guess, True)
 
         m = self.word_expr.match(response)
 
         if len(response) == (2 * self.size + 1) and response[self.size] == "=" and m:
             (user_guess, score) = m.groups()
-            return (self._ternary_to_dec(score), Word(user_guess), True)
+            return (from_ternary(score), Word(user_guess), True)
 
         return (-1, guess, False)
-
-    @staticmethod
-    def _ternary_to_dec(ternary: str) -> int:
-        # TODO move to utils class
-        value = 0
-        digits = [int(digit) for digit in reversed(list(ternary))]
-        for i, num in enumerate(digits):
-            value += num * (3**i)
-        return value
 
 
 class HideView:
@@ -92,15 +72,17 @@ class HideView:
 
     def update(self, n: int, word: Word, score: int, available_answers: WordSeries) -> None:
 
+        ternary_score = to_ternary(score, self.size)
+
         sb_printer = ScoreboardPrinter(self.size)
         kb_printer = KeyboardPrinter()
 
         num_left = len(available_answers)
         soln = word if num_left == 1 and word in available_answers else None
-        self.scoreboard.add_row(n, soln, word, score, num_left)
+        self.scoreboard.add_row(n, soln, word, ternary_score, num_left)
         sb_printer.print(self.scoreboard)
 
-        self.keyboard.update(word, score)
+        self.keyboard.update(word, ternary_score)
         kb_printer.print(self.keyboard)
 
     def report_success(self) -> None:

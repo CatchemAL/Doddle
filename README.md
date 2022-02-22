@@ -8,6 +8,7 @@
 - Play using words of length 4-9 (inclusive) by adding the optional `--size` argument (default is 5).
 - Choose your solver using the `--solver=ENTROPY` `--solver=MINIMAX` argument (default is minimax)
 - Run deep searches using the depth argument (default is 1)
+- Doddle can solve multiple games of Wordle at the same time. This mode is inspired by popular spin-offs such as [Dordle](https://zaratustra.itch.io/dordle), [Quordle](https://www.quordle.com/#/) and [Octordle](https://octordle.com/). Playing multiple games with Doddle is easy: just add more solutions to the run `doddle run --answer=ULTRA,QUICK,SOLVE` and Doddle will solve them all at the same time.
 
 ## Install
 ![example workflow](https://github.com/CatchemAl/Doddle/actions/workflows/python-app.yml/badge.svg)
@@ -83,10 +84,18 @@ Hide is a spin on the conventional Wordle game. Here, Doddle uses its solver to 
 Similar to the original Wordle game, a keyboard is rendered to display what characters have been guessed so far.
 
 ## Algorithm
-Doddle uses a [minimax](https://en.wikipedia.org/wiki/Minimax) algorithm to solve the game. The algorithm:
-- is still a work in progress
-- is subject to change
-- has plenty of scope for improvement (see below!)
+Doddle offers two choices of algorithms for solving Wordle: Minimax and Entropy.
+
+### Minimax
+By default, Doddle uses a [minimax](https://en.wikipedia.org/wiki/Minimax) algorithm to solve the game. The idea behind minimax is to minimise the worst case scenario for each word. 
+
+For instance, suppose you have narrowed the game down to one of four possibilties: SKILL, SPILL, SWILL, STILL. Now let's suppose you play the naïve guess of SKILL. In the best case scenario, the match is won (🟩🟩🟩🟩🟩) but, in the worst case, you still have three words left to search through (🟩🟨🟩🟩🟩). Minimax works by considering all possible words as guesses and choosing the one the minimises the uncertainty in the worst case scenario. A word like KEMPT, for instance, would return scores of 🟨⬜⬜⬜⬜, ⬜⬜⬜🟨⬜, ⬜⬜⬜⬜⬜, ⬜⬜⬜⬜🟨 for SKILL, SPILL, SWILL and STILL respectively. Because each result partitions the words into their own bucket, the maximum uncertainty is one and the game can be immediately won on the next move. In doing so, we have minimised the maximmaly bad outcome.
+
+### Entropy
+As an alternative to minimax, it is possible to play the game using an entropy solver. Here, the solver always chooses the word that, on average, lowers the Shannon entropy of the game. More documentation on this algorithm coming soon!
+
+## Simultaneous Play
+Documentation on playing mutliple games at once coming soon!
 
 ## Coming soon
 - An `explain` feature to show what the solver is thinking

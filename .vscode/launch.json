@@ -9,7 +9,7 @@
             "type": "python",
             "request": "launch",
             "module": "src.doddle",
-            "args": ["run", "--answer=BLISS,NEIGH,BATTY,WASTE", "--guess=CLOTH"]
+            "args": ["run", "--answer=RIGHT,TOPAZ,AVAIL,BRAVO", "--guess=RAISE"]
         },
         {
             "name": "Doddle (Solve)",
@@ -23,14 +23,14 @@
             "type": "python",
             "request": "launch",
             "module": "src.doddle",
-            "args": ["hide", "--guess=EXITS"]
+            "args": ["hide"]
         },
         {
             "name": "Doddle (Benchmark)",
             "type": "python",
             "request": "launch",
             "module": "src.doddle",
-            "args": ["benchmark", "--size=5"]
+            "args": ["benchmark", "--size=5", "--simul=4"]
         },
         {
             "name": "Python: Current File",

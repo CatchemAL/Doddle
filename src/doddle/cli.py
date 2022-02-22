@@ -1,8 +1,14 @@
 from argparse import ArgumentParser, Namespace
 
 from .controllers import HideController, SolveController
-from .factory import create_benchmarker, create_models, create_multi_simulator, create_simulator
-from .solver import SolverType
+from .enums import SolverType
+from .factory import (
+    create_benchmarker,
+    create_engine,
+    create_models,
+    create_simul_benchmarker,
+    create_simul_engine,
+)
 from .views import HideView, SolveView
 from .words import Word
 
@@ -13,9 +19,10 @@ def solve(args: Namespace) -> None:
     depth: int = args.depth
     solver_type: SolverType = args.solver
     size: int = len(guess) if guess else args.size
+    extras = [guess] if guess else None
 
     dictionary, scorer, histogram_builder, solver, _ = create_models(
-        size, solver_type=solver_type, depth=depth, extras=[guess]
+        size, solver_type=solver_type, depth=depth, extras=extras
     )
 
     view = SolveView(size)
@@ -27,8 +34,9 @@ def hide(args: Namespace) -> None:
 
     guess: Word | None = args.guess
     size: int = len(guess) if guess else args.size
+    extras = [guess] if guess else None
 
-    dictionary, scorer, histogram_builder, _, _ = create_models(size, extras=[guess])
+    dictionary, scorer, histogram_builder, _, _ = create_models(size, extras=extras)
 
     view = HideView(size)
     controller = HideController(dictionary, scorer, histogram_builder, view)
@@ -43,14 +51,14 @@ def run(args: Namespace) -> None:
     solver_type: SolverType = args.solver
 
     solutions = solution.split(",")
-    extras = solutions + [guess]
+    extras = solutions + [guess] if guess else solutions
     size = len(solutions[0])
 
     if len(solutions) > 1:
-        simulator = create_multi_simulator(size, solver_type=solver_type, depth=depth, extras=extras)
-        simulator.run_multi(solutions, guess)
+        simul_engine = create_simul_engine(size, solver_type=solver_type, depth=depth, extras=extras)
+        simul_engine.run(solutions, guess)
     else:
-        simulator = create_simulator(size, solver_type=solver_type, depth=depth, extras=extras)
+        simulator = create_engine(size, solver_type=solver_type, depth=depth, extras=extras)
         simulator.run(solution, guess)
 
 
@@ -60,9 +68,17 @@ def benchmark_performance(args: Namespace) -> None:
     depth: int = args.depth
     solver_type: SolverType = args.solver
     size: int = len(guess) if guess else args.size
+    simul: int = args.simul
+    extras = [guess] if guess else None
 
-    benchmarker = create_benchmarker(size, solver_type=solver_type, depth=depth, extras=[guess])
-    benchmarker.run_benchmark(guess)
+    if simul == 1:
+        benchmarker = create_benchmarker(size, solver_type=solver_type, depth=depth, extras=extras)
+        benchmarker.run_benchmark(guess)
+    else:
+        simul_benchmarker = create_simul_benchmarker(
+            size, solver_type=solver_type, depth=depth, extras=extras
+        )
+        simul_benchmarker.run_benchmark(guess, simul)
 
 
 def main() -> None:
@@ -97,6 +113,7 @@ def main() -> None:
     benchmark_group.add_argument("--size", type=int, default=5)
     benchmark_parser.add_argument("--solver", type=SolverType.from_str, default=SolverType.MINIMAX)
     benchmark_parser.add_argument("--depth", required=False, default=1, type=int)
+    benchmark_parser.add_argument("--simul", required=False, default=1, type=int)
     benchmark_parser.set_defaults(func=benchmark_performance)
 
     args = parser.parse_args()
