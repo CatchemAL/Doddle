@@ -87,9 +87,29 @@ Similar to the original Wordle game, a keyboard is rendered to display what char
 Doddle offers two choices of algorithms for solving Wordle: Minimax and Entropy.
 
 ### Minimax
-By default, Doddle uses a [minimax](https://en.wikipedia.org/wiki/Minimax) algorithm to solve the game. The idea behind minimax is to minimise the worst case scenario for each word. 
+By default, Doddle uses a [minimax](https://en.wikipedia.org/wiki/Minimax) algorithm to solve the game. The easiest way to explain the algorithm is through example. 
 
-For instance, suppose you have narrowed the game down to one of four possibilties: SKILL, SPILL, SWILL, STILL. Now let's suppose you play the naïve guess of SKILL. In the best case scenario, the match is won (🟩🟩🟩🟩🟩) but, in the worst case, you still have three words left to search through (🟩🟨🟩🟩🟩). Minimax works by considering all possible words as guesses and choosing the one the minimises the uncertainty in the worst case scenario. A word like KEMPT, for instance, would return scores of 🟨⬜⬜⬜⬜, ⬜⬜⬜🟨⬜, ⬜⬜⬜⬜⬜, ⬜⬜⬜⬜🟨 for SKILL, SPILL, SWILL and STILL respectively. Because each result partitions the words into their own bucket, the maximum uncertainty is one and the game can be immediately won on the next move. In doing so, we have minimised the maximmaly bad outcome.
+Suppose you are half way through a game and have narrowed the solution down to one of four possibilties: `SKILL`, `SPILL`, `SWILL`, `STILL`.
+
+Clearly, if we work our way through these words sequentially, the worst case scenario will be a further four guesses. To make things precise, let's create a histogram of all the scores that Wordle could return for each guess. We will consider the case where we naïvely choose the word `SKILL`.
+
+| Guess   | Score        | Partition Size | Possible Words               |
+|---------|--------------|----------------|------------------------------|
+| `SKILL` | 🟩🟨🟩🟩🟩 |             3 | { `SPILL`, `SWILL`, `STILL` } |
+| `SKILL` | 🟩🟩🟩🟩🟩 |             1 | { `SKILL` }                   |
+
+The histogram is a great way to see how any guess **partitions** the remaining words. In the case above, there are two partitions with the worst case scenario being three (because three is the size of the largest partition).
+
+Minimax works by considering all possible words in the dictionary and choosing the word that minimises the size of its largest partition. So, in searching through all possible words, minimax would stumble upon a word like 💥 `KAPOW` 💥.
+
+| Guess   | Score        | Partition Size | Possible Words      |
+|---------|--------------|----------------|---------------------|
+| `KAPOW` | ⬜⬜⬜⬜⬜ |             1 | { `STILL` }         |
+| `KAPOW` | 🟨⬜⬜⬜⬜ |             1 | { `SKILL` }         |
+| `KAPOW` | ⬜⬜🟨⬜⬜ |             1 | { `SPILL` }         |
+| `KAPOW` | ⬜⬜⬜⬜🟨 |             1 | { `SWILL` }         |
+
+In this case, each word is partitioned perfectly into its own bucket of length one and the game can be immediately solved on the next move. It's simple enough to compute this histogram for every possible word and the approach generalises all the way through the game.
 
 ### Entropy
 As an alternative to minimax, it is possible to play the game using an entropy solver. Here, the solver always chooses the word that, on average, lowers the Shannon entropy of the game. More documentation on this algorithm coming soon!
