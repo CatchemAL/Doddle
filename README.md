@@ -115,12 +115,12 @@ In this case, each word is partitioned perfectly into its own bucket of length o
 As an alternative to minimax, it is possible to play the game using an entropy based approach. Here, the solver always chooses the word that, on average, lowers the Shannon entropy of the game. To see how this works, let's assume we have reduced the game down to 20 possible words and decide to play the (excellent) move `THURL`. We shall construct a histogram as before - they're very useful.
 
 
-| Guess   | Score        | Bucket      | Possible Words                                 |
+| Guess   | Score        | Partition Size | Possible Words                                 |
 |---------|--------------|----------------|------------------------------------------------|
 | `THURL` | ⬜⬜⬜⬜⬜ |    3 (P=0.15) | { `SNAKE`, `SPACE`, `SPADE` }                   |
 | `THURL` | ⬜⬜⬜⬜🟨 |    1 (P=0.05) | { `SCALE` }                                     |
 | `THURL` | ⬜⬜⬜🟩⬜ |    3 (P=0.15) | { `SCARE`, `SNARE`, `SPARE` }                   |
-| `THURL` | ⬜🟩⬜⬜⬜ |    5 (P=0.25) | `SHADE`, `SHAKE`, `SHAME`, `SHAPE` |
+| `THURL` | ⬜🟩⬜⬜⬜ |    5 (P=0.25) | { `SHADE`, `SHAKE`, `SHAME`, `SHAPE`, `SHAVE` } |
 | `THURL` | ⬜🟩⬜⬜🟨 |    1 (P=0.05) | { `SHALE` }                                     |
 | `THURL` | ⬜🟩⬜🟩⬜ |    2 (P=0.10) | { `SHARE`, `SHARK` }                            |
 | `THURL` | 🟨⬜⬜⬜⬜ |    3 (P=0.15) | { `SKATE`, `STAGE`, `STAGE` }                   |
