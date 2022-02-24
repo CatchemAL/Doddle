@@ -132,7 +132,7 @@ The probability of any outcome is calculated simply as the **Partition Size** / 
 
 In the example above, the expected number of Shannon bits is 2.83 which tells us that the guess `THURL` roughly cuts the problem size in half 2.83 times. To be explicit, cutting the problem in half once would leave 10 words left to search on average. Cutting the problem in half twice would leave 5. And cutting the problem in half 2.83 times would leave 2.82 words on average which looks eminently sensible when we look at the partition sizes remaining.
 
-The guess with the highes information content, as measured in Shannon bits, is picked. In this case, `THURL` is pretty optimal.
+The guess with the highest information content, as measured in Shannon bits, is picked. In this case, `THURL` is pretty optimal.
 
 
 ## Simultaneous Play
