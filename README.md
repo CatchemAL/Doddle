@@ -114,6 +114,21 @@ In this case, each word is partitioned perfectly into its own bucket of length o
 ### Entropy
 As an alternative to minimax, it is possible to play the game using an entropy solver. Here, the solver always chooses the word that, on average, lowers the Shannon entropy of the game. More documentation on this algorithm coming soon!
 
+
+
+| Guess   | Score        | Partition Size | Possible Words                                 |
+|---------|--------------|----------------|------------------------------------------------|
+| `THURL` | ⬜⬜⬜⬜⬜ |             3 | { `SNAKE`, `SPACE`, `SPADE` }                   |
+| `THURL` | ⬜⬜⬜⬜🟨 |             1 | { `SCALE` }                                     |
+| `THURL` | ⬜⬜⬜🟩⬜ |             3 | { `SCARE`, `SNARE`, `SPARE` }                   |
+| `THURL` | ⬜🟩⬜⬜⬜ |             5 | { `SHADE`, `SHAKE`, `SHAME`, `SHAPE`, `SHAVE` } |
+| `THURL` | ⬜🟩⬜⬜🟨 |             1 | { `SHALE` }                                     |
+| `THURL` | ⬜🟩⬜🟩⬜ |             1 | { `SHARE` }                                     |
+| `THURL` | 🟨⬜⬜⬜⬜ |             3 | { `SKATE`, `STAGE`, `STAGE` }                   |
+| `THURL` | 🟨⬜⬜⬜🟨 |             2 | { `SLATE`, `STALE` }                            |
+
+
+
 ## Simultaneous Play
 Documentation on playing mutliple games at once coming soon!
 
