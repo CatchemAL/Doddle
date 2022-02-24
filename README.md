@@ -120,7 +120,7 @@ As an alternative to minimax, it is possible to play the game using an entropy b
 | `THURL` | ⬜⬜⬜⬜⬜ |    3 (P=0.15) | { `SNAKE`, `SPACE`, `SPADE` }                   |
 | `THURL` | ⬜⬜⬜⬜🟨 |    1 (P=0.05) | { `SCALE` }                                     |
 | `THURL` | ⬜⬜⬜🟩⬜ |    3 (P=0.15) | { `SCARE`, `SNARE`, `SPARE` }                   |
-| `THURL` | ⬜🟩⬜⬜⬜ |    5 (P=0.25) | { `SHADE`, `SHAKE`, `SHAME`, `SHAPE`, `SHAVE` } |
+| `THURL` | ⬜🟩⬜⬜⬜ |    5 (P=0.25) | { `SHADE`, `SHAKE`, `SHAME`, `SHAPE` } |
 | `THURL` | ⬜🟩⬜⬜🟨 |    1 (P=0.05) | { `SHALE` }                                     |
 | `THURL` | ⬜🟩⬜🟩⬜ |    2 (P=0.10) | { `SHARE`, `SHARK` }                            |
 | `THURL` | 🟨⬜⬜⬜⬜ |    3 (P=0.15) | { `SKATE`, `STAGE`, `STAGE` }                   |
