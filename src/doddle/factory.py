@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from sqlite3 import NotSupportedError
 from typing import Sequence
 

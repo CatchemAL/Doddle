@@ -51,15 +51,16 @@ def run(args: Namespace) -> None:
     solver_type: SolverType = args.solver
 
     solutions = solution.split(",")
-    extras = solutions + [guess] if guess else solutions
+    guesses = guess.split(",") if guess else []
+    extras = solutions + guesses
     size = len(solutions[0])
 
-    if len(solutions) > 1:
-        simul_engine = create_simul_engine(size, solver_type=solver_type, depth=depth, extras=extras)
-        simul_engine.run(solutions, guess)
-    else:
+    if len(solutions) == 1:
         simulator = create_engine(size, solver_type=solver_type, depth=depth, extras=extras)
-        simulator.run(solution, guess)
+        simulator.run(solution, guesses)
+    else:
+        simul_engine = create_simul_engine(size, solver_type=solver_type, depth=depth, extras=extras)
+        simul_engine.run(solutions, guesses)
 
 
 def benchmark_performance(args: Namespace) -> None:
@@ -67,18 +68,18 @@ def benchmark_performance(args: Namespace) -> None:
     guess: Word | None = args.guess
     depth: int = args.depth
     solver_type: SolverType = args.solver
-    size: int = len(guess) if guess else args.size
     simul: int = args.simul
-    extras = [guess] if guess else None
+    guesses = guess.split(",") if guess else []
+    size = len(guesses[0]) if guess else args.size
 
     if simul == 1:
-        benchmarker = create_benchmarker(size, solver_type=solver_type, depth=depth, extras=extras)
-        benchmarker.run_benchmark(guess)
+        benchmarker = create_benchmarker(size, solver_type=solver_type, depth=depth, extras=guesses)
+        benchmarker.run_benchmark(guesses)
     else:
         simul_benchmarker = create_simul_benchmarker(
-            size, solver_type=solver_type, depth=depth, extras=extras
+            size, solver_type=solver_type, depth=depth, extras=guesses
         )
-        simul_benchmarker.run_benchmark(guess, simul)
+        simul_benchmarker.run_benchmark(guesses, simul)
 
 
 def main() -> None:
@@ -109,7 +110,7 @@ def main() -> None:
 
     benchmark_parser = subparsers.add_parser("benchmark")
     benchmark_group = benchmark_parser.add_mutually_exclusive_group()
-    benchmark_group.add_argument("--guess", type=lambda s: s.upper())
+    benchmark_group.add_argument("--guess", type=Word)
     benchmark_group.add_argument("--size", type=int, default=5)
     benchmark_parser.add_argument("--solver", type=SolverType.from_str, default=SolverType.MINIMAX)
     benchmark_parser.add_argument("--depth", required=False, default=1, type=int)

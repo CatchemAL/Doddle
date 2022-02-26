@@ -79,10 +79,11 @@ class WordSeries:
     def word_length(self) -> int:
         return 0 if len(self) == 0 else len(self.words[0])
 
-    def contains(self, word: str | Word) -> bool:
+    def contains(self, value: str | Word) -> bool:
+        word = Word(value)
         words = cast(Sequence[Word], self.words)
-        pos = bisect_left(words, str(word), key=str)
-        return pos < len(self) and self.words[pos].value == str(word)
+        pos = bisect_left(words, word)
+        return pos < len(self) and words[pos] == word
 
     def find_index(self, word: str | Word | np.ndarray) -> int | np.ndarray:
         if isinstance(word, np.ndarray):
@@ -91,10 +92,11 @@ class WordSeries:
 
         return self.__find_index(word)
 
-    def __find_index(self, word: str | Word) -> int:
+    def __find_index(self, value: str | Word) -> int:
+        word = Word(value)
         words = cast(Sequence[Word], self.words)
-        pos = bisect_left(words, str(word), key=str)
-        if pos < len(self) and self.words[pos] == word:
+        pos = bisect_left(words, word)
+        if pos < len(self) and words[pos] == word:
             return pos
         return -1
 

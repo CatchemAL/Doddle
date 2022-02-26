@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import random
 from collections import defaultdict
 from concurrent.futures import ProcessPoolExecutor
@@ -24,13 +26,13 @@ class Engine:
     solver: Solver
     reporter: RunView
 
-    def run(self, solution: Word, first_guess: Word | None) -> Game:
+    def run(self, solution: Word, user_guesses: list[Word]) -> Game:
         all_words, available_answers = self.dictionary.words
-        guess = first_guess or self.solver.seed(all_words.word_length)
-        game = Game(available_answers, solution)
+        game = Game(available_answers, solution, user_guesses)
+        guess = game.user_guess(0) or self.solver.seed(all_words.word_length)
 
-        MAX_ITERS = 15
-        for i in range(MAX_ITERS):
+        MAX_ITERS = 20
+        for i in range(1, MAX_ITERS + 1):
             histogram = self.histogram_builder.get_solns_by_score(available_answers, guess)
             score = self.scorer.score_word(solution, guess)
             available_answers = histogram[score]
@@ -40,7 +42,7 @@ class Engine:
             if game.is_solved:
                 return game
 
-            guess = self.solver.get_best_guess(all_words, available_answers).word
+            guess = game.user_guess(i) or self.solver.get_best_guess(all_words, available_answers).word
 
         raise FailedToFindASolutionError(f"Failed to converge after {MAX_ITERS} iterations.")
 
@@ -54,28 +56,28 @@ class SimulEngine:
     solver: SimulSolver
     reporter: RunView
 
-    def run(self, solns: list[Word], first_guess: Word | None) -> SimultaneousGame:
+    def run(self, solns: list[Word], user_guesses: list[Word]) -> SimultaneousGame:
         all_words, common_words = self.dictionary.words
-        guess = first_guess or self.solver.seed(all_words.word_length)
-        games = SimultaneousGame(common_words, solns)
+        simul_game = SimultaneousGame(common_words, solns, user_guesses)
+        guess = simul_game.user_guess(0) or self.solver.seed(all_words.word_length)
 
-        MAX_ITERS = 15
-        for i in range(MAX_ITERS):
-            for game in games:
+        MAX_ITERS = 20
+        for i in range(1, MAX_ITERS + 1):
+            for game in simul_game:
                 if game.is_solved:
                     continue
                 available_answers = game.potential_solns
                 histogram = self.histogram_builder.get_solns_by_score(available_answers, guess)
                 score = self.scorer.score_word(game.soln, guess)
                 new_available_answers = histogram[score]
-                games.update(i, game, guess, score, new_available_answers)
+                simul_game.update(i, game, guess, score, new_available_answers)
 
-            self.reporter.display(games)
+            self.reporter.display(simul_game)
 
-            if games.is_solved:
-                return games
+            if simul_game.is_solved:
+                return simul_game
 
-            guess = self.solver.get_best_guess(all_words, games).word
+            guess = simul_game.user_guess(i) or self.solver.get_best_guess(all_words, simul_game).word
 
         raise FailedToFindASolutionError(f"Failed to converge after {MAX_ITERS} iterations.")
 
@@ -85,10 +87,10 @@ class Benchmarker:
         self.engine = engine
         self.reporter = reporter
 
-    def run_benchmark(self, first_guess: Word | None) -> None:
+    def run_benchmark(self, user_guesses: list[Word]) -> None:
 
         dictionary = self.engine.dictionary
-        f = partial(self.engine.run, first_guess=first_guess)
+        f = partial(self.engine.run, user_guesses=user_guesses)
 
         with ProcessPoolExecutor(max_workers=8) as executor:
             games = executor.map(f, dictionary.common_words)
@@ -105,12 +107,12 @@ class SimulBenchmarker:
         self.engine = engine
         self.reporter = reporter
 
-    def run_benchmark(self, first_guess: Word | None, num_simul: int, num_runs: int = 100) -> None:
+    def run_benchmark(self, user_guesses: list[Word], num_simul: int, num_runs: int = 100) -> None:
 
         random.seed(13)
 
         dictionary = self.engine.dictionary
-        f = partial(self.engine.run, first_guess=first_guess)
+        f = partial(self.engine.run, user_guesses=user_guesses)
 
         def generate_games() -> Iterable[list[Word]]:
             dict_size = len(dictionary.common_words)

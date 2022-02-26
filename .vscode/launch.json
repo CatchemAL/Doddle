@@ -9,7 +9,7 @@
             "type": "python",
             "request": "launch",
             "module": "src.doddle",
-            "args": ["run", "--answer=RIGHT,TOPAZ,AVAIL,BRAVO", "--guess=RAISE"]
+            "args": ["run", "--answer=DOPEY", "--guess=UNTIL,SOARE,CARRY"]
         },
         {
             "name": "Doddle (Solve)",
@@ -30,7 +30,7 @@
             "type": "python",
             "request": "launch",
             "module": "src.doddle",
-            "args": ["benchmark", "--size=5", "--simul=4"]
+            "args": ["benchmark", "--size=5", "--simul=4", "--guess=FUZZY,SNAKE"]
         },
         {
             "name": "Python: Current File",
