@@ -5,6 +5,7 @@ from collections import defaultdict
 from concurrent.futures import ProcessPoolExecutor
 from dataclasses import dataclass
 from functools import partial
+from typing import Iterable
 
 from .exceptions import FailedToFindASolutionError
 from .game import Game, SimultaneousGame
