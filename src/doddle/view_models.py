@@ -35,7 +35,7 @@ class Scoreboard:
     ) -> ScoreboardRow:
 
         answer = soln if soln else Word("?" * len(guess))
-        row = ScoreboardRow(n + 1, answer, guess, score, num_left)
+        row = ScoreboardRow(n, answer, guess, score, num_left)
         self.rows.append(row)
         return row
 

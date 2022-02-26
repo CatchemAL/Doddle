@@ -16,14 +16,18 @@ class DoddleGame(Protocol):
     def rounds(self) -> int:
         ...
 
+    def user_guess(self, i: int) -> Word | None:
+        ...
+
 
 class Game:
-    def __init__(self, potential_solns: WordSeries, soln: Word) -> None:
+    def __init__(self, potential_solns: WordSeries, soln: Word, opening_guesses: list[Word]) -> None:
         self.potential_solns = potential_solns
         self.soln = soln
         self.scoreboard = Scoreboard()
         self.is_solved = False
         self.word_length = potential_solns.word_length
+        self.opening_guesses = opening_guesses
 
     def update(self, n: int, guess: Word, score: int, potential_solns: WordSeries) -> ScoreboardRow:
         ternary_score = to_ternary(score, self.word_length)
@@ -41,10 +45,15 @@ class Game:
     def rounds(self) -> int:
         return self.scoreboard.rows[-1].n if self.scoreboard.rows else 0
 
+    def user_guess(self, i: int) -> Word | None:
+        if i >= len(self.opening_guesses):
+            return None
+        return self.opening_guesses[i]
+
 
 class SimultaneousGame:
-    def __init__(self, potential_solns: WordSeries, solns: list[Word]) -> None:
-        self.games = [Game(potential_solns, soln) for soln in solns]
+    def __init__(self, potential_solns: WordSeries, solns: list[Word], user_guess: list[Word]) -> None:
+        self.games = [Game(potential_solns, soln, user_guess) for soln in solns]
         self.scoreboard = Scoreboard()
         self.is_solved = False
         self.word_length = potential_solns.word_length
@@ -63,3 +72,6 @@ class SimultaneousGame:
 
     def __iter__(self) -> Iterator[Game]:
         return iter(self.games)
+
+    def user_guess(self, i: int) -> Word | None:
+        return self.games[0].user_guess(i)

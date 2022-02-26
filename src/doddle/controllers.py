@@ -52,8 +52,8 @@ class HideController:
         available_answers = self.dictionary.common_words
         guess = first_guess or self.view.get_user_guess()
 
-        for i in range(100):
-
+        MAX_ITERS = 100
+        for i in range(1, MAX_ITERS):
             histogram = self.histogram_builder.get_solns_by_score(available_answers, guess)
 
             def rank_score(score: int) -> int:
