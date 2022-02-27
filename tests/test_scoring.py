@@ -1,11 +1,10 @@
 import pytest
 
-from doddle.scoring import Scorer, to_ternary
+from doddle.scoring import Scorer, score_word_slow, to_ternary
 from doddle.words import Word
 
 
 class TestScorer:
-
     @pytest.mark.parametrize(
         "soln_str,guess_str,expected",
         [
@@ -55,21 +54,23 @@ class TestScorer:
 
         # Act
         score = sut.score_word(soln, guess)
+        score_slow = score_word_slow(soln, guess)
         ternary = to_ternary(score, 5)
 
         # Assert
         assert ternary == expected
+        assert score == score_slow
 
     def test_is_perfect_score(self) -> None:
         # Arrange
         sut = Scorer()
-        agree = Word('AGREE')
-        wrong = Word('WRONG')
+        agree = Word("AGREE")
+        wrong = Word("WRONG")
 
         # Act
         agree_score = sut.score_word(agree, agree)
         wrong_score = sut.score_word(agree, wrong)
-        
+
         # Assert
         assert sut.is_perfect_score(agree_score)
         assert not sut.is_perfect_score(wrong_score)
