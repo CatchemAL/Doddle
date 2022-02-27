@@ -2,12 +2,15 @@ from __future__ import annotations
 
 from collections import defaultdict
 from dataclasses import dataclass
-from typing import Iterator
+from typing import TYPE_CHECKING, Any, Iterator
 
 import colorama
 from colorama import Fore
 
 from .words import Word
+
+if TYPE_CHECKING:
+    import pandas as pd
 
 colorama.init()
 
@@ -24,6 +27,23 @@ class ScoreboardRow:
         a = f"n={self.n}, soln={self.soln}, guess={self.guess}, "
         b = f"score={self.score}, num_left={self.num_left}"
         return a + b
+
+    def to_dict(self, use_emojis: bool = True) -> dict[str, Any]:
+
+        score = self.score
+
+        if use_emojis:
+            score = score.replace("0", "⬜")
+            score = score.replace("1", "🟨")
+            score = score.replace("2", "🟩")
+
+        return {
+            "n": self.n,
+            "Soln": str(self.soln),
+            "Guess": str(self.guess),
+            "Score": score,
+            "Poss": self.num_left,
+        }
 
 
 class Scoreboard:
@@ -47,6 +67,19 @@ class Scoreboard:
 
     def __next__(self) -> ScoreboardRow:
         return next(self.rows)  # type: ignore
+
+    def df(self, use_emojis: bool = True) -> pd.DataFrame:
+        try:
+            import pandas as pd
+        except ImportError:
+            message = "Unable to create a DataFrame because pandas is not installed. "
+            message += "Pandas is an optional dependency of doddle. To use this feature, "
+            message += "install doddle via 'pip install doddle[df]'"
+            raise ImportError(message)
+
+        records = [row.to_dict(use_emojis) for row in self]
+        df = pd.DataFrame.from_records(records)
+        return df.set_index("n")
 
 
 class ScoreboardPrinter:
