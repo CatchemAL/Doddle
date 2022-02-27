@@ -14,13 +14,8 @@ class Word:
     __slots__ = ["value", "vector"]
 
     def __init__(self, word: str | Word) -> None:
-
-        if isinstance(word, Word):
-            self.value: str = word.value
-            self.vector: np.ndarray = word.vector
-        else:
-            self.value = word.upper()
-            self.vector = Word.to_vector(word)
+        self.value = str(word).upper()
+        self.vector = Word.to_vector(self.value)
 
     def __str__(self) -> str:
         return self.value
