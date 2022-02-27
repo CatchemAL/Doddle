@@ -1,0 +1,2 @@
+class TestWords:
+    pass

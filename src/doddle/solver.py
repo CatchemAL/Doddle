@@ -13,14 +13,42 @@ from .words import Word, WordSeries
 class Solver(abc.ABC):
     @abc.abstractmethod
     def get_best_guess(self, all_words: WordSeries, potential_solns: WordSeries) -> Guess:
+        """Gets the best guess to play given two lists:
+         - the full series of all_words that could possibly be played;
+         - the series of potential_solns left to search (i.e. the words that have yet to
+           be ruled out by the solver).
+
+        Args:
+            all_words (WordSeries): The full universe of words.
+            potential_solns (WordSeries): The words that still remain as potential solutions.
+
+        Returns:
+            Guess: Any object that implements the guess protocol.
+        """
         pass
 
     @property
     @abc.abstractmethod
     def all_seeds(self) -> list[Word]:
+        """Returns a list of all seeds for words of length 4-9.
+
+        Returns:
+            list[Word]: The list of all seeds.
+        """
         pass
 
     def seed(self, size: int) -> Word:
+        """Gets the optimal starting word to use for a given solver
+        implementation. This is for efficiency purposes - there's no
+        need to compute the opening move from first principles as it
+        will be the same each time.
+
+        Args:
+            size (int): The word length of the seed.
+
+        Returns:
+            Word: The seed.
+        """
         seed_by_size = {len(word): word for word in self.all_seeds}
         return seed_by_size[size]
 
