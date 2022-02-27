@@ -28,14 +28,16 @@ class ScoreboardRow:
         b = f"score={self.score}, num_left={self.num_left}"
         return a + b
 
+    def emoji(self) -> str:
+        score = self.score
+        score = score.replace("0", "⬜")
+        score = score.replace("1", "🟨")
+        score = score.replace("2", "🟩")
+        return score
+
     def to_dict(self, use_emojis: bool = True) -> dict[str, Any]:
 
-        score = self.score
-
-        if use_emojis:
-            score = score.replace("0", "⬜")
-            score = score.replace("1", "🟨")
-            score = score.replace("2", "🟩")
+        score = self.emoji() if use_emojis else self.score
 
         return {
             "n": self.n,
