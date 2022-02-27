@@ -64,7 +64,6 @@ class TestMinimaxGuess:
         assert is_worse
 
 
-
 class TestEntropyGuess:
     def test_entropy_guess_where_expected_shannon_entropy_differs(self) -> None:
         # Arrange
