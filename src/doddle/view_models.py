@@ -61,7 +61,7 @@ class Scoreboard:
         self.rows.append(row)
         return row
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.rows)
 
     def __iter__(self) -> Iterator[ScoreboardRow]:
@@ -69,6 +69,11 @@ class Scoreboard:
 
     def __next__(self) -> ScoreboardRow:
         return next(self.rows)  # type: ignore
+
+    def summary(self) -> str:
+        lines = [row.emoji() for row in self]
+        return '\n'.join(lines)
+
 
     def df(self, use_emojis: bool = True) -> pd.DataFrame:
         try:
