@@ -71,9 +71,10 @@ class Scoreboard:
         return next(self.rows)  # type: ignore
 
     def summary(self) -> str:
-        lines = [row.emoji() for row in self]
-        return '\n'.join(lines)
-
+        n = len(self)
+        header = f"Doddle {n}/6\n\n"
+        emojis = [row.emoji() for row in self]
+        return header + "\n".join(emojis)
 
     def df(self, use_emojis: bool = True) -> pd.DataFrame:
         try:
@@ -85,8 +86,9 @@ class Scoreboard:
             raise ImportError(message)
 
         records = [row.to_dict(use_emojis) for row in self]
-        df = pd.DataFrame.from_records(records)
-        return df.set_index("n")
+        df = pd.DataFrame.from_records(records).set_index("n")
+        df.index.name = None
+        return df
 
 
 class ScoreboardPrinter:

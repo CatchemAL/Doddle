@@ -9,7 +9,7 @@
             "type": "python",
             "request": "launch",
             "module": "src.doddle",
-            "args": ["run", "--answer=DOPEY", "--guess=UNTIL,SOARE,CARRY"]
+            "args": ["run", "--answer=CHOKE", "--guess=SOARE"]
         },
         {
             "name": "Doddle (Solve)",

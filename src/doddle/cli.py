@@ -56,8 +56,8 @@ def run(args: Namespace) -> None:
     size = len(solutions[0])
 
     if len(solutions) == 1:
-        simulator = create_engine(size, solver_type=solver_type, depth=depth, extras=extras)
-        simulator.run(solution, guesses)
+        engine = create_engine(size, solver_type=solver_type, depth=depth, extras=extras)
+        engine.run(solution, guesses)
     else:
         simul_engine = create_simul_engine(size, solver_type=solver_type, depth=depth, extras=extras)
         simul_engine.run(solutions, guesses)
