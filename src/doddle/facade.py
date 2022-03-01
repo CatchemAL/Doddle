@@ -88,12 +88,8 @@ class Doddle:
             game = self.engine.run(solns[0], guesses)
             return game.scoreboard
 
-
         simul_game = self.simul_engine.run(solns, guesses)
         return simul_game.scoreboard
-
-
-
 
     @staticmethod
     def __to_word_list(words: WordType | Sequence[WordType] | None, label: str) -> list[Word]:
