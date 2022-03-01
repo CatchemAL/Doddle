@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from collections import defaultdict
 from dataclasses import dataclass
+from itertools import zip_longest
 from typing import TYPE_CHECKING, Any, Iterator
 
 import colorama
@@ -70,11 +71,43 @@ class Scoreboard:
     def __next__(self) -> ScoreboardRow:
         return next(self.rows)  # type: ignore
 
-    def summary(self) -> str:
-        n = len(self)
-        header = f"Doddle {n}/6\n\n"
-        emojis = [row.emoji() for row in self]
-        return header + "\n".join(emojis)
+    def emoji(self) -> str:
+        n = self.rows[-1].n
+        header = f"Doddle {n}/6\n"
+
+        dead_row = "⬛⬛⬛⬛⬛"
+
+        emoji_lines: list[str] = []
+
+        scoreboards = self.many()
+        num_boards = len(scoreboards)
+        for i in range(0, num_boards, 2):
+            emoji_lines.append("")
+            if i < num_boards - 1:
+                board1 = scoreboards[i]
+                board2 = scoreboards[i + 1]
+
+                row1: ScoreboardRow
+                row2: ScoreboardRow
+                for row1, row2 in zip_longest(board1, board2):
+                    emoji1 = row1.emoji() if row1 else dead_row
+                    emoji2 = row2.emoji() if row2 else dead_row
+                    combined = f"{emoji1} {emoji2}"
+                    emoji_lines.append(combined)
+            else:
+                board1 = scoreboards[i]
+                for row1 in board1:
+                    emoji1 = row1.emoji()
+                    emoji_lines.append(emoji1)
+
+        return header + "\n".join(emoji_lines)
+
+    def many(self) -> list[Scoreboard]:
+        scoreboard_by_soln: defaultdict[Word, Scoreboard] = defaultdict(Scoreboard)
+        for row in self:
+            scoreboard_by_soln[row.soln].rows.append(row)
+
+        return list(scoreboard_by_soln.values())
 
     def df(self, use_emojis: bool = True) -> pd.DataFrame:
         try:

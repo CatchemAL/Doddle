@@ -1,10 +1,9 @@
 from typing import Sequence, TypeVar
 
 from .engine import Engine, SimulEngine
-from .view_models import Scoreboard
-
 from .enums import SolverType
 from .factory import create_engine, create_models
+from .view_models import Scoreboard
 from .views import NullRunView, RunView
 from .words import Word
 
