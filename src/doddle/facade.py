@@ -1,6 +1,4 @@
-from __future__ import annotations
-
-from typing import Sequence
+from typing import Sequence, Union
 
 from .engine import Engine, SimulEngine
 from .enums import SolverType
@@ -9,7 +7,7 @@ from .view_models import Scoreboard
 from .views import NullRunView, RunView
 from .words import Word
 
-WordType = str | Word
+WordType = Union[str, Word]
 
 
 class Doddle:
