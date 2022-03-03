@@ -2,12 +2,16 @@ from __future__ import annotations
 
 from collections import defaultdict
 from dataclasses import dataclass
-from typing import Iterator
+from itertools import zip_longest
+from typing import TYPE_CHECKING, Any, Iterator
 
 import colorama
 from colorama import Fore
 
 from .words import Word
+
+if TYPE_CHECKING:
+    import pandas as pd
 
 colorama.init()
 
@@ -25,6 +29,25 @@ class ScoreboardRow:
         b = f"score={self.score}, num_left={self.num_left}"
         return a + b
 
+    def emoji(self) -> str:
+        score = self.score
+        score = score.replace("0", "⬜")
+        score = score.replace("1", "🟨")
+        score = score.replace("2", "🟩")
+        return score
+
+    def to_dict(self, use_emojis: bool = True) -> dict[str, Any]:
+
+        score = self.emoji() if use_emojis else self.score
+
+        return {
+            "n": self.n,
+            "Soln": str(self.soln),
+            "Guess": str(self.guess),
+            "Score": score,
+            "Poss": self.num_left,
+        }
+
 
 class Scoreboard:
     def __init__(self) -> None:
@@ -39,7 +62,7 @@ class Scoreboard:
         self.rows.append(row)
         return row
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.rows)
 
     def __iter__(self) -> Iterator[ScoreboardRow]:
@@ -47,6 +70,102 @@ class Scoreboard:
 
     def __next__(self) -> ScoreboardRow:
         return next(self.rows)  # type: ignore
+
+    def emoji(self) -> str:
+
+        if not self.rows:
+            return ""
+
+        scoreboards = self.many()
+        num_boards = len(scoreboards)
+
+        size = len(self.rows[0].guess)
+        n = self.rows[-1].n
+        limit = 5 + num_boards
+        header = f"Doddle {n}/{limit}"
+
+        emoji_by_num = {
+            0: "0\ufe0f\u20e3",
+            1: "1\ufe0f\u20e3",
+            2: "2\ufe0f\u20e3",
+            3: "3\ufe0f\u20e3",
+            4: "4\ufe0f\u20e3",
+            5: "5\ufe0f\u20e3",
+            6: "6\ufe0f\u20e3",
+            7: "7\ufe0f\u20e3",
+            8: "8\ufe0f\u20e3",
+            9: "9\ufe0f\u20e3",
+            10: "🔟",
+            11: "🕚",
+            12: "🕛",
+            13: "🕐",
+            14: "🕑",
+            15: "🕒",
+            16: "🕓",
+            17: "🕔",
+            18: "🕕",
+            19: "🕖",
+            20: "🕗",
+            21: "🕘",
+            22: "🕙",
+        }
+
+        icons: list[str] = []
+        if len(scoreboards) > 1:
+            for i, scoreboard in enumerate(scoreboards):
+                if i % 2 == 0:
+                    icons.append("\n")
+                last_row = scoreboard.rows[-1]
+                n = last_row.n
+                icon = emoji_by_num.get(n, "🟥") if last_row.soln == last_row.guess else "🟥"
+                icons.append(icon)
+
+        clocks = "".join(icons)
+        dead_row = "⬛" * size
+
+        emoji_lines: list[str] = []
+
+        for i in range(0, num_boards, 2):
+            emoji_lines.append("")
+            if i < num_boards - 1:
+                board1 = scoreboards[i]
+                board2 = scoreboards[i + 1]
+
+                row1: ScoreboardRow
+                row2: ScoreboardRow
+                for row1, row2 in zip_longest(board1, board2):
+                    emoji1 = row1.emoji() if row1 else dead_row
+                    emoji2 = row2.emoji() if row2 else dead_row
+                    combined = f"{emoji1} {emoji2}"
+                    emoji_lines.append(combined)
+            else:
+                board1 = scoreboards[i]
+                for row1 in board1:
+                    emoji1 = row1.emoji()
+                    emoji_lines.append(emoji1)
+
+        return header + clocks + "\n" + "\n".join(emoji_lines)
+
+    def many(self) -> list[Scoreboard]:
+        scoreboard_by_soln: defaultdict[Word, Scoreboard] = defaultdict(Scoreboard)
+        for row in self:
+            scoreboard_by_soln[row.soln].rows.append(row)
+
+        return list(scoreboard_by_soln.values())
+
+    def df(self, use_emojis: bool = True) -> pd.DataFrame:
+        try:
+            import pandas as pd
+        except ImportError:
+            message = "Unable to create a DataFrame because pandas is not installed. "
+            message += "Pandas is an optional dependency of doddle. To use this feature, "
+            message += "install doddle via 'pip install doddle[df]'"
+            raise ImportError(message)
+
+        records = [row.to_dict(use_emojis) for row in self]
+        df = pd.DataFrame.from_records(records).set_index("n")
+        df.index.name = None
+        return df
 
 
 class ScoreboardPrinter:

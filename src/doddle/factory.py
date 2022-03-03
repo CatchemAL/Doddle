@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from sqlite3 import NotSupportedError
+from sqlite3 import NotSupportedError  # TODO
 from typing import Sequence
 
 from .engine import Benchmarker, Engine, SimulBenchmarker, SimulEngine
