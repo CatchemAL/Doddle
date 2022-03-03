@@ -72,15 +72,59 @@ class Scoreboard:
         return next(self.rows)  # type: ignore
 
     def emoji(self) -> str:
-        n = self.rows[-1].n
-        header = f"Doddle {n}/6\n"
 
-        dead_row = "⬛⬛⬛⬛⬛"
-
-        emoji_lines: list[str] = []
+        if not self.rows:
+            return ''
 
         scoreboards = self.many()
         num_boards = len(scoreboards)
+
+        size = len(self.rows[0].guess)
+        n = self.rows[-1].n
+        limit = 5 + num_boards
+        header = f"Doddle {n}/{limit}"
+
+        emoji_by_num = {
+            0: '0\ufe0f\u20e3',
+            1: '1\ufe0f\u20e3',
+            2: '2\ufe0f\u20e3',
+            3: '3\ufe0f\u20e3',
+            4: '4\ufe0f\u20e3',
+            5: '5\ufe0f\u20e3',
+            6: '6\ufe0f\u20e3',
+            7: '7\ufe0f\u20e3',
+            8: '8\ufe0f\u20e3',
+            9: '9\ufe0f\u20e3',
+            10: '🔟',
+            11: '🕚',
+            12: '🕛',
+            13: '🕐',
+            14: '🕑',
+            15: '🕒',
+            16: '🕓',
+            17: '🕔',
+            18: '🕕',
+            19: '🕖',
+            20: '🕗',
+            21: '🕘',
+            22: '🕙'
+        }
+
+        clocks = ''
+        if len(scoreboards) > 1:
+            for i, scoreboard in enumerate(scoreboards):
+                if i % 2 == 0:
+                    clocks += '\n'
+                last_row = scoreboard.rows[-1]
+                n = last_row.n
+                clocks += emoji_by_num[n] if last_row.soln == last_row.guess else '🟥'
+        else:
+            clocks = ''
+                
+        dead_row = "⬛" * size
+
+        emoji_lines: list[str] = []
+
         for i in range(0, num_boards, 2):
             emoji_lines.append("")
             if i < num_boards - 1:
@@ -100,7 +144,7 @@ class Scoreboard:
                     emoji1 = row1.emoji()
                     emoji_lines.append(emoji1)
 
-        return header + "\n".join(emoji_lines)
+        return header + clocks + "\n" + "\n".join(emoji_lines)
 
     def many(self) -> list[Scoreboard]:
         scoreboard_by_soln: defaultdict[Word, Scoreboard] = defaultdict(Scoreboard)
