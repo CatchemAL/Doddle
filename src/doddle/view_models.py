@@ -74,7 +74,7 @@ class Scoreboard:
     def emoji(self) -> str:
 
         if not self.rows:
-            return ''
+            return ""
 
         scoreboards = self.many()
         num_boards = len(scoreboards)
@@ -85,42 +85,42 @@ class Scoreboard:
         header = f"Doddle {n}/{limit}"
 
         emoji_by_num = {
-            0: '0\ufe0f\u20e3',
-            1: '1\ufe0f\u20e3',
-            2: '2\ufe0f\u20e3',
-            3: '3\ufe0f\u20e3',
-            4: '4\ufe0f\u20e3',
-            5: '5\ufe0f\u20e3',
-            6: '6\ufe0f\u20e3',
-            7: '7\ufe0f\u20e3',
-            8: '8\ufe0f\u20e3',
-            9: '9\ufe0f\u20e3',
-            10: '🔟',
-            11: '🕚',
-            12: '🕛',
-            13: '🕐',
-            14: '🕑',
-            15: '🕒',
-            16: '🕓',
-            17: '🕔',
-            18: '🕕',
-            19: '🕖',
-            20: '🕗',
-            21: '🕘',
-            22: '🕙'
+            0: "0\ufe0f\u20e3",
+            1: "1\ufe0f\u20e3",
+            2: "2\ufe0f\u20e3",
+            3: "3\ufe0f\u20e3",
+            4: "4\ufe0f\u20e3",
+            5: "5\ufe0f\u20e3",
+            6: "6\ufe0f\u20e3",
+            7: "7\ufe0f\u20e3",
+            8: "8\ufe0f\u20e3",
+            9: "9\ufe0f\u20e3",
+            10: "🔟",
+            11: "🕚",
+            12: "🕛",
+            13: "🕐",
+            14: "🕑",
+            15: "🕒",
+            16: "🕓",
+            17: "🕔",
+            18: "🕕",
+            19: "🕖",
+            20: "🕗",
+            21: "🕘",
+            22: "🕙",
         }
 
-        clocks = ''
+        icons: list[str] = []
         if len(scoreboards) > 1:
             for i, scoreboard in enumerate(scoreboards):
                 if i % 2 == 0:
-                    clocks += '\n'
+                    icons.append("\n")
                 last_row = scoreboard.rows[-1]
                 n = last_row.n
-                clocks += emoji_by_num[n] if last_row.soln == last_row.guess else '🟥'
-        else:
-            clocks = ''
-                
+                icon = emoji_by_num.get(n, "🟥") if last_row.soln == last_row.guess else "🟥"
+                icons.append(icon)
+
+        clocks = "".join(icons)
         dead_row = "⬛" * size
 
         emoji_lines: list[str] = []

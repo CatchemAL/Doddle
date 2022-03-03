@@ -1,8 +1,8 @@
-from typing import Sequence, TypeVar
+from typing import Sequence
 
 from .engine import Engine, SimulEngine
 from .enums import SolverType
-from .factory import create_engine, create_models
+from .factory import create_models
 from .view_models import Scoreboard
 from .views import NullRunView, RunView
 from .words import Word
@@ -65,7 +65,7 @@ class Doddle:
 
         unknown_solns = [s.value for s in solns if s not in score_matrix.potential_solns]
         if unknown_solns:
-            missing = ", ".join(unknown_words)
+            missing = ", ".join(unknown_solns)
             missing_extras = "', '".join(unknown_solns)
             message = f"The following answers are not known to Doddle: {missing}\n"
             message += "To play Doddle with custom words, please use the extras argument when "
