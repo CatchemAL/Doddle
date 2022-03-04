@@ -110,10 +110,12 @@ class Scoreboard:
             22: "🕙",
         }
 
+        boards_per_line = 8
+
         icons: list[str] = []
         if len(scoreboards) > 1:
             for i, scoreboard in enumerate(scoreboards):
-                if i % 2 == 0:
+                if i % boards_per_line == 0:
                     icons.append("\n")
                 last_row = scoreboard.rows[-1]
                 n = last_row.n
@@ -125,18 +127,13 @@ class Scoreboard:
 
         emoji_lines: list[str] = []
 
-        for i in range(0, num_boards, 2):
+        for i in range(0, num_boards, boards_per_line):
             emoji_lines.append("")
             if i < num_boards - 1:
-                board1 = scoreboards[i]
-                board2 = scoreboards[i + 1]
+                boards = scoreboards[i:i+boards_per_line]
 
-                row1: ScoreboardRow
-                row2: ScoreboardRow
-                for row1, row2 in zip_longest(board1, board2):
-                    emoji1 = row1.emoji() if row1 else dead_row
-                    emoji2 = row2.emoji() if row2 else dead_row
-                    combined = f"{emoji1} {emoji2}"
+                for row_tuple in zip_longest(*boards):
+                    combined = ' '.join([row.emoji() if row else dead_row for row in row_tuple])
                     emoji_lines.append(combined)
             else:
                 board1 = scoreboards[i]

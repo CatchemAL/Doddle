@@ -9,7 +9,7 @@
             "type": "python",
             "request": "launch",
             "module": "src.doddle",
-            "args": ["run", "--answer=CHOKE", "--guess=SOARE"]
+            "args": ["run", "--answer=FLAME,QUASH,DINER,GIRLY,STYLE,OPIUM,LEASE,ANVIL,KARMA,SMITH,ZESTY,GRACE,PANSY,STERN,ALLEY,MODEM", "--guess=SOARE"]
         },
         {
             "name": "Doddle (Solve)",
