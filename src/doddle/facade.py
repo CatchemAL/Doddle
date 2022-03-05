@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from typing import Sequence, TypeAlias, Union
 
+from .boards import Scoreboard
 from .engine import Engine, SimulEngine
 from .enums import SolverType
 from .factory import create_models
-from .view_models import Scoreboard
 from .views import NullRunView, RunView
 from .words import Word
 

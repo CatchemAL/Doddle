@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from typing import Iterator, Protocol
 
+from .boards import Scoreboard, ScoreboardRow
 from .scoring import to_ternary
-from .view_models import Scoreboard, ScoreboardRow
 from .words import Word, WordSeries
 
 
