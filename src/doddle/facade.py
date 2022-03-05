@@ -2,8 +2,6 @@ from __future__ import annotations
 
 from typing import Sequence, Union
 
-from typing_extensions import TypeAlias
-
 from .boards import Scoreboard
 from .engine import Engine, SimulEngine
 from .enums import SolverType
@@ -11,7 +9,7 @@ from .factory import create_models
 from .views import NullRunView, RunView
 from .words import Word
 
-WordType: TypeAlias = Union[str, Word]
+WordType = Union[str, Word]
 
 
 class Doddle:
