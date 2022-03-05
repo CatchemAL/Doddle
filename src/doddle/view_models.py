@@ -72,113 +72,15 @@ class Scoreboard:
         return next(self.rows)  # type: ignore
 
     def emoji(self) -> str:
-
-        if not self.rows:
-            return ""
-
-        scoreboards = self.many()
-        num_boards = len(scoreboards)
-
-        size = len(self.rows[0].guess)
-        n = self.rows[-1].n
-        limit = 5 + num_boards
-        header = f"Doddle {n}/{limit}"
-
-        emoji_by_num = {
-            0: "0\ufe0f\u20e3",
-            1: "1\ufe0f\u20e3",
-            2: "2\ufe0f\u20e3",
-            3: "3\ufe0f\u20e3",
-            4: "4\ufe0f\u20e3",
-            5: "5\ufe0f\u20e3",
-            6: "6\ufe0f\u20e3",
-            7: "7\ufe0f\u20e3",
-            8: "8\ufe0f\u20e3",
-            9: "9\ufe0f\u20e3",
-            10: "🔟",
-            11: "🕚",
-            12: "🕛",
-            13: "🕐",
-            14: "🕑",
-            15: "🕒",
-            16: "🕓",
-            17: "🕔",
-            18: "🕕",
-            19: "🕖",
-            20: "🕗",
-            21: "🕘",
-            22: "🕙",
-        }
-
-        boards_per_line = min(num_boards // 2 + num_boards % 2, 8)
-
-        icons: list[str] = []
-        if len(scoreboards) > 1:
-            for i, scoreboard in enumerate(scoreboards):
-                if i % boards_per_line == 0:
-                    icons.append("\n")
-                last_row = scoreboard.rows[-1]
-                n = last_row.n
-                icon = emoji_by_num.get(n, "🟥") if last_row.soln == last_row.guess else "🟥"
-                icons.append(icon)
-
-        clocks = "".join(icons)
-        dead_row = "⬛" * size
-
-        emoji_lines: list[str] = []
-
-        for i in range(0, num_boards, boards_per_line):
-            emoji_lines.append("")
-            boards = scoreboards[i:i+boards_per_line]
-
-            for row_tuple in zip_longest(*boards):
-                combined = ' '.join([row.emoji() if row else dead_row for row in row_tuple])
-                emoji_lines.append(combined)
-
-        return header + clocks + "\n" + "\n".join(emoji_lines)
+        emoji_printer = EmojiScoreboardPrinter()
+        return emoji_printer.build_string(self)
 
     def __repr__(self):
-        return f'Soln={self.rows[0].soln} ({len(self)} guesses)'
+        return f"Soln={self.rows[0].soln} ({len(self)} guesses)"
 
-    def _repr_html_(self):    
-        
-        row_strings: list[str] = []
-        for row in self.rows:
-            n = row.n
-            soln = row.soln
-            guess = row.guess
-            score = row.emoji()
-            num_left = row.num_left
-            
-            row_template = f"""
-            <tr>
-                <th>{n}</th>
-                <td><tt>{soln}</tt></td>
-                <td><tt>{guess}</tt></td>
-                <td>{score}</td>
-                <td>{num_left}</td>
-            </tr>
-            """
-            row_strings.append(row_template)
-
-        all_rows = ''.join(row_strings)
-        
-        return  f"""
-        <table>
-        <thead>
-          <tr>
-            <th></th>
-            <th>Soln</th>
-            <th>Guess</th>
-            <th>Score</th>
-            <th>Poss</th>
-          </tr>
-        </thead>
-        <tbody>
-          {all_rows}
-        </tbody>
-        </table>
-        """
+    def _repr_html_(self):
+        html_printer = HtmlScoreboardPrinter()
+        return html_printer.build_string(self)
 
     def many(self) -> list[Scoreboard]:
         scoreboard_by_soln: defaultdict[Word, Scoreboard] = defaultdict(Scoreboard)
@@ -286,6 +188,121 @@ class ScoreboardPrinter:
             pretty_chars.append(Fore.RESET)
 
         return "".join(pretty_chars)
+
+
+class HtmlScoreboardPrinter:
+
+    def print(self, scoreboard: Scoreboard) -> None:
+        string_repr = self.build_string(scoreboard)
+        print(string_repr)
+
+    def build_string(self, scoreboard: Scoreboard) -> str:
+        row_strings: list[str] = []
+        has_dividers = len(scoreboard.many()) > 1
+
+        prev_row = 1
+        for row in scoreboard.rows:
+            n = row.n
+            soln = row.soln
+            guess = row.guess
+            score = row.emoji()
+            num_left = row.num_left
+
+            num_left_str = str(num_left) if soln != guess else ""
+
+            if has_dividers and row.n != prev_row:
+                row_divider = """<tr>
+                    <td colspan="5" class="divider"><hr /></td>
+                </tr>
+                """
+                row_strings.append(row_divider)
+
+            row_template = f"""
+            <tr>
+                <th>{n}</th>
+                <td><tt>{soln}</tt></td>
+                <td><tt>{guess}</tt></td>
+                <td>{score}</td>
+                <td>{num_left_str}</td>
+            </tr>
+            """
+            row_strings.append(row_template)
+            prev_row = row.n
+
+
+
+        all_rows = "".join(row_strings)
+
+        return f"""
+        <table>
+        <thead>
+          <tr>
+            <th></th>
+            <th>Soln</th>
+            <th>Guess</th>
+            <th>Score</th>
+            <th>Poss</th>
+          </tr>
+        </thead>
+        <tbody>
+          {all_rows}
+        </tbody>
+        </table>
+        """
+
+
+class EmojiScoreboardPrinter:
+
+    def print(self, scoreboard: Scoreboard) -> None:
+        string_repr = self.build_string(scoreboard)
+        print(string_repr)
+
+    def build_string(self, scoreboard: Scoreboard) -> str:
+        if not scoreboard.rows:
+            return ""
+
+        scoreboards = scoreboard.many()
+        num_boards = len(scoreboards)
+        size = len(scoreboard.rows[0].guess)
+        n = scoreboard.rows[-1].n
+
+        limit = 5 + num_boards
+        header = f"Doddle {n}/{limit}"
+
+        emoji_by_num = self._get_score_emojjis()
+        boards_per_line = min(num_boards // 2 + num_boards % 2, 8)
+
+        icons: list[str] = []
+        if len(scoreboards) > 1:
+            for i, scoreboard in enumerate(scoreboards):
+                if i % boards_per_line == 0:
+                    icons.append("\n")
+                last_row = scoreboard.rows[-1]
+                n = last_row.n
+                icon = emoji_by_num.get(n, "🟥") if last_row.soln == last_row.guess else "🟥"
+                icons.append(icon)
+
+        clocks = "".join(icons)
+
+        dead_row = "⬛" * size
+        emoji_lines: list[str] = []
+        for i in range(0, num_boards, boards_per_line):
+            emoji_lines.append("")
+            boards = scoreboards[i : i + boards_per_line]
+
+            for row_tuple in zip_longest(*boards):
+                combined = " ".join([row.emoji() if row else dead_row for row in row_tuple])
+                emoji_lines.append(combined)
+
+        return header + clocks + "\n" + "\n".join(emoji_lines)
+
+    def _get_score_emojjis(self):
+        keypad = "\ufe0f\u20e3"
+        num_keypads = [str(i) + keypad for i in range(10)] + ["🔟"]
+        clock_keypads = list("🕚🕛🕐🕑🕒🕓🕔🕕🕖🕗🕘🕙")
+        all_keypads = num_keypads + clock_keypads
+        emoji_by_num = {i: e for i, e in enumerate(all_keypads)}
+        return emoji_by_num
 
 
 class Keyboard:
