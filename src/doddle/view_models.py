@@ -110,7 +110,7 @@ class Scoreboard:
             22: "🕙",
         }
 
-        boards_per_line = 8
+        boards_per_line = min(num_boards // 2 + num_boards % 2, 8)
 
         icons: list[str] = []
         if len(scoreboards) > 1:
@@ -129,19 +129,56 @@ class Scoreboard:
 
         for i in range(0, num_boards, boards_per_line):
             emoji_lines.append("")
-            if i < num_boards - 1:
-                boards = scoreboards[i:i+boards_per_line]
+            boards = scoreboards[i:i+boards_per_line]
 
-                for row_tuple in zip_longest(*boards):
-                    combined = ' '.join([row.emoji() if row else dead_row for row in row_tuple])
-                    emoji_lines.append(combined)
-            else:
-                board1 = scoreboards[i]
-                for row1 in board1:
-                    emoji1 = row1.emoji()
-                    emoji_lines.append(emoji1)
+            for row_tuple in zip_longest(*boards):
+                combined = ' '.join([row.emoji() if row else dead_row for row in row_tuple])
+                emoji_lines.append(combined)
 
         return header + clocks + "\n" + "\n".join(emoji_lines)
+
+    def __repr__(self):
+        return f'Soln={self.rows[0].soln} ({len(self)} guesses)'
+
+    def _repr_html_(self):    
+        
+        row_strings: list[str] = []
+        for row in self.rows:
+            n = row.n
+            soln = row.soln
+            guess = row.guess
+            score = row.emoji()
+            num_left = row.num_left
+            
+            row_template = f"""
+            <tr>
+                <th>{n}</th>
+                <td><tt>{soln}</tt></td>
+                <td><tt>{guess}</tt></td>
+                <td>{score}</td>
+                <td>{num_left}</td>
+            </tr>
+            """
+            row_strings.append(row_template)
+
+        all_rows = ''.join(row_strings)
+        
+        return  f"""
+        <table>
+        <thead>
+          <tr>
+            <th></th>
+            <th>Soln</th>
+            <th>Guess</th>
+            <th>Score</th>
+            <th>Poss</th>
+          </tr>
+        </thead>
+        <tbody>
+          {all_rows}
+        </tbody>
+        </table>
+        """
 
     def many(self) -> list[Scoreboard]:
         scoreboard_by_soln: defaultdict[Word, Scoreboard] = defaultdict(Scoreboard)
