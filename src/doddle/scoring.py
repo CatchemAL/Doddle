@@ -13,6 +13,14 @@ class Scorer:
 
     @property
     def perfect_score(self) -> int:
+        """A decimal representation of the perfect ternary score.
+
+        e.g. in a 5 letter game of Wordle, the perfect score is 22222.
+        Therefore, this method would return 242.
+
+        Returns:
+            int: Returns the perfect score.
+        """
         return (3**self.size) - 1
 
     def is_perfect_score(self, score: int) -> bool:

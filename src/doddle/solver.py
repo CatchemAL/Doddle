@@ -58,6 +58,7 @@ class MinimaxSolver(Solver):
         self.hist_builder = histogram_builder
 
     def get_best_guess(self, all_words: WordSeries, potential_solns: WordSeries) -> Guess:
+        """See base class."""
         return self.get_minimax_guess(all_words, potential_solns)
 
     def get_minimax_guess(self, all_words: WordSeries, potential_solns: WordSeries) -> MinimaxGuess:
@@ -88,6 +89,7 @@ class DeepMinimaxSolver(MinimaxSolver):
         self.inner = inner_solver
 
     def get_best_guess(self, all_words: WordSeries, potential_solns: WordSeries) -> Guess:
+        """See base class."""
 
         N_GUESSES = 50
         N_BRANCHES = 10
@@ -122,6 +124,7 @@ class EntropySolver(Solver):
         self.hist_builder = histogram_builder
 
     def get_best_guess(self, all_words: WordSeries, potential_solns: WordSeries) -> Guess:
+        """See base class."""
         return self.get_entropy_guess(all_words, potential_solns)
 
     def get_entropy_guess(self, all_words: WordSeries, potential_solns: WordSeries) -> EntropyGuess:
@@ -155,6 +158,7 @@ class DeepEntropySolver(EntropySolver):
         self.inner = inner_solver
 
     def get_best_guess(self, all_words: WordSeries, potential_solns: WordSeries) -> Guess:
+        """See base class."""
 
         N_GUESSES = 10
 

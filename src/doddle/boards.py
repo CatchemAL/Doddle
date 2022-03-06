@@ -15,6 +15,8 @@ colorama.init()
 
 @dataclass
 class ScoreboardRow:
+    """A dataclass representing an individual row in a scoreboard."""
+
     n: int
     soln: Word
     guess: Word
@@ -22,11 +24,17 @@ class ScoreboardRow:
     num_left: int
 
     def __repr__(self) -> str:
+        """String representation of a row"""
         a = f"n={self.n}, soln={self.soln}, guess={self.guess}, "
         b = f"score={self.score}, num_left={self.num_left}"
         return a + b
 
     def emoji(self) -> str:
+        """Returns the ⬜/🟨/🟩 emojis for a given row
+
+        Returns:
+            str: The emoji representation of a row.
+        """
         score = self.score
         score = score.replace("0", "⬜")
         score = score.replace("1", "🟨")
@@ -34,6 +42,18 @@ class ScoreboardRow:
         return score
 
     def to_dict(self, use_emojis: bool = True) -> dict[str, Any]:
+        """
+        Convenience method for converting a row to a dictionary.
+        Provides the option to use an emoji score.
+
+        Args:
+            use_emojis (bool, optional):
+                Whether to represent the score via emojis. Defaults to True.
+
+        Returns:
+            dict[str, Any]:
+                A dictionary representation of the row.
+        """
 
         score = self.emoji() if use_emojis else self.score
 
@@ -47,39 +67,104 @@ class ScoreboardRow:
 
 
 class Scoreboard:
+    """
+    A class to respresent the outcome of a Doddle game.
+
+    Supports iteration of its rows, decomposition from simultaneous
+    scoreboards to many individual scoreboards, and snazzy emoji
+    representations.
+
+    Jupyter understands Doddle Scoreboards. Simply returning a scoreboard
+    object will render a beautiful HTML representation of the board.
+    """
+
     def __init__(self) -> None:
+        """Initialises a new instance of a Scoreboard object."""
         self.rows: list[ScoreboardRow] = []
+
+    def __len__(self) -> int:
+        """The number of rows in the scoreboard.
+
+        Returns:
+            int:
+                The number of rows in the scoreboard.
+        """
+        return len(self.rows)
+
+    def __iter__(self) -> Iterator[ScoreboardRow]:
+        """Defines the iteration protocol for a scoreboard.
+
+        Returns:
+            Iterator[ScoreboardRow]: A ScoreboardRow iterator
+        """
+        return iter(self.rows)
+
+    def __next__(self) -> ScoreboardRow:
+        """Returns the next row in the scorebaord.
+
+        Returns:
+            ScoreboardRow:
+                The next scoreboard row.
+        """
+        return next(self.rows)  # type: ignore
+
+    def __repr__(self) -> str:
+        """String representation of a board"""
+        return f"Soln={self.rows[0].soln} ({len(self)} guesses)"
+
+    def _repr_html_(self) -> str:
+        """Hook to allow for beautiful rendering within an IPython Notebook.
+
+        Returns:
+            str:
+                An HTML representation of a scoreboard.
+        """
+        html_printer = HtmlScoreboardPrinter()
+        return html_printer.build_string(self)
 
     def add_row(
         self, n: int, soln: Word | None, guess: Word, score: str, num_left: int
     ) -> ScoreboardRow:
+        """Appends a row to the scoreboard.
+
+        Args:
+            n (int): The n'th guess.
+            soln (Word | None): The SOLUTION.
+            guess (Word): The GUESS.
+            score (str): The ternary score e.g. 10020
+            num_left (int): The number of words the answer could still be.
+
+        Returns:
+            ScoreboardRow:
+                The newly created row.
+        """
 
         answer = soln if soln else Word("?" * len(guess))
         row = ScoreboardRow(n, answer, guess, score, num_left)
         self.rows.append(row)
         return row
 
-    def __len__(self) -> int:
-        return len(self.rows)
-
-    def __iter__(self) -> Iterator[ScoreboardRow]:
-        return iter(self.rows)
-
-    def __next__(self) -> ScoreboardRow:
-        return next(self.rows)  # type: ignore
-
     def emoji(self) -> str:
+        """Creates a beautiful emoji representation of the game.
+        If a simultaneous game is played, the emojis will include
+        keypad icons showing the number of guesses for each
+        individual solve.
+
+        Returns:
+            str: The emoji representation of the scoreboard.
+        """
         emoji_printer = EmojiScoreboardPrinter()
         return emoji_printer.build_string(self)
 
-    def __repr__(self):
-        return f"Soln={self.rows[0].soln} ({len(self)} guesses)"
-
-    def _repr_html_(self):
-        html_printer = HtmlScoreboardPrinter()
-        return html_printer.build_string(self)
-
     def many(self) -> list[Scoreboard]:
+        """
+        Decomposes a scoreboard from a simulataneous game into a list of scoreboards
+        representing each individual game.
+
+        Returns:
+            list[Scoreboard]:
+                A list of scoreboards.
+        """
         scoreboard_by_soln: defaultdict[Word, Scoreboard] = defaultdict(Scoreboard)
         for row in self:
             scoreboard_by_soln[row.soln].rows.append(row)
