@@ -2,13 +2,23 @@
 
 
 ## Features
+
+### Command line Interface Features
 - **Run** the solver to see how the game is optimally played
 - **Solve** a game in realtime using Doddle's solver
 - Play a variation of the game where the solver attempts to **hide** the answer from you for as long as possible (inspired by [Absurdle](https://qntm.org/files/absurdle/absurdle.html))
 - Play using words of length 4-9 (inclusive) by adding the optional `--size` argument (default is 5).
 - Choose your solver using the `--solver=ENTROPY` `--solver=MINIMAX` argument (default is minimax)
 - Run deep searches using the depth argument (default is 1)
-- Doddle can solve multiple games of Wordle at the same time. This mode is inspired by popular spin-offs such as [Dordle](https://zaratustra.itch.io/dordle), [Quordle](https://www.quordle.com/#/) and [Octordle](https://octordle.com/). Playing multiple games with Doddle is easy: just add more solutions to the run `doddle run --answer=ULTRA,QUICK,SOLVE` and Doddle will solve them all at the same time.
+- Solve multiple games of Wordle at the same time. This mode is inspired by popular spin-offs such as [Dordle](https://zaratustra.itch.io/dordle), [Quordle](https://www.quordle.com/#/) and [Octordle](https://octordle.com/). Playing multiple games with Doddle is easy: just add more answers to the run command `doddle run --answer=ULTRA,QUICK,SOLVE` and Doddle will solve them all at the same time.
+
+### A Clean API
+- Doddle exposes a tonne of features, packed behind a simple API. Wanna play two six-letter word games simultaneously with your choice of an opening guess? Three lines... 😉
+```python
+from doddle import Doddle
+doddle = Doddle(size=6)
+scoreboard = doddle(answer=['THOUGH', 'FUSION'], guess='PRAYER')
+```
 
 ## Install
 ![example workflow](https://github.com/CatchemAl/Doddle/actions/workflows/python-app.yml/badge.svg)
@@ -21,7 +31,7 @@
 ```ruby
 doddle run --answer=SALTY
 doddle run --answer=SPEED --guess=SOLVE
-doddle run --answer=FABULOUS --guess=SOLUTION --solver=ENTROPY
+doddle run --answer=FABULOUS --guess=SOLUTION,STRENGTH --solver=ENTROPY
 doddle run --answer=DEEP --guess=MIND --solver=ENTROPY --depth=2
 ```
 
