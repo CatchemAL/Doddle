@@ -95,7 +95,7 @@ class Scoreboard:
         """Defines the iteration protocol for a scoreboard.
 
         Returns:
-          Iterator[ScoreboardRow]: 
+          Iterator[ScoreboardRow]:
             A ScoreboardRow iterator
         """
         return iter(self.rows)
