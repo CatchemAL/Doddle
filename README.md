@@ -3,7 +3,7 @@
 
 ## Features
 
-### Command line Interface Features
+### A Command line Interface
 - **Run** the solver to see how the game is optimally played
 - **Solve** a game in realtime using Doddle's solver
 - Play a variation of the game where the solver attempts to **hide** the answer from you for as long as possible (inspired by [Absurdle](https://qntm.org/files/absurdle/absurdle.html))
