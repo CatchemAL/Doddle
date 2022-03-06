@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from typing import Sequence, Union
 
+from .boards import Scoreboard
 from .engine import Engine, SimulEngine
 from .enums import SolverType
 from .factory import create_models
-from .view_models import Scoreboard
 from .views import NullRunView, RunView
 from .words import Word
 
@@ -179,7 +179,7 @@ class Doddle:
         if words is None:
             raise TypeError(f"The {label} cannot be None.")
 
-        if isinstance(words, WordType):
+        if isinstance(words, Word) or isinstance(words, str):
             soln = Word(words)
             return [soln]
 

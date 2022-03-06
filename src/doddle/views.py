@@ -3,9 +3,9 @@ from __future__ import annotations
 import re
 from collections import defaultdict
 
+from .boards import Keyboard, KeyboardPrinter, Scoreboard, ScoreboardPrinter
 from .game import DoddleGame
 from .scoring import from_ternary, to_ternary
-from .view_models import Keyboard, KeyboardPrinter, Scoreboard, ScoreboardPrinter
 from .words import Word, WordSeries
 
 
