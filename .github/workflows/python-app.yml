@@ -30,7 +30,19 @@ jobs:
         # sort this out
         pip install .
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+    - name: Run Doddle permutations
+      run: |
         doddle run --answer=SALTY
+        doddle run --answer=SALTY --guess=SALLY
+        doddle run --answer=SALTY --guess=SALAD,TOWER
+        doddle run --answer=SALTY --guess=SALAD,TOWER --solver=MINIMAX
+        doddle run --answer=SALTY --guess=SALAD,TOWER --solver=ENTROPY
+        doddle run --answer=SALTY --guess=SALAD,TOWER --solver=MINIMAX --depth=2
+        doddle run --answer=SALTY --guess=SALAD,TOWER --solver=ENTROPY --depth=2
+        doddle run --answer=SALTY,TOWER
+        doddle run --answer=SALTY,TOWER --guess=SOARE
+        doddle run --answer=SALTY,TOWER --guess=SOARE,SALAD
     
     - name: Test with pytest
       run: |
