@@ -33,7 +33,7 @@ class ScoreboardRow:
         """Returns the ⬜/🟨/🟩 emojis for a given row
 
         Returns:
-            str: The emoji representation of a row.
+          str: The emoji representation of a row.
         """
         score = self.score
         score = score.replace("0", "⬜")
@@ -47,12 +47,12 @@ class ScoreboardRow:
         Provides the option to use an emoji score.
 
         Args:
-            use_emojis (bool, optional):
-                Whether to represent the score via emojis. Defaults to True.
+          use_emojis (bool, optional):
+            Whether to represent the score via emojis. Defaults to True.
 
         Returns:
-            dict[str, Any]:
-                A dictionary representation of the row.
+          dict[str, Any]:
+            A dictionary representation of the row.
         """
 
         score = self.emoji() if use_emojis else self.score
@@ -86,8 +86,8 @@ class Scoreboard:
         """The number of rows in the scoreboard.
 
         Returns:
-            int:
-                The number of rows in the scoreboard.
+          int:
+            The number of rows in the scoreboard.
         """
         return len(self.rows)
 
@@ -95,7 +95,8 @@ class Scoreboard:
         """Defines the iteration protocol for a scoreboard.
 
         Returns:
-            Iterator[ScoreboardRow]: A ScoreboardRow iterator
+          Iterator[ScoreboardRow]: 
+            A ScoreboardRow iterator
         """
         return iter(self.rows)
 
@@ -103,8 +104,8 @@ class Scoreboard:
         """Returns the next row in the scorebaord.
 
         Returns:
-            ScoreboardRow:
-                The next scoreboard row.
+          ScoreboardRow:
+            The next scoreboard row.
         """
         return next(self.rows)  # type: ignore
 
@@ -116,8 +117,8 @@ class Scoreboard:
         """Hook to allow for beautiful rendering within an IPython Notebook.
 
         Returns:
-            str:
-                An HTML representation of a scoreboard.
+          str:
+            An HTML representation of a scoreboard.
         """
         html_printer = HtmlScoreboardPrinter()
         return html_printer.build_string(self)
@@ -135,8 +136,7 @@ class Scoreboard:
             num_left (int): The number of words the answer could still be.
 
         Returns:
-            ScoreboardRow:
-                The newly created row.
+            ScoreboardRow: The newly created row.
         """
 
         answer = soln if soln else Word("?" * len(guess))
@@ -162,8 +162,7 @@ class Scoreboard:
         representing each individual game.
 
         Returns:
-            list[Scoreboard]:
-                A list of scoreboards.
+            list[Scoreboard]: A list of scoreboards.
         """
         scoreboard_by_soln: defaultdict[Word, Scoreboard] = defaultdict(Scoreboard)
         for row in self:

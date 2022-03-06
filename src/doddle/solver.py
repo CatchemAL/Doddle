@@ -19,11 +19,11 @@ class Solver(abc.ABC):
            be ruled out by the solver).
 
         Args:
-            all_words (WordSeries): The full universe of words.
-            potential_solns (WordSeries): The words that still remain as potential solutions.
+          all_words (WordSeries): The full universe of words.
+          potential_solns (WordSeries): The words that still remain as potential solutions.
 
         Returns:
-            Guess: Any object that implements the guess protocol.
+          Guess: Any object that implements the guess protocol.
         """
         pass
 
@@ -33,7 +33,7 @@ class Solver(abc.ABC):
         """Returns a list of all seeds for words of length 4-9.
 
         Returns:
-            list[Word]: The list of all seeds.
+          list[Word]: The list of all seeds.
         """
         pass
 
@@ -44,10 +44,10 @@ class Solver(abc.ABC):
         will be the same each time.
 
         Args:
-            size (int): The word length of the seed.
+          size (int): The word length of the seed.
 
         Returns:
-            Word: The seed.
+          Word: The seed.
         """
         seed_by_size = {len(word): word for word in self.all_seeds}
         return seed_by_size[size]
