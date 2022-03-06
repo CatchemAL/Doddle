@@ -13,6 +13,42 @@ WordType = Union[str, Word]
 
 
 class Doddle:
+    """
+    A simple, facade class for running Doddle simulations.
+
+    Attributes:
+        size (int, optional):
+            The word length. Defaults to 5.
+
+        solver_type (SolverType, optional):
+            Enum stating the solver heuristic to use. Defaults to SolverType.MINIMAX.
+
+        depth (int, optional):
+            Depth of the search - how many moves to look ahead. Defaults to 1.
+
+        extras (Sequence[Word] | Sequence[str] | None, optional):
+            Any extra words to include in Doddle's dictionary. Defaults to None.
+
+        lazy_eval (bool, optional):
+            Whether to lazily score words as and when they are seen or to score every
+            word against every word upfront. Lazy evaluation results in quicker
+            initialisation but slower solves. The opposite is true when lazy initialisation
+            is disabled. It is recommended to disable lazy evaluation if you plan to run
+            Doddle multiple times within the same session for greater performance.
+            Defaults to True.
+
+        reporter (RunView | None, optional):
+            A class that provided real-time reports (callback) as the solve progresses.
+            Defaults to None.
+
+    Methods
+    -------
+    __call__(answer, guess)
+        Doddle is callable via:
+            doddle = Doddle()
+            scoreboard = doddle(answer=['SNAKE', 'FRUIT'], guess='APPLE')
+    """
+
     def __init__(
         self,
         size: int = 5,
@@ -22,6 +58,33 @@ class Doddle:
         lazy_eval: bool = True,
         reporter: RunView | None = None,
     ):
+        """Initialises a new instance of a Doddle object.
+
+        Args:
+            size (int, optional):
+                The word length. Defaults to 5.
+
+            solver_type (SolverType, optional):
+                Enum stating the solver heuristic to use. Defaults to SolverType.MINIMAX.
+
+            depth (int, optional):
+                Depth of the search - how many moves to look ahead. Defaults to 1.
+
+            extras (Sequence[Word] | Sequence[str] | None, optional):
+                Any extra words to include in Doddle's dictionary. Defaults to None.
+
+            lazy_eval (bool, optional):
+                Whether to lazily score words as and when they are seen or to score every
+                word against every word upfront. Lazy evaluation results in quicker
+                initialisation but slower solves. The opposite is true when lazy initialisation
+                is disabled. It is recommended to disable lazy evaluation if you plan to run
+                Doddle multiple times within the same session for greater performance.
+                Defaults to True.
+
+            reporter (RunView | None, optional):
+                A class that provided real-time reports (callback) as the solve progresses.
+                Defaults to None.
+        """
         self.size = size
         e = [Word(extra) for extra in extras] if extras else []
 
@@ -41,6 +104,25 @@ class Doddle:
     def __call__(
         self, answer: WordType | Sequence[WordType], guess: WordType | Sequence[WordType] | None = None
     ) -> Scoreboard:
+        """Callable that runs a Doddle game and returns the resulting scoreboard.
+
+        Args:
+            answer (WordType | Sequence[WordType]):
+                A word intended to be the answer. Alternatively, a sequence of words
+                if you wish to play Doddle in simultaneous mode.
+
+            guess (WordType | Sequence[WordType] | None, optional):
+                An optional word to be played as the opening guess. You can pass a list
+                of guesses if you want to play several openers. Defaults to None.
+
+        Raises:
+            ValueError:
+                If the provided words are invalid.
+
+        Returns:
+            Scoreboard:
+                A scoreboard showing how the game played out.
+        """
 
         solns = self.__to_word_list(answer, "answer")
         guesses = self.__to_word_list(guess, "guess") if guess else []

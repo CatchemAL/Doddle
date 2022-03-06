@@ -16,6 +16,14 @@ class Scorer:
         return (3**self.size) - 1
 
     def is_perfect_score(self, score: int) -> bool:
+        """Returns true if the score provided results in the game being won.
+
+        Args:
+            score (int): The decimal representation of a ternary number.
+
+        Returns:
+            bool: A bool denoting whether the score is a perfect score.
+        """
         return score == self.perfect_score
 
     def score_word(self, solution: Word, guess: Word) -> int:
