@@ -1,5 +1,4 @@
-<img src="https://i.imgur.com/eLnkxkp.png" width="420">
-
+<img src="https://user-images.githubusercontent.com/4703989/156943013-ae0af75a-abc2-4303-acde-7805450c7540.png" width="420">
 
 ## Features
 
@@ -69,7 +68,8 @@ Doddle provides multiple ways to solve the game. You can choose between a **mini
 
 Doddle supports deep searches for all of its solvers 🧠🧠🧠. These are slower, more exhaustive searches for those that want to go deeper. By default, Doddle plays the move that will yield the 'best' outcome on its next turn. In the case of minimax, that means playing the move that will result in the fewest number of possible words to search in the worst-case scenario (it choose a word that **mini**mises the outcome that provides **max**imum uncertainty). In the case of `--solver=ENTROPY`, it plays the move that results in the greatest expected reduction in [Shannon entropy](https://en.wikipedia.org/wiki/Entropy_(information_theory)). With deep searches, it thinks `n` steps ahead. So for `--depth=2`, the minimax solver plays the word that minimses the number of possible solutions in the worst case scenario on the turn after next taking into consideration ***all*** sensible first moves. The performance is still decent - a few seconds per game - but it is noticably slower as the search space explodes exponentially with depth.
 
-<img src="https://i.imgur.com/Al2ucap.png" width="400">
+<img src="https://user-images.githubusercontent.com/4703989/156943094-ff39fe79-29ee-4391-88bd-1a1e688a21e9.png" width="400">
+
 
 ### Solve
 
@@ -117,7 +117,8 @@ doddle hide --guess=SALTY
 ```
 Hide is a spin on the conventional Wordle game. Here, Doddle uses its solver to hide the final answer for as long as possible. Doddle doesn't choose an answer before the game starts - instead it always presents you with the score that results in maximum ambiguity. You'll get there in the end, but the game might take a while. 😈
 
-<img src="https://i.imgur.com/JrMj21n.png" width="350">
+<img src="https://user-images.githubusercontent.com/4703989/156943113-435c7d2a-dd41-4f3c-8a95-0e3d4ee38fa4.png" width="350">
+
 
 Similar to the original Wordle game, a keyboard is rendered to display what characters have been guessed so far.
 
