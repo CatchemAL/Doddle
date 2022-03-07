@@ -13,6 +13,16 @@ TGuess = TypeVar("TGuess", bound=Guess)
 
 
 class HistogramBuilder:
+    """
+    The class responsible for creating a histogram (or streaming many histograms)
+    given a guess or sequence of guesses.
+
+    The histogram is a fundamental to the solve. If we know how any guess fractures the
+    remaining solution space, we can choose the guess that minimises an objective function.
+    All Doddle solvers are heuristic and rely on knowledge of the histogram produced from
+    each guess.
+    """
+
     def __init__(
         self, scorer: Scorer, all_words: WordSeries, potential_solns: WordSeries, lazy_eval: bool = True
     ) -> None:
@@ -42,9 +52,6 @@ class HistogramBuilder:
     def get_solns_by_score(self, potential_solns: WordSeries, guess: Word) -> dict[int, WordSeries]:
         """Gets a histogram of all the remaining solutions bucketed by score given a guess.
 
-        The histogram is a fundamental to the solve. If we know how any guess fractures the
-        remaining solution space, we can choose the guess that minimises our objective function.
-
         Args:
             potential_solns (WordSeries): The remaining words that could be a solution.
             guess (Word): The guess.
@@ -71,6 +78,28 @@ class HistogramBuilder:
         potential_solns: WordSeries,
         guess_factory: Callable[[Word, bool, np.ndarray], TGuess],
     ) -> Iterator[TGuess]:
+        """Yields a sequences of guesses constructed via a user-defined factory method.
+
+        Each guess is formed from the histogram of bucketed solutions.
+
+        Args:
+          all_words (WordSeries): 
+            The list of all words that could be guessed
+          
+          potential_solns (WordSeries):
+            The remaining words that could be solutions
+
+          guess_factory (Callable[[Word, bool, np.ndarray], TGuess]):
+            A factory method for producing a guess. The guess is formed from three
+            parameters:
+            1) The guessed Word
+            2) A flag denoting whether that word could be a potential solution
+            3) A histogram of solutions bucketed by score
+
+        Yields:
+          Iterator[TGuess]:
+            A guess produced via the factory method.
+        """
 
         # First, we precompute the scores for all remaining solutions
         self.score_matrix.precompute(potential_solns)
@@ -82,18 +111,26 @@ class HistogramBuilder:
 
         scores = self.score_matrix.storage[:, potential_solns.index]
 
-        histogram = self.allocate_histogram_vector(all_words.word_length)
+        histogram = self._allocate_histogram_vector(all_words.word_length)
         for i, word in enumerate(all_words):
-            populate_histogram(scores, i, histogram)
+            _populate_histogram(scores, i, histogram)
             yield guess_factory(word, is_common[i], histogram)
 
     @staticmethod
-    def allocate_histogram_vector(word_length: int) -> np.ndarray:
+    def _allocate_histogram_vector(word_length: int) -> np.ndarray:
+        """Allocates a vector that can be recycled.
+
+        Args:
+            word_length (int): The size of the vector to allocate.
+
+        Returns:
+            np.ndarray: The allocated vector.
+        """
         return np.zeros(3**word_length, dtype=int)
 
 
 @njit
-def populate_histogram(matrix: np.ndarray, row: int, hist: np.ndarray) -> None:
+def _populate_histogram(matrix: np.ndarray, row: int, hist: np.ndarray) -> None:
     hist[:] = 0
     for j in range(matrix.shape[1]):
         idx = matrix[row, j]
@@ -117,6 +154,12 @@ class ScoreMatrix:
             self.precompute(potential_solns)
 
     def precompute(self, potential_solns: WordSeries | None = None) -> None:
+        """Method to precompute the score matrix.
+
+        Args:
+            potential_solns (WordSeries | None, optional):
+                The potnetial solutions to compute upfront. Defaults to None.
+        """
 
         solns = potential_solns or self.potential_solns
         if self.is_fully_initialized or np.all(self.is_calculated[solns.index]):
