@@ -37,7 +37,7 @@ class Doddle:
         Doddle multiple times within the same session for greater performance.
         Defaults to True.
 
-      reporter (RunView | None, optional):
+      reporter (RunReporter | None, optional):
         A class that provided real-time reports (callback) as the solve progresses.
         Defaults to None.
 
@@ -81,7 +81,7 @@ class Doddle:
             Doddle multiple times within the same session for greater performance.
             Defaults to True.
 
-          reporter (RunView | None, optional):
+          reporter (RunReporter | None, optional):
             A class that provided real-time reports (callback) as the solve progresses.
             Defaults to None.
         """
