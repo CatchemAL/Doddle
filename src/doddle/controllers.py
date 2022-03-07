@@ -11,6 +11,7 @@ from .words import Dictionary, Word
 
 @dataclass
 class SolveController:
+    """Controller for the Solve entry point"""
 
     dictionary: Dictionary
     scorer: Scorer
@@ -19,7 +20,11 @@ class SolveController:
     view: SolveView
 
     def solve(self, first_guess: Word | None) -> None:
+        """Solves a game given an optional opening guess.
 
+        Args:
+            first_guess (Word | None): The opening guess.
+        """
         all_words, available_answers = self.dictionary.words
         best_guess = first_guess or self.solver.seed(all_words.word_length)
 
@@ -41,6 +46,7 @@ class SolveController:
 
 @dataclass
 class HideController:
+    """Controller for the Hide entry point"""
 
     dictionary: Dictionary
     scorer: Scorer
@@ -48,7 +54,11 @@ class HideController:
     view: HideView
 
     def hide(self, first_guess: Word | None) -> None:
+        """Hides a solution for as long as possible.
 
+        Args:
+            first_guess (Word | None): An optional opening guess
+        """
         available_answers = self.dictionary.common_words
         guess = first_guess or self.view.get_user_guess()
 
