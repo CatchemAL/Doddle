@@ -121,7 +121,7 @@ class HistogramBuilder:
         """Allocates a vector that can be recycled.
 
         Args:
-            word_length (int): The size of the vector to allocate.
+            word_length (int): The word length of the game.
 
         Returns:
             np.ndarray: The allocated vector.
@@ -131,6 +131,21 @@ class HistogramBuilder:
 
 @njit
 def _populate_histogram(matrix: np.ndarray, row: int, hist: np.ndarray) -> None:
+    """Aggressive optimisation of the histogram creation.
+
+    This is performance critical code. Here, we use a preallocated vector
+    rather than instantiating one for each guess. Instead of using a dictionary,
+    we use fast indexing to build out the histogram. Each index in the vector
+    represents a score.
+
+    Hence the reason we use a decimal representation of each ternary score - we
+    need a desnre representation of the score to build an efficient histogram.
+
+    Args:
+        matrix (np.ndarray): The internal, precomputed score matrix
+        row (int): The row in the score matrix corresponding to a guess
+        hist (np.ndarray): The preallocated histogram vector
+    """
     hist[:] = 0
     for j in range(matrix.shape[1]):
         idx = matrix[row, j]
@@ -138,9 +153,28 @@ def _populate_histogram(matrix: np.ndarray, row: int, hist: np.ndarray) -> None:
 
 
 class ScoreMatrix:
+    """
+    Internal storage of all words scored against all words.
+
+    This matrix is used as an optimsation to avoid rescoring the same
+    words multiple times within a solve and is particularly important 
+    for deep searches.
+
+    The rows in the matrix correspond to all possible words. The columns
+    correspond to the words that could ever be answers.
+    """
+
     def __init__(
         self, scorer: Scorer, all_words: WordSeries, potential_solns: WordSeries, lazy_eval: bool = True
     ) -> None:
+        """Initialises a new instance of the score matrix.
+
+        Args:
+            scorer (Scorer): The scorer.
+            all_words (WordSeries): All possible words in the Doddle dictionary.
+            potential_solns (WordSeries): All words that could be a solution.
+            lazy_eval (bool, optional): Whether to perform lazy evaluation of each score. Defaults to True.
+        """
         self.scorer = scorer
         self.potential_solns = potential_solns
         self.all_words = all_words
