@@ -10,10 +10,22 @@ import numpy as np
 
 
 class Word:
+    """Represents a word within the game.
+
+    Internally stores an integer vector representation of the word
+    for optimised scoring and comparisons.
+
+    Enforces capitalisation of the word.
+    """
 
     __slots__ = ["value", "vector"]
 
     def __init__(self, word: str | Word) -> None:
+        """Initisalises a new instance of a Word
+
+        Args:
+            word (str | Word): The word
+        """
         self.value = str(word).upper()
         self.vector = Word.to_vector(self.value)
 
@@ -50,12 +62,28 @@ class Word:
     def __iter__(self) -> Iterator[str]:
         return iter(self.value)
 
-    def split(self, separator: str):
-        return list(Word(s) for s in self.value.split(separator))
+    def split(self, sep: str) -> list[Word]:
+        """Returns a list of Words using sep as the delimiter
+
+        Args:
+            sep (str): The separator
+
+        Returns:
+            list[Word]: The separated list of words
+        """
+        return list(Word(s) for s in self.value.split(sep))
 
     @staticmethod
     def to_vector(word: str) -> np.ndarray:
-        asciis = [ord(c) - 64 for c in word.upper()]
+        """Converts a string into an integer vector representation.
+
+        Args:
+            word (str): The string word to convert.
+
+        Returns:
+            np.ndarray: Returns the resultant integer vector.
+        """
+        asciis = [ord(c) - ord("A") for c in word.upper()]
         return np.array(asciis, dtype=np.int8)
 
 
