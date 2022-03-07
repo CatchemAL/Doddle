@@ -9,14 +9,24 @@ from .scoring import from_ternary, to_ternary
 from .words import Word, WordSeries
 
 
-class RunView:
+class RunReporter:
+    """Realtime reporter to display progress of a DoddleGame during a solve."""
+
     def display(self, game: DoddleGame) -> None:
+        """Displays an update on the solve progress.
+
+        Args:
+            game (DoddleGame): A DoddleGame.
+        """
         sb_printer = ScoreboardPrinter(game.word_length)
         sb_printer.print_last_round(game.scoreboard)
 
 
-class NullRunView(RunView):
+class NullRunReporter(RunReporter):
+    """Null implementation of a RunReporter"""
+
     def display(self, game: DoddleGame) -> None:
+        """Does nothing"""
         pass
 
 
@@ -99,7 +109,7 @@ class HideView:
         return Word(guess)
 
 
-class BenchmarkView:
+class BenchmarkReporter:
     def display(self, histogram: defaultdict[int, int]) -> None:
         print("| # | Count |")
         print("|---|-------|")

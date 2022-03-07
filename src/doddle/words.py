@@ -10,10 +10,22 @@ import numpy as np
 
 
 class Word:
+    """Represents a word within the game.
+
+    Internally stores an integer vector representation of the word
+    for optimised scoring and comparisons.
+
+    Enforces capitalisation of the word.
+    """
 
     __slots__ = ["value", "vector"]
 
     def __init__(self, word: str | Word) -> None:
+        """Initisalises a new instance of a Word
+
+        Args:
+            word (str | Word): The word
+        """
         self.value = str(word).upper()
         self.vector = Word.to_vector(self.value)
 
@@ -50,17 +62,42 @@ class Word:
     def __iter__(self) -> Iterator[str]:
         return iter(self.value)
 
-    def split(self, separator: str):
-        return list(Word(s) for s in self.value.split(separator))
+    def split(self, sep: str) -> list[Word]:
+        """Returns a list of Words using sep as the delimiter
+
+        Args:
+            sep (str): The separator
+
+        Returns:
+            list[Word]: The separated list of words
+        """
+        return list(Word(s) for s in self.value.split(sep))
 
     @staticmethod
     def to_vector(word: str) -> np.ndarray:
-        asciis = [ord(c) - 64 for c in word.upper()]
+        """Converts a string into an integer vector representation.
+
+        Args:
+            word (str): The string word to convert.
+
+        Returns:
+            np.ndarray: Returns the resultant integer vector.
+        """
+        asciis = [ord(c) - ord("A") for c in word.upper()]
         return np.array(asciis, dtype=np.int8)
 
 
 class WordSeries:
     def __init__(self, words: Iterable[str] | np.ndarray, index: np.ndarray | None = None) -> None:
+        """Initialises a new instance of the WordSeries object.
+
+        Args:
+          words (Iterable[str] | np.ndarray):
+            The words in the series.
+
+          index (np.ndarray | None, optional):
+            The numerical index associated with each word. Defaults to None.
+        """
 
         if isinstance(words, np.ndarray) and words.dtype == type(Word):
             self.words = words
@@ -72,15 +109,36 @@ class WordSeries:
 
     @property
     def word_length(self) -> int:
+        """The length of each word in the series.
+
+        Returns:
+            int: Returns the length of each word in the series.
+        """
         return 0 if len(self) == 0 else len(self.words[0])
 
     def contains(self, value: str | Word) -> bool:
+        """Whether the series contains the word
+
+        Args:
+            value (str | Word): The word.
+
+        Returns:
+            bool: Returns True if the word is in the series.
+        """
         word = Word(value)
         words = cast(Sequence[Word], self.words)
         pos = bisect_left(words, word)
         return pos < len(self) and words[pos] == word
 
     def find_index(self, word: str | Word | np.ndarray) -> int | np.ndarray:
+        """Finds the numerical index associated with a Word in the series.
+
+        Args:
+            word (str | Word | np.ndarray): The word or vector of words.
+
+        Returns:
+            int | np.ndarray: The index or array of indices.
+        """
         if isinstance(word, np.ndarray):
             find_func = np.vectorize(self.__find_index)
             return find_func(word)
@@ -156,19 +214,53 @@ class _WordLoc:
 
 @dataclass
 class Dictionary:
+    """The collection of all words (of a given word length).
+
+    The dictionary holds two members:
+
+    1) A list of all words that could be accepted as a guess
+
+    2) A list of common words that might possibly be a solution. This
+       is a subset as uncommon words, plurals etc. are not valid
+       solutions.
+    """
+
     all_words: WordSeries
     common_words: WordSeries
 
     @property
     def word_length(self) -> int:
+        """Gets the word length
+
+        Returns:
+            int: Returns the word length
+        """
         return self.all_words.word_length
 
     @property
     def words(self) -> tuple[WordSeries, WordSeries]:
+        """The tuple of all words and common words.
+
+        Returns:
+          tuple[WordSeries, WordSeries]:
+            Returns a tuple of all_words and common words.
+        """
         return self.all_words, self.common_words
 
 
 def load_dictionary(size, extras: Sequence[Word] | None = None) -> Dictionary:
+    """Loads a dictionary of words of specified word length, size.
+
+    Args:
+      size (_type_):
+        The length of each word in the dictionary.
+
+      extras (Sequence[Word] | None, optional):
+        Any additional words to include in the dictionary. Defaults to None.
+
+    Returns:
+        Dictionary: Returns the dictionary.
+    """
 
     if size == 5:
         # Use the official Wordle list for the real game

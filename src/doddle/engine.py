@@ -13,20 +13,34 @@ from .histogram import HistogramBuilder
 from .scoring import Scorer
 from .simul_solver import SimulSolver
 from .solver import Solver
-from .views import BenchmarkView, RunView
+from .views import BenchmarkReporter, RunReporter
 from .words import Dictionary, Word
 
 
 @dataclass
 class Engine:
+    """Primary class for running a Doddle game."""
 
     dictionary: Dictionary
     scorer: Scorer
     histogram_builder: HistogramBuilder
     solver: Solver
-    reporter: RunView
+    reporter: RunReporter
 
     def run(self, solution: Word, user_guesses: list[Word]) -> Game:
+        """Runs a Doddle game.
+
+        Args:
+            solution (Word): The solution
+            user_guesses (list[Word]): A list of user-supplied, opening guesses
+
+        Raises:
+            FailedToFindASolutionError: If no solution is found
+
+        Returns:
+            Game: A Game object summarising the simulation.
+        """
+
         all_words, available_answers = self.dictionary.words
         game = Game(available_answers, solution, user_guesses)
         guess = game.user_guess(0) or self.solver.seed(all_words.word_length)
@@ -49,14 +63,27 @@ class Engine:
 
 @dataclass
 class SimulEngine:
+    """Primary class for running a simultaneous Doddle game."""
 
     dictionary: Dictionary
     scorer: Scorer
     histogram_builder: HistogramBuilder
     solver: SimulSolver
-    reporter: RunView
+    reporter: RunReporter
 
     def run(self, solns: list[Word], user_guesses: list[Word]) -> SimultaneousGame:
+        """Runs a simultaneous Doddle game.
+
+        Args:
+            solns (list[Word]): The solutions to each game
+            user_guesses (list[Word]): The list of user-supplied, opening guesses
+
+        Raises:
+            FailedToFindASolutionError: If no solution is found
+
+        Returns:
+            SimultaneousGame: A SimultaneousGame object summarising the simulation
+        """
         all_words, common_words = self.dictionary.words
         simul_game = SimultaneousGame(common_words, solns, user_guesses)
         guess = simul_game.user_guess(0) or self.solver.seed(all_words.word_length)
@@ -82,13 +109,19 @@ class SimulEngine:
         raise FailedToFindASolutionError(f"Failed to converge after {MAX_ITERS} iterations.")
 
 
+@dataclass
 class Benchmarker:
-    def __init__(self, engine: Engine, reporter: BenchmarkView) -> None:
-        self.engine = engine
-        self.reporter = reporter
+    """A class to benchmark the performance of a Doddle engine"""
+
+    engine: Engine
+    reporter: BenchmarkReporter
 
     def run_benchmark(self, user_guesses: list[Word]) -> None:
+        """Benchmarks an engine given a list of user-supplied, opening guesses.
 
+        Args:
+            user_guesses (list[Word]): The opening guesses.
+        """
         dictionary = self.engine.dictionary
         f = partial(self.engine.run, user_guesses=user_guesses)
 
@@ -102,13 +135,21 @@ class Benchmarker:
         self.reporter.display(histogram)
 
 
+@dataclass
 class SimulBenchmarker:
-    def __init__(self, engine: SimulEngine, reporter: BenchmarkView) -> None:
-        self.engine = engine
-        self.reporter = reporter
+    """A class to benchmark the performance of a Doddle SimulEngine"""
+
+    engine: SimulEngine
+    reporter: BenchmarkReporter
 
     def run_benchmark(self, user_guesses: list[Word], num_simul: int, num_runs: int = 100) -> None:
+        """Benchmarks a simul engine given a list of opening guesses.
 
+        Args:
+            user_guesses (list[Word]): The opening guesses.
+            num_simul (int): The number of games to be played simultaneously.
+            num_runs (int, optional): The number of runs in the benchmark. Defaults to 100.
+        """
         random.seed(13)
 
         dictionary = self.engine.dictionary
