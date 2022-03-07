@@ -359,7 +359,7 @@ class EmojiScoreboardPrinter:
 
         return header + clocks + "\n" + "\n".join(emoji_lines)
 
-    def _get_score_emojjis(self):
+    def _get_score_emojjis(self) -> dict[int, str]:
         keypad = "\ufe0f\u20e3"
         num_keypads = [str(i) + keypad for i in range(10)] + ["🔟"]
         clock_keypads = list("🕚🕛🕐🕑🕒🕓🕔🕕🕖🕗🕘🕙")

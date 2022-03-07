@@ -172,7 +172,7 @@ class WordSeries:
 
         raise ValueError(message)
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.index)
 
     def __iter__(self):
@@ -181,7 +181,7 @@ class WordSeries:
     def __repr__(self) -> str:
         return str(self)
 
-    def __str__(self):
+    def __str__(self) -> str:
         if len(self) <= 20:
             lines: list[str] = []
             for i in range(len(self)):
@@ -197,7 +197,7 @@ class WordSeries:
             return "\n".join(row_strings)
 
     @property
-    def iloc(self):
+    def iloc(self) -> _WordLoc:
         return _WordLoc(self)
 
 

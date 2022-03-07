@@ -72,10 +72,10 @@ class MinimaxGuess:
             + f"Num. buckets={self.number_of_buckets}"
         )
 
-    def __lt__(self, other: MinimaxGuess):
+    def __lt__(self, other: MinimaxGuess) -> bool:
         return self.improves_upon(other)
 
-    def __gt__(self, other: MinimaxGuess):
+    def __gt__(self, other: MinimaxGuess) -> bool:
         return other.improves_upon(self)
 
 
@@ -114,10 +114,10 @@ class EntropyGuess:
         flag = "Common" if self.is_common_word else "Uncommon"
         return f"Word={self.word} ({flag}), Entropy={self.entropy}"
 
-    def __lt__(self, other: EntropyGuess):
+    def __lt__(self, other: EntropyGuess) -> bool:
         return self.improves_upon(other)
 
-    def __gt__(self, other: EntropyGuess):
+    def __gt__(self, other: EntropyGuess) -> bool:
         return other.improves_upon(self)
 
     def __add__(self, entropy: float) -> EntropyGuess:
@@ -173,8 +173,8 @@ class MinimaxSimulGuess:
         flag = "Common" if self.is_common_word else "Uncommon"
         return f"Word={self.word} ({flag}), % Left={self.pct_left:.8f}"
 
-    def __lt__(self, other: MinimaxSimulGuess):
+    def __lt__(self, other: MinimaxSimulGuess) -> bool:
         return self.improves_upon(other)
 
-    def __gt__(self, other: MinimaxSimulGuess):
+    def __gt__(self, other: MinimaxSimulGuess) -> bool:
         return other.improves_upon(self)
