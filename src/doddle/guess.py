@@ -8,17 +8,32 @@ from .words import Word
 
 
 class Guess(Protocol):
+    """Strucural protocol for a guess."""
+
     @property
     def word(self) -> Word:
+        """The guessed word.
+
+        Returns:
+          Word: 
+            Returns the guessed word
+        """
         ...
 
     @property
     def is_common_word(self) -> bool:
+        """Whether the word is a possible answer.
+
+        Returns:
+          bool: 
+            Returns whether the word is a possible answer.
+        """
         ...
 
 
 @dataclass(eq=True, frozen=True)
 class MinimaxGuess:
+    """Represents a guess using the minimax heuristic."""
 
     __slots__ = ["word", "is_common_word", "number_of_buckets", "size_of_largest_bucket"]
 
@@ -28,7 +43,14 @@ class MinimaxGuess:
     size_of_largest_bucket: int
 
     def improves_upon(self, other: MinimaxGuess) -> bool:
+        """Defines whether the minimax guess improves upon the other.
 
+        Args:
+            other (MinimaxGuess): The other minimax guess.
+
+        Returns:
+            bool: Whether the guess improves upon the other guess.
+        """
         if self.size_of_largest_bucket != other.size_of_largest_bucket:
             return self.size_of_largest_bucket < other.size_of_largest_bucket
 
@@ -59,6 +81,7 @@ class MinimaxGuess:
 
 @dataclass(eq=True, frozen=True)
 class EntropyGuess:
+    """Represents a guess using the entropy heuristic."""
 
     __slots__ = ["word", "is_common_word", "entropy"]
 
@@ -67,6 +90,15 @@ class EntropyGuess:
     entropy: float
 
     def improves_upon(self, other: EntropyGuess) -> bool:
+        """Defines whether the entropy guess improves upon the other.
+
+        Args:
+            other (MinimaxGuess): The other entropy guess.
+
+        Returns:
+            bool: Whether the guess improves upon the other guess.
+        """
+
 
         if not isclose(self.entropy, other.entropy, abs_tol=1e-9):
             return self.entropy > other.entropy
