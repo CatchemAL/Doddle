@@ -89,6 +89,15 @@ class Word:
 
 class WordSeries:
     def __init__(self, words: Iterable[str] | np.ndarray, index: np.ndarray | None = None) -> None:
+        """Initialises a new instance of the WordSeries object.
+
+        Args:
+          words (Iterable[str] | np.ndarray):
+            The words in the series.
+
+          index (np.ndarray | None, optional):
+            The numerical index associated with each word. Defaults to None.
+        """
 
         if isinstance(words, np.ndarray) and words.dtype == type(Word):
             self.words = words
@@ -100,9 +109,22 @@ class WordSeries:
 
     @property
     def word_length(self) -> int:
+        """The length of each word in the series.
+
+        Returns:
+            int: Returns the length of each word in the series.
+        """
         return 0 if len(self) == 0 else len(self.words[0])
 
     def contains(self, value: str | Word) -> bool:
+        """Whether the series contains the word
+
+        Args:
+            value (str | Word): The word.
+
+        Returns:
+            bool: Returns True if the word is in the series.
+        """
         word = Word(value)
         words = cast(Sequence[Word], self.words)
         pos = bisect_left(words, word)
