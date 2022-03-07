@@ -9,7 +9,7 @@ from .histogram import HistogramBuilder
 from .scoring import Scorer
 from .simul_solver import MinimaxSimulSolver, SimulSolver
 from .solver import DeepEntropySolver, DeepMinimaxSolver, EntropySolver, MinimaxSolver, Solver
-from .views import BenchmarkView, NullRunView, RunView
+from .views import BenchmarkReporter, NullRunView, RunView
 from .words import Dictionary, Word, load_dictionary
 
 
@@ -65,7 +65,7 @@ def create_benchmarker(
         reporter=NullRunView(),
     )
 
-    reporter = BenchmarkView()
+    reporter = BenchmarkReporter()
     return Benchmarker(engine, reporter)
 
 
@@ -85,7 +85,7 @@ def create_simul_benchmarker(
         reporter=NullRunView(),
     )
 
-    reporter = BenchmarkView()
+    reporter = BenchmarkReporter()
     return SimulBenchmarker(simul_engine, reporter)
 
 

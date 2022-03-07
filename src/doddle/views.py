@@ -99,7 +99,7 @@ class HideView:
         return Word(guess)
 
 
-class BenchmarkView:
+class BenchmarkReporter:
     def display(self, histogram: defaultdict[int, int]) -> None:
         print("| # | Count |")
         print("|---|-------|")

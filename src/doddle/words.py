@@ -131,6 +131,14 @@ class WordSeries:
         return pos < len(self) and words[pos] == word
 
     def find_index(self, word: str | Word | np.ndarray) -> int | np.ndarray:
+        """Finds the numerical index associated with a Word in the series.
+
+        Args:
+            word (str | Word | np.ndarray): The word or vector of words.
+
+        Returns:
+            int | np.ndarray: The index or array of indices.
+        """
         if isinstance(word, np.ndarray):
             find_func = np.vectorize(self.__find_index)
             return find_func(word)
@@ -206,19 +214,53 @@ class _WordLoc:
 
 @dataclass
 class Dictionary:
+    """The collection of all words (of a given word length).
+
+    The dictionary holds two members:
+
+    1) A list of all words that could be accepted as a guess
+
+    2) A list of common words that might possibly be a solution. This
+       is a subset as uncommon words, plurals etc. are not valid
+       solutions.
+    """
+
     all_words: WordSeries
     common_words: WordSeries
 
     @property
     def word_length(self) -> int:
+        """Gets the word length
+
+        Returns:
+            int: Returns the word length
+        """
         return self.all_words.word_length
 
     @property
     def words(self) -> tuple[WordSeries, WordSeries]:
+        """The tuple of all words and common words.
+
+        Returns:
+          tuple[WordSeries, WordSeries]:
+            Returns a tuple of all_words and common words.
+        """
         return self.all_words, self.common_words
 
 
 def load_dictionary(size, extras: Sequence[Word] | None = None) -> Dictionary:
+    """Loads a dictionary of words of specified word length, size.
+
+    Args:
+      size (_type_):
+        The length of each word in the dictionary.
+
+      extras (Sequence[Word] | None, optional):
+        Any additional words to include in the dictionary. Defaults to None.
+
+    Returns:
+        Dictionary: Returns the dictionary.
+    """
 
     if size == 5:
         # Use the official Wordle list for the real game
