@@ -5,9 +5,16 @@ from .words import Word
 
 
 class Scorer:
+    """A class to score a guess given a solution."""
+
     __slots__ = ["size", "_powers"]
 
     def __init__(self, size: int = 5) -> None:
+        """Initialises a new instance of a Scorer.
+
+        Args:
+            size (int, optional): The word length. Defaults to 5.
+        """
         self.size = size
         self._powers = (3 ** np.arange(size - 1, -1, -1)).astype(np.int32)
 
@@ -35,12 +42,39 @@ class Scorer:
         return score == self.perfect_score
 
     def score_word(self, solution: Word, guess: Word) -> int:
+        """Calculates a score given a solution and a guess.
+
+        The score is a decimal representation of a ternary score. By ternary
+        score, we assume that:
+         - 0 is an unmatched letter
+         - 1 is a partial match
+         - 2 is a perfectly matched score
+
+        Example:
+
+        Guess: SNAKE
+        Soln.: SHARK
+        Score: 20210   <-- This is the ternary representation of the score
+
+        As the decimal (base 10) representation of this ternary (base 3) number
+        is 183, we return 183. The advantage of returning a decimal number is
+        that we map all scores in, say, a 5 letter game to a *dense* set of 242
+        unique scores. This allows for fast indexing over dictionary lookups.
+
+        Args:
+            solution (Word): The solution to the game.
+            guess (Word): The guess.
+
+        Returns:
+            int: The score.
+        """
         # return score_word_slow(solution.value, guess.value) # (x50 slower!)
-        return score_word_jit(solution.vector, guess.vector, self._powers)
+        return _score_word_jit(solution.vector, guess.vector, self._powers)
 
 
 @jit(int32(int8[:], int8[:], int32[:]), nopython=True)
-def score_word_jit(solution_array: np.ndarray, guess_array: np.ndarray, powers: np.ndarray) -> int:
+def _score_word_jit(solution_array: np.ndarray, guess_array: np.ndarray, powers: np.ndarray) -> int:
+    """Optimised internal call to score a word. See Solver.score_word(...) for details."""
 
     matches = solution_array == guess_array
 
@@ -109,6 +143,14 @@ def score_word_slow(soln: str, guess: str) -> int:
 
 
 def from_ternary(ternary: str) -> int:
+    """Converts a ternary number to its decimal (base 10) equivalent.
+
+    Args:
+        ternary (str): The ternary score.
+
+    Returns:
+        int: The decimal score.
+    """
     value = 0
     digits = (int(digit) for digit in reversed(list(ternary)))
     for i, num in enumerate(digits):
@@ -117,4 +159,13 @@ def from_ternary(ternary: str) -> int:
 
 
 def to_ternary(score: int, size: int) -> str:
+    """Converts a decimal number to its ternary (base 3) equivalent.
+
+    Args:
+        score (int): The decimal score.
+        size (int): The word length.
+
+    Returns:
+        str: The ternary score.
+    """
     return np.base_repr(score, base=3).zfill(size)

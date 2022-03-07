@@ -16,10 +16,42 @@ class HistogramBuilder:
     def __init__(
         self, scorer: Scorer, all_words: WordSeries, potential_solns: WordSeries, lazy_eval: bool = True
     ) -> None:
+        """Initialises a new instance of a HistogramBuilder
+
+        Args:
+          scorer (Scorer):
+            The scorer
+
+          all_words (WordSeries):
+            All words that Doddle could possibly accept.
+
+          potential_solns (WordSeries):
+            The list of solutions that could be answers.
+
+          lazy_eval (bool, optional):
+            Whether to pre-compute the score matrix. The score matrix scores every
+            word, as a guess, against every word, as a solution and computes the
+            score you should observe. Lazy evaluation results in quick initialisation
+            but slower solves. Disabling this feature is recommended if you inted to
+            perform multiple runs. Defaults to True.
+        """
+
         self.score_matrix = ScoreMatrix(scorer, all_words, potential_solns, lazy_eval)
         self.scorer = scorer
 
     def get_solns_by_score(self, potential_solns: WordSeries, guess: Word) -> dict[int, WordSeries]:
+        """Gets a histogram of all the remaining solutions bucketed by score given a guess.
+
+        The histogram is a fundamental to the solve. If we know how any guess fractures the
+        remaining solution space, we can choose the guess that minimises our objective function.
+
+        Args:
+            potential_solns (WordSeries): The remaining words that could be a solution.
+            guess (Word): The guess.
+
+        Returns:
+            dict[int, WordSeries]: A dictionary of potential solutions, partitioned by score.
+        """
 
         score_func = np.vectorize(self.scorer.score_word)
         scores = score_func(potential_solns.words, guess)
