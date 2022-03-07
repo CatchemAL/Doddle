@@ -9,13 +9,13 @@ from .scoring import from_ternary, to_ternary
 from .words import Word, WordSeries
 
 
-class RunView:
+class RunReporter:
     def display(self, game: DoddleGame) -> None:
         sb_printer = ScoreboardPrinter(game.word_length)
         sb_printer.print_last_round(game.scoreboard)
 
 
-class NullRunView(RunView):
+class NullRunReporter(RunReporter):
     def display(self, game: DoddleGame) -> None:
         pass
 

@@ -6,7 +6,7 @@ from .boards import Scoreboard
 from .engine import Engine, SimulEngine
 from .enums import SolverType
 from .factory import create_models
-from .views import NullRunView, RunView
+from .views import NullRunReporter, RunReporter
 from .words import Word
 
 WordType = Union[str, Word]
@@ -56,7 +56,7 @@ class Doddle:
         depth: int = 1,
         extras: Sequence[Word] | Sequence[str] | None = None,
         lazy_eval: bool = True,
-        reporter: RunView | None = None,
+        reporter: RunReporter | None = None,
     ):
         """Initialises a new instance of a Doddle object.
 
@@ -96,7 +96,7 @@ class Doddle:
             lazy_eval=lazy_eval,
         )
 
-        callback = reporter if reporter else NullRunView()
+        callback = reporter if reporter else NullRunReporter()
         self.engine = Engine(dictionary, scorer, histogram_builder, solver, callback)
         self.simul_engine = SimulEngine(dictionary, scorer, histogram_builder, simul_solver, callback)
         self.dictionary = dictionary

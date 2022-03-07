@@ -13,7 +13,7 @@ from .histogram import HistogramBuilder
 from .scoring import Scorer
 from .simul_solver import SimulSolver
 from .solver import Solver
-from .views import BenchmarkReporter, RunView
+from .views import BenchmarkReporter, RunReporter
 from .words import Dictionary, Word
 
 
@@ -25,7 +25,7 @@ class Engine:
     scorer: Scorer
     histogram_builder: HistogramBuilder
     solver: Solver
-    reporter: RunView
+    reporter: RunReporter
 
     def run(self, solution: Word, user_guesses: list[Word]) -> Game:
         """Runs a Doddle game.
@@ -69,7 +69,7 @@ class SimulEngine:
     scorer: Scorer
     histogram_builder: HistogramBuilder
     solver: SimulSolver
-    reporter: RunView
+    reporter: RunReporter
 
     def run(self, solns: list[Word], user_guesses: list[Word]) -> SimultaneousGame:
         """Runs a simultaneous Doddle game.

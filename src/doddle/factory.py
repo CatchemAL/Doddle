@@ -9,7 +9,7 @@ from .histogram import HistogramBuilder
 from .scoring import Scorer
 from .simul_solver import MinimaxSimulSolver, SimulSolver
 from .solver import DeepEntropySolver, DeepMinimaxSolver, EntropySolver, MinimaxSolver, Solver
-from .views import BenchmarkReporter, NullRunView, RunView
+from .views import BenchmarkReporter, NullRunReporter, RunReporter
 from .words import Dictionary, Word, load_dictionary
 
 
@@ -20,14 +20,14 @@ def create_simul_engine(
     depth: int = 1,
     extras: Sequence[Word] | None = None,
     lazy_eval: bool = True,
-    reporter: RunView | None = None,
+    reporter: RunReporter | None = None,
 ) -> SimulEngine:
 
     dictionary, scorer, histogram_builder, _, simul_solver = create_models(
         size, solver_type=solver_type, depth=depth, extras=extras, lazy_eval=lazy_eval
     )
 
-    reporter = reporter or RunView()
+    reporter = reporter or RunReporter()
     return SimulEngine(dictionary, scorer, histogram_builder, simul_solver, reporter)
 
 
@@ -38,14 +38,14 @@ def create_engine(
     depth: int = 1,
     extras: Sequence[Word] | None = None,
     lazy_eval: bool = True,
-    reporter: RunView | None = None,
+    reporter: RunReporter | None = None,
 ) -> Engine:
 
     dictionary, scorer, histogram_builder, solver, _ = create_models(
         size, solver_type=solver_type, depth=depth, extras=extras, lazy_eval=lazy_eval
     )
 
-    reporter = reporter or RunView()
+    reporter = reporter or RunReporter()
     return Engine(dictionary, scorer, histogram_builder, solver, reporter)
 
 
@@ -62,7 +62,7 @@ def create_benchmarker(
         depth=depth,
         extras=extras,
         lazy_eval=False,
-        reporter=NullRunView(),
+        reporter=NullRunReporter(),
     )
 
     reporter = BenchmarkReporter()
@@ -82,7 +82,7 @@ def create_simul_benchmarker(
         depth=depth,
         extras=extras,
         lazy_eval=False,
-        reporter=NullRunView(),
+        reporter=NullRunReporter(),
     )
 
     reporter = BenchmarkReporter()

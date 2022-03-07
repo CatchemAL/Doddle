@@ -173,7 +173,7 @@ class ScoreMatrix:
             scorer (Scorer): The scorer.
             all_words (WordSeries): All possible words in the Doddle dictionary.
             potential_solns (WordSeries): All words that could be a solution.
-            lazy_eval (bool, optional): Whether to perform lazy evaluation of each score. Defaults to True.
+            lazy_eval (bool, optional): Whether to perform lazy evaluation. Defaults to True.
         """
         self.scorer = scorer
         self.potential_solns = potential_solns
