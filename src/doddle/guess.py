@@ -15,7 +15,7 @@ class Guess(Protocol):
         """The guessed word.
 
         Returns:
-          Word: 
+          Word:
             Returns the guessed word
         """
         ...
@@ -25,7 +25,7 @@ class Guess(Protocol):
         """Whether the word is a possible answer.
 
         Returns:
-          bool: 
+          bool:
             Returns whether the word is a possible answer.
         """
         ...
@@ -99,7 +99,6 @@ class EntropyGuess:
             bool: Whether the guess improves upon the other guess.
         """
 
-
         if not isclose(self.entropy, other.entropy, abs_tol=1e-9):
             return self.entropy > other.entropy
 
@@ -127,6 +126,7 @@ class EntropyGuess:
 
 @dataclass(eq=True, frozen=True)
 class MinimaxSimulGuess:
+    """Represents a guess in a simultaneous game using the minimax heuristic."""
 
     word: Word
     is_common_word: bool
@@ -137,6 +137,14 @@ class MinimaxSimulGuess:
     num_buckets: int
 
     def improves_upon(self, other: MinimaxSimulGuess) -> bool:
+        """Defines whether the simultaneous minimax guess improves upon the other.
+
+        Args:
+            other (MinimaxGuess): The other guess.
+
+        Returns:
+            bool: Whether the guess improves upon the other guess.
+        """
 
         if not isclose(self.pct_left, other.pct_left, abs_tol=1e-9):
             return self.pct_left < other.pct_left

@@ -83,9 +83,9 @@ class HistogramBuilder:
         Each guess is formed from the histogram of bucketed solutions.
 
         Args:
-          all_words (WordSeries): 
+          all_words (WordSeries):
             The list of all words that could be guessed
-          
+
           potential_solns (WordSeries):
             The remaining words that could be solutions
 
@@ -157,7 +157,7 @@ class ScoreMatrix:
     Internal storage of all words scored against all words.
 
     This matrix is used as an optimsation to avoid rescoring the same
-    words multiple times within a solve and is particularly important 
+    words multiple times within a solve and is particularly important
     for deep searches.
 
     The rows in the matrix correspond to all possible words. The columns
