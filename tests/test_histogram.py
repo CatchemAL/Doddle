@@ -68,6 +68,7 @@ class TestHistogramBuilder:
 
         # Assert
         assert best_guess.word == guess
+        assert best_guess.number_of_buckets == len(expected)
         assert best_guess.size_of_largest_bucket == len(expected["02000"])
 
         for g in guesses:
