@@ -1,6 +1,6 @@
 import pytest
 
-from doddle.scoring import Scorer, score_word_slow, to_ternary
+from doddle.scoring import Scorer, _score_word_jit, score_word_slow, to_ternary
 from doddle.words import Word
 
 
@@ -55,11 +55,13 @@ class TestScorer:
         # Act
         score = sut.score_word(soln, guess)
         score_slow = score_word_slow(soln, guess)
+        non_jit_score = _score_word_jit.py_func(soln.vector, guess.vector, sut._powers)
         ternary = to_ternary(score, 5)
 
         # Assert
         assert ternary == expected
         assert score == score_slow
+        assert score == non_jit_score
 
     def test_is_perfect_score(self) -> None:
         # Arrange

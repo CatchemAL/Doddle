@@ -1,8 +1,9 @@
 import pytest
+
 from doddle.enums import SolverType
 
-class TestSolverType:
 
+class TestSolverType:
     def test_parse_minimax(self) -> None:
         # Arrange
         value = "minimax"
