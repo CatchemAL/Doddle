@@ -26,6 +26,6 @@ class SolverType(Enum):
             return SolverType.MINIMAX
         if value.upper() == "ENTROPY":
             return SolverType.ENTROPY
-        supported_types = ", ".join(list(SolverType))
+        supported_types = ", ".join([e.name for e in SolverType])
         message = f"{value} not a supported solver type. Supported types are {supported_types}."
         raise ValueError(message)
