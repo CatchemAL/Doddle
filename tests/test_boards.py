@@ -1,5 +1,3 @@
-
-
 from doddle.boards import Keyboard
 
 
@@ -9,14 +7,14 @@ class TestKeyboard:
         sut = Keyboard()
 
         expected = {
-            -1: 'BCDFGHIJLMOPQRTUVWXYZ',
-            0: 'KN',
-            1: 'AE',
-            2: 'S',
+            -1: "BCDFGHIJLMOPQRTUVWXYZ",
+            0: "KN",
+            1: "AE",
+            2: "S",
         }
 
         # Act
-        sut.update("SNAKE", '20101')
+        sut.update("SNAKE", "20101")
 
         # Assert
         for expected_digit, letters in expected.items():
@@ -29,15 +27,15 @@ class TestKeyboard:
         sut = Keyboard()
 
         expected = {
-            -1: 'BCDFGHIJLOPQRUVWXZ',
-            0: 'KMNTY',
-            1: 'A',
-            2: 'ES',
+            -1: "BCDFGHIJLOPQRUVWXZ",
+            0: "KMNTY",
+            1: "A",
+            2: "ES",
         }
 
         # Act
-        sut.update("SNAKE", '20101')
-        sut.update("MEATY", '02100')
+        sut.update("SNAKE", "20101")
+        sut.update("MEATY", "02100")
 
         # Assert
         for expected_digit, letters in expected.items():
