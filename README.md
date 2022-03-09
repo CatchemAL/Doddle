@@ -5,7 +5,9 @@
 [![example workflow](https://github.com/CatchemAl/Doddle/actions/workflows/python-app.yml/badge.svg)](https://github.com/CatchemAl/Doddle/actions)
 [![codecov](https://codecov.io/gh/CatchemAl/Doddle/branch/develop/graph/badge.svg?token=3JM8LJ3IKS)](https://codecov.io/gh/CatchemAl/Doddle)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/Doddle)
-[![PyPI - Wheel](https://img.shields.io/pypi/wheel/Doddle)](https://pypi.org/project/doddle/)
+[![pip install](https://img.shields.io/badge/pip-install-9cf?logo=pypi)](https://pypi.org/project/doddle/)
+[![Tutorial](https://img.shields.io/badge/doddle-tutorial-orange?logo=jupyter)](https://github.com/CatchemAl/Doddle/blob/main/tutorial/Getting%20Started.ipynb)
+[![PyPI - Wheel](https://img.shields.io/pypi/wheel/Doddle)](https://pypi.org/project/doddle/#files)
 
 ### Command line Interface Features
 Doddle exposes three entry points via the command line:
