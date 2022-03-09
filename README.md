@@ -1,7 +1,13 @@
 <img src="https://raw.githubusercontent.com/CatchemAl/Doddle/main/images/DoddleLogo.png" width="420">
 
-
 ## Features
+
+[![example workflow](https://github.com/CatchemAl/Doddle/actions/workflows/python-app.yml/badge.svg)](https://github.com/CatchemAl/Doddle/actions)
+[![codecov](https://codecov.io/gh/CatchemAl/Doddle/branch/develop/graph/badge.svg?token=3JM8LJ3IKS)](https://codecov.io/gh/CatchemAl/Doddle)
+[![PyPI - Wheel](https://img.shields.io/pypi/wheel/Doddle)](https://pypi.org/project/doddle/#files)
+[![PyPI](https://img.shields.io/pypi/v/doddle.svg)](https://pypi.org/project/doddle/)
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/Doddle)
+[![Tutorial](https://img.shields.io/badge/doddle-tutorial-orange?logo=jupyter)](https://github.com/CatchemAl/Doddle/blob/main/tutorial/Getting%20Started.ipynb)
 
 ### Command line Interface Features
 Doddle exposes three entry points via the command line:
@@ -46,9 +52,9 @@ Doddle 5/7
 ```
 
 ## Install
-![example workflow](https://github.com/CatchemAl/Doddle/actions/workflows/python-app.yml/badge.svg)
+You can install Doddle with 
 
-`pip install doddle`
+`$ pip install doddle`
 
 ## Commands
 Doddle includes three entry points as part of the installation process.

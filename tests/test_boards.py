@@ -1,6 +1,6 @@
 from colorama import Fore
 
-from doddle.boards import Keyboard, KeyboardPrinter, Scoreboard
+from doddle.boards import Keyboard, KeyboardPrinter, Scoreboard, ScoreboardPrinter
 from doddle.words import Word
 
 
@@ -59,6 +59,32 @@ class TestScoreboard:
 
         # Assert
         assert actual == expected
+
+
+class TestScoreboardPrinter:
+    def test_build_string(self) -> None:
+        # Arrange
+        scoreboard = Scoreboard()
+        scoreboard.add_row(1, Word("ULTRA"), Word("RAISE"), "01000", 117)
+        scoreboard.add_row(2, Word("ULTRA"), Word("URBAN"), "20010", 5)
+        scoreboard.add_row(3, Word("ULTRA"), Word("ULTRA"), "22222", 1)
+
+        sut = ScoreboardPrinter(size=5)
+
+        emojis = f"""
+        | # | Soln. | Guess | Score | Poss. |
+        |---|-------|-------|-------|-------|
+        | 1 | ULTRA | R{Fore.YELLOW}A{Fore.RESET}ISE | 0{Fore.YELLOW}1{Fore.RESET}000 |   117 |
+        | 2 | ULTRA | {Fore.GREEN}U{Fore.RESET}RB{Fore.YELLOW}A{Fore.RESET}N | {Fore.GREEN}2{Fore.RESET}00{Fore.YELLOW}1{Fore.RESET}0 |     5 |
+        | 3 | ULTRA | {Fore.GREEN}ULTRA{Fore.RESET} | {Fore.GREEN}22222{Fore.RESET} |       |
+        """
+        expected = emojis.replace("        ", "")[:-1]
+
+        # Act
+        scoreboard_str = sut.build_string(scoreboard)
+
+        # Assert
+        assert scoreboard_str == expected
 
 
 class TestKeyboard:
