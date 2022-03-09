@@ -3,8 +3,8 @@
 ## Features
 
 ![example workflow](https://github.com/CatchemAl/Doddle/actions/workflows/python-app.yml/badge.svg)
+![PyPI - Wheel](https://img.shields.io/pypi/wheel/Doddle)
 [![codecov](https://codecov.io/gh/CatchemAl/Doddle/branch/develop/graph/badge.svg?token=3JM8LJ3IKS)](https://codecov.io/gh/CatchemAl/Doddle)
-
 
 ### Command line Interface Features
 Doddle exposes three entry points via the command line:
