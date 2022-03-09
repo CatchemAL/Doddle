@@ -321,6 +321,18 @@ class EmojiScoreboardPrinter:
         print(string_repr)
 
     def build_string(self, scoreboard: Scoreboard) -> str:
+        """Creates a beautiful emoji representation of a scoreboard.
+        If a simultaneous game is played, the emojis will include
+        keypad icons showing the number of guesses for each
+        individual solve.
+
+        Args:
+            scoreboard (Scoreboard): The scoreboard
+
+        Returns:
+            str: The emoji representation of the scoreboard.
+        """
+
         if not scoreboard.rows:
             return ""
 
@@ -370,10 +382,17 @@ class EmojiScoreboardPrinter:
 
 class Keyboard:
     def __init__(self) -> None:
+        """Initialises a new instance of a Keyboard object"""
 
         self.digit_by_char: defaultdict[str, int] = defaultdict(lambda: -1)
 
     def update(self, word: Word | str, score: str) -> None:
+        """Updates the internal state of a keyboard given a scored word
+
+        Args:
+            word (Word | str): A word
+            score (str): The ternary representation of the score
+        """
 
         for (char, digit_str) in zip(word, score):
             digit = int(digit_str)
@@ -383,11 +402,25 @@ class Keyboard:
 
 class KeyboardPrinter:
     def print(self, keyboard: Keyboard) -> None:
+        """Prints a coloured representation of a keyboard.
+
+        Args:
+            keyboard (Keyboard): The keyboard
+        """
         string_repr = self.build_string(keyboard)
         print(string_repr)
 
     @staticmethod
     def build_string(keyboard: Keyboard) -> str:
+        """Builds a coloured string representation of a keyboard
+
+        Args:
+            keyboard (Keyboard): The keyboard
+
+        Returns:
+            str: Returns a coloured string representation of a keyboard
+        """
+
         UNSET = -1
         BOARD = """
     Q  W  E  R  T  Y  U  I  O  P
