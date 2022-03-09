@@ -13,11 +13,46 @@ class TestScoreboard:
         sut.add_row(2, Word("ULTRA"), Word("URBAN"), "20010", 5)
         sut.add_row(3, Word("ULTRA"), Word("ULTRA"), "22222", 1)
 
-        expected = """Doddle 3/6
+        emojis = """
+        Doddle 3/6
 
-⬜🟨⬜⬜⬜
-🟩⬜⬜🟨⬜
-🟩🟩🟩🟩🟩"""
+        ⬜🟨⬜⬜⬜
+        🟩⬜⬜🟨⬜
+        🟩🟩🟩🟩🟩
+        """
+        expected = emojis.replace("        ", "")[1:-1]
+
+        # Act
+        actual = sut.emoji()
+
+        # Assert
+        assert actual == expected
+
+    def test_emoji_repr(self) -> None:
+        # Arrange
+        sut = Scoreboard()
+
+        sut.add_row(1, Word("ULTRA"), Word("RAISE"), "01000", 117)
+        sut.add_row(1, Word("BLAST"), Word("URBAN"), "20010", 5)
+        sut.add_row(2, Word("ULTRA"), Word("BLAST"), "02101", 1)
+        sut.add_row(2, Word("BLAST"), Word("BLAST"), "22222", 1)
+        sut.add_row(3, Word("ULTRA"), Word("ULTRA"), "22222", 1)
+
+        keypad = "\ufe0f\u20e3"
+
+        emojis = f"""
+        Doddle 3/7
+        3{keypad}
+        2{keypad}
+
+        ⬜🟨⬜⬜⬜
+        ⬜🟩🟨⬜🟨
+        🟩🟩🟩🟩🟩
+
+        🟩⬜⬜🟨⬜
+        🟩🟩🟩🟩🟩
+        """
+        expected = emojis.replace("        ", "")[1:-1]
 
         # Act
         actual = sut.emoji()
