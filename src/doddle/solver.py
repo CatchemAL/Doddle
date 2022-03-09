@@ -25,7 +25,7 @@ class Solver(abc.ABC):
         Returns:
           Guess: Any object that implements the guess protocol.
         """
-        ...
+        pass
 
     @property
     @abc.abstractmethod
@@ -35,7 +35,7 @@ class Solver(abc.ABC):
         Returns:
           list[Word]: The list of all seeds.
         """
-        ...
+        pass
 
     def seed(self, size: int) -> Word:
         """Gets the optimal starting word to use for a given solver

@@ -15,12 +15,12 @@ from .words import Word, WordSeries
 class SimulSolver(abc.ABC):
     @abc.abstractmethod
     def get_best_guess(self, all_words: WordSeries, game: SimultaneousGame) -> Guess:
-        ...
+        pass
 
     @property
     @abc.abstractmethod
     def all_seeds(self) -> list[Word]:
-        ...
+        pass
 
     def seed(self, size: int) -> Word:
         seed_by_size = {len(word): word for word in self.all_seeds}
