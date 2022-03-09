@@ -1,3 +1,7 @@
+
+![example workflow](https://github.com/CatchemAl/Doddle/actions/workflows/python-app.yml/badge.svg)
+[![codecov](https://codecov.io/gh/CatchemAl/Doddle/branch/develop/graph/badge.svg?token=3JM8LJ3IKS)](https://codecov.io/gh/CatchemAl/Doddle)
+
 <img src="https://raw.githubusercontent.com/CatchemAl/Doddle/main/images/DoddleLogo.png" width="420">
 
 
@@ -46,7 +50,7 @@ Doddle 5/7
 ```
 
 ## Install
-![example workflow](https://github.com/CatchemAl/Doddle/actions/workflows/python-app.yml/badge.svg)
+
 
 `pip install doddle`
 
