@@ -88,7 +88,7 @@ class SimulEngine:
         simul_game = SimultaneousGame(common_words, solns, user_guesses)
         guess = simul_game.user_guess(0) or self.solver.seed(all_words.word_length)
 
-        MAX_ITERS = 20
+        MAX_ITERS = 25
         for i in range(1, MAX_ITERS + 1):
             for game in simul_game:
                 if game.is_solved:
