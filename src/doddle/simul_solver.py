@@ -6,9 +6,9 @@ from typing import Iterator
 import numpy as np
 
 from .game import SimultaneousGame
-from .guess import Guess, MinimaxGuess, MinimaxSimulGuess
+from .guess import EntropyGuess, Guess, MinimaxGuess, MinimaxSimulGuess
 from .histogram import HistogramBuilder
-from .solver import MinimaxSolver
+from .solver import EntropySolver, MinimaxSolver
 from .words import Word, WordSeries
 
 
@@ -62,6 +62,42 @@ class MinimaxSimulSolver(SimulSolver):
             pct_left = np.prod(largest_sizes_pct)
 
             yield MinimaxSimulGuess(word, is_common_word, pct_left, min, tot, max, num_buckets)
+
+    @property
+    def all_seeds(self) -> list[Word]:
+        seeds = {"OLEA", "RAISE", "TAILER", "TENAILS", "CENTRALS", "SECRETION"}
+        return [Word(seed) for seed in seeds]
+
+
+class EntropySimulSolver(SimulSolver):
+    def __init__(self, histogram_builder: HistogramBuilder) -> None:
+        self.hist_builder = histogram_builder
+
+    def get_best_guess(self, all_words: WordSeries, game: SimultaneousGame) -> Guess:
+        return min(self.all_guesses(all_words, game))
+
+    def all_guesses(self, all_words: WordSeries, games: SimultaneousGame) -> Iterator[EntropyGuess]:
+
+        potential_solns_list = [game.potential_solns for game in games if not game.is_solved]
+        for potential_solns in potential_solns_list:
+            if len(potential_solns) == 1:
+                word: Word = potential_solns.words[0]
+                yield EntropyGuess(word, True, 100)
+                return
+
+        guess_streams: list[Iterator[EntropyGuess]] = []
+        for potential_solns in potential_solns_list:
+            stream = self.hist_builder.stream(all_words, potential_solns, EntropySolver._create_guess)
+            guess_streams.append(stream)
+
+        for guess_tuple in zip(*guess_streams):
+            word = guess_tuple[0].word
+            eligibility_count = len([guess for guess in guess_tuple if guess.is_common_word])
+            is_common_word = eligibility_count > 0
+            entropies = np.array([g.entropy for g in guess_tuple])
+            total_entropy = sum(entropies)
+
+            yield EntropyGuess(word, is_common_word, total_entropy)
 
     @property
     def all_seeds(self) -> list[Word]:
