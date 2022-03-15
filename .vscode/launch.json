@@ -11,7 +11,7 @@
             "module": "src.doddle",
             "args": [
                 "run",
-                "--answer=SALTY",
+                "--answer=FLAME",
             ]
         },
         {

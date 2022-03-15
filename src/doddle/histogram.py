@@ -129,6 +129,14 @@ class HistogramBuilder:
         return np.zeros(3**word_length, dtype=int)
 
 
+def to_histogram(solns_by_score: dict[int, WordSeries]) -> np.ndarray:
+    length = max(solns_by_score) + 1
+    vector = np.zeros(shape=(length,))
+    for score, solns in solns_by_score.items():
+        vector[score] = len(solns)
+    return vector
+
+
 @njit
 def _populate_histogram(matrix: np.ndarray, row: int, hist: np.ndarray) -> None:
     """Aggressive optimisation of the histogram creation.

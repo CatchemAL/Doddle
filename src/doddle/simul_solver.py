@@ -1,37 +1,38 @@
 from __future__ import annotations
 
 import abc
-from typing import Iterator
+from typing import Generic, Iterator
 
 import numpy as np
 
 from .game import SimultaneousGame
-from .guess import EntropyGuess, Guess, MinimaxGuess, MinimaxSimulGuess
-from .histogram import HistogramBuilder
+from .guess import EntropyGuess, MinimaxGuess, MinimaxSimulGuess
+from .histogram import HistogramBuilder, TGuess
 from .words import Word, WordSeries
 
 
-class SimulSolver(abc.ABC):
+class SimulSolver(Generic[TGuess], abc.ABC):
+    def get_best_guess(self, all_words: WordSeries, game: SimultaneousGame) -> TGuess:
+        all_guesses = self.all_guesses(all_words, game)
+        return min(all_guesses)
+
     @abc.abstractmethod
-    def get_best_guess(self, all_words: WordSeries, game: SimultaneousGame) -> Guess:
-        pass
+    def all_guesses(self, all_words: WordSeries, games: SimultaneousGame) -> Iterator[TGuess]:
+        ...
 
     @property
     @abc.abstractmethod
     def all_seeds(self) -> list[Word]:
-        pass
+        ...
 
     def seed(self, size: int) -> Word:
         seed_by_size = {len(word): word for word in self.all_seeds}
         return seed_by_size[size]
 
 
-class MinimaxSimulSolver(SimulSolver):
+class MinimaxSimulSolver(SimulSolver[MinimaxSimulGuess]):
     def __init__(self, histogram_builder: HistogramBuilder) -> None:
         self.hist_builder = histogram_builder
-
-    def get_best_guess(self, all_words: WordSeries, game: SimultaneousGame) -> Guess:
-        return min(self.all_guesses(all_words, game))
 
     def all_guesses(self, all_words: WordSeries, games: SimultaneousGame) -> Iterator[MinimaxSimulGuess]:
 
@@ -68,12 +69,9 @@ class MinimaxSimulSolver(SimulSolver):
         return [Word(seed) for seed in seeds]
 
 
-class EntropySimulSolver(SimulSolver):
+class EntropySimulSolver(SimulSolver[EntropyGuess]):
     def __init__(self, histogram_builder: HistogramBuilder) -> None:
         self.hist_builder = histogram_builder
-
-    def get_best_guess(self, all_words: WordSeries, game: SimultaneousGame) -> Guess:
-        return min(self.all_guesses(all_words, game))
 
     def all_guesses(self, all_words: WordSeries, games: SimultaneousGame) -> Iterator[EntropyGuess]:
 

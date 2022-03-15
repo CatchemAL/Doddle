@@ -1,12 +1,12 @@
 from __future__ import annotations
 
 import abc
-from typing import Generic, Iterator, cast
+from typing import Generic, Iterator
 
 import numpy as np
 
 from .guess import EntropyGuess, MinimaxGuess
-from .histogram import HistogramBuilder, TGuess
+from .histogram import HistogramBuilder, TGuess, to_histogram
 from .words import Word, WordSeries
 
 
@@ -27,6 +27,12 @@ class Solver(Generic[TGuess], abc.ABC):
         Returns:
           Guess: The guess object implementing the guess protocol
         """
+        if len(potential_solns) <= 2:
+            guess = potential_solns.words[0]
+            solns_by_score = self.hist_builder.get_solns_by_score(potential_solns, guess)
+            histogram = to_histogram(solns_by_score)
+            return self._build_guess(guess, True, histogram)
+
         all_guesses = self.all_guesses(all_words, potential_solns)
         return min(all_guesses)
 
@@ -40,14 +46,7 @@ class Solver(Generic[TGuess], abc.ABC):
         Yields:
             Iterator[TGuess]: The guess object implementing the guess protocol
         """
-
-        if len(potential_solns) <= 2:
-            indices = cast(np.ndarray, all_words.find_index(potential_solns.words))
-            guesses = all_words[indices]
-        else:
-            guesses = all_words
-
-        yield from self.hist_builder.stream(guesses, potential_solns, self._build_guess)
+        yield from self.hist_builder.stream(all_words, potential_solns, self._build_guess)
 
     @abc.abstractmethod
     def _build_guess(self, word: Word, is_potential_soln: bool, histogram: np.ndarray) -> TGuess:
@@ -71,7 +70,7 @@ class Solver(Generic[TGuess], abc.ABC):
         Returns:
           list[Word]: The list of all seeds.
         """
-        pass
+        ...
 
     def seed(self, size: int) -> Word:
         """Gets the optimal starting word to use for a given solver
