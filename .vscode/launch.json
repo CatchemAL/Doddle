@@ -11,7 +11,7 @@
             "module": "src.doddle",
             "args": [
                 "run",
-                "--answer=FLAME",
+                "--answer=LOATH,TRIED,CACTI,PLUSH,SPLAT,CROAK,FELON,TWEAK",
             ]
         },
         {
