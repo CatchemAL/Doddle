@@ -1,19 +1,19 @@
 from __future__ import annotations
 
 import abc
-from typing import Generic, Iterator, TypeVar
+from typing import Generic, Iterator, cast
 
 import numpy as np
 
 from .guess import EntropyGuess, MinimaxGuess
-from .histogram import Guess, HistogramBuilder
+from .histogram import HistogramBuilder, TGuess
 from .words import Word, WordSeries
-
-TGuess = TypeVar("TGuess", bound=Guess)
 
 
 class Solver(Generic[TGuess], abc.ABC):
-    @abc.abstractmethod
+    def __init__(self, hist_builder: HistogramBuilder) -> None:
+        self.hist_builder = hist_builder
+
     def get_best_guess(self, all_words: WordSeries, potential_solns: WordSeries) -> TGuess:
         """Gets the best guess to play given two lists:
          - the full series of all_words that could possibly be played;
@@ -25,9 +25,43 @@ class Solver(Generic[TGuess], abc.ABC):
           potential_solns (WordSeries): The words that still remain as potential solutions.
 
         Returns:
-          Guess: Any object that implements the guess protocol.
+          Guess: The guess object implementing the guess protocol
         """
-        pass
+        all_guesses = self.all_guesses(all_words, potential_solns)
+        return min(all_guesses)
+
+    def all_guesses(self, all_words: WordSeries, potential_solns: WordSeries) -> Iterator[TGuess]:
+        """Yields a stream of guesses based on the full universe of available words.
+
+        Args:
+            all_words (WordSeries): The full universe of words.
+            potential_solns (WordSeries): The words that still remain as potential solutions.
+
+        Yields:
+            Iterator[TGuess]: The guess object implementing the guess protocol
+        """
+
+        if len(potential_solns) <= 2:
+            indices = cast(np.ndarray, all_words.find_index(potential_solns.words))
+            guesses = all_words[indices]
+        else:
+            guesses = all_words
+
+        yield from self.hist_builder.stream(guesses, potential_solns, self._build_guess)
+
+    @abc.abstractmethod
+    def _build_guess(self, word: Word, is_potential_soln: bool, histogram: np.ndarray) -> TGuess:
+        """Factory method for building a guess from a histogram
+
+        Args:
+            word (Word): The word that was guessed
+            is_potential_soln (bool): Whether the word could possibly be a solution
+            histogram (np.ndarray): The associated histogram in optimised, vector form.
+
+        Returns:
+            TGuess: The guess object implementing the guess protocol
+        """
+        ...
 
     @property
     @abc.abstractmethod
@@ -57,30 +91,17 @@ class Solver(Generic[TGuess], abc.ABC):
 
 class MinimaxSolver(Solver[MinimaxGuess]):
     def __init__(self, histogram_builder: HistogramBuilder) -> None:
-        self.hist_builder = histogram_builder
-
-    def get_best_guess(self, all_words: WordSeries, potential_solns: WordSeries) -> MinimaxGuess:
-        """See base class."""
-        all_guesses = self.all_guesses(all_words, potential_solns)
-        return min(all_guesses)
-
-    def all_guesses(self, all_words: WordSeries, potential_solns: WordSeries) -> Iterator[MinimaxGuess]:
-
-        if len(potential_solns) <= 2:
-            yield MinimaxGuess(potential_solns.words[0], True, 1, 1)
-        else:
-            yield from self.hist_builder.stream(all_words, potential_solns, self._create_guess)
+        super().__init__(histogram_builder)
 
     @property
     def all_seeds(self) -> list[Word]:
-        seeds = {"OLEA", "RAISE", "TAILER", "TENAILS", "CENTRALS", "SECRETION"}
+        """See base class."""
+        seeds = ["OLEA", "RAISE", "TAILER", "TENAILS", "CENTRALS", "SECRETION"]
         return [Word(seed) for seed in seeds]
 
-    @staticmethod
-    def _create_guess(word: Word, is_common_word: bool, histogram: np.ndarray) -> MinimaxGuess:
-        num_buckets = np.count_nonzero(histogram)
-        size_of_largest_bucket = histogram.max()
-        return MinimaxGuess(word, is_common_word, num_buckets, size_of_largest_bucket)
+    def _build_guess(self, word: Word, is_potential_soln: bool, histogram: np.ndarray) -> MinimaxGuess:
+        """See base class."""
+        return MinimaxGuess.from_histogram(word, is_potential_soln, histogram)
 
 
 class DeepMinimaxSolver(MinimaxSolver):
@@ -121,33 +142,17 @@ class DeepMinimaxSolver(MinimaxSolver):
 
 class EntropySolver(Solver[EntropyGuess]):
     def __init__(self, histogram_builder: HistogramBuilder) -> None:
-        self.hist_builder = histogram_builder
-
-    def get_best_guess(self, all_words: WordSeries, potential_solns: WordSeries) -> EntropyGuess:
-        """See base class."""
-        all_guesses = self.all_guesses(all_words, potential_solns)
-        return min(all_guesses)
-
-    def all_guesses(self, all_words: WordSeries, potential_solns: WordSeries) -> Iterator[EntropyGuess]:
-
-        if len(potential_solns) <= 2:
-            yield EntropyGuess(potential_solns.words[0], True, 1)
-        else:
-            yield from self.hist_builder.stream(all_words, potential_solns, self._create_guess)
+        super().__init__(histogram_builder)
 
     @property
     def all_seeds(self) -> list[Word]:
-        seeds = {"OLEA", "RAISE", "TAILER", "TENAILS", "CENTRALS", "SECRETION"}
+        """See base class."""
+        seeds = ["OLEA", "RAISE", "TAILER", "TENAILS", "CENTRALS", "SECRETION"]
         return [Word(seed) for seed in seeds]
 
-    @staticmethod
-    def _create_guess(word: Word, is_common_word: bool, histogram: np.ndarray) -> EntropyGuess:
-
-        counts = histogram[histogram > 0]
-        probabilites = counts / np.sum(counts)
-        entropy = -probabilites.dot(np.log2(probabilites))
-
-        return EntropyGuess(word, is_common_word, entropy)
+    def _build_guess(self, word: Word, is_potential_soln: bool, histogram: np.ndarray) -> EntropyGuess:
+        """See base class."""
+        return EntropyGuess.from_histogram(word, is_potential_soln, histogram)
 
 
 class DeepEntropySolver(EntropySolver):

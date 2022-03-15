@@ -9,28 +9,44 @@
             "type": "python",
             "request": "launch",
             "module": "src.doddle",
-            "args": ["run", "--answer=FLAME,QUASH,DINER,GIRLY,STYLE,OPIUM,LEASE,ANVIL,KARMA,SMITH,ZESTY,GRACE,PANSY,STERN,ALLEY,MODEM", "--guess=SOARE"]
+            "args": [
+                "run",
+                "--answer=SWILL",
+                "--guess=RAISE",
+                "--solver=ENTROPY"
+            ]
         },
         {
             "name": "Doddle (Solve)",
             "type": "python",
             "request": "launch",
             "module": "src.doddle",
-            "args": ["solve", "--guess=LUNAR", "--depth=1"]
+            "args": [
+                "solve",
+                "--guess=LUNAR",
+                "--depth=1"
+            ]
         },
         {
             "name": "Doddle (Hide)",
             "type": "python",
             "request": "launch",
             "module": "src.doddle",
-            "args": ["hide"]
+            "args": [
+                "hide"
+            ]
         },
         {
             "name": "Doddle (Benchmark)",
             "type": "python",
             "request": "launch",
             "module": "src.doddle",
-            "args": ["benchmark", "--size=5", "--simul=4", "--guess=FUZZY,SNAKE"]
+            "args": [
+                "benchmark",
+                "--size=5",
+                "--simul=4",
+                "--guess=FUZZY,SNAKE"
+            ]
         },
         {
             "name": "Python: Current File",

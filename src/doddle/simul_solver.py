@@ -8,7 +8,6 @@ import numpy as np
 from .game import SimultaneousGame
 from .guess import EntropyGuess, Guess, MinimaxGuess, MinimaxSimulGuess
 from .histogram import HistogramBuilder
-from .solver import EntropySolver, MinimaxSolver
 from .words import Word, WordSeries
 
 
@@ -45,7 +44,7 @@ class MinimaxSimulSolver(SimulSolver):
 
         guess_streams: list[Iterator[MinimaxGuess]] = []
         for potential_solns in potential_solns_list:
-            stream = self.hist_builder.stream(all_words, potential_solns, MinimaxSolver._create_guess)
+            stream = self.hist_builder.stream(all_words, potential_solns, MinimaxGuess.from_histogram)
             guess_streams.append(stream)
 
         num_solutions = np.array([len(potential_solns) for potential_solns in potential_solns_list])
@@ -87,7 +86,7 @@ class EntropySimulSolver(SimulSolver):
 
         guess_streams: list[Iterator[EntropyGuess]] = []
         for potential_solns in potential_solns_list:
-            stream = self.hist_builder.stream(all_words, potential_solns, EntropySolver._create_guess)
+            stream = self.hist_builder.stream(all_words, potential_solns, EntropyGuess.from_histogram)
             guess_streams.append(stream)
 
         for guess_tuple in zip(*guess_streams):

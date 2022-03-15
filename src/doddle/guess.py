@@ -4,6 +4,8 @@ from dataclasses import dataclass
 from math import isclose
 from typing import Protocol
 
+import numpy as np
+
 from .words import Word
 
 
@@ -28,6 +30,12 @@ class Guess(Protocol):
           bool:
             Returns whether the word is a possible answer.
         """
+        ...
+
+    def __lt__(self, other: Guess) -> bool:
+        ...
+
+    def __gt__(self, other: Guess) -> bool:
         ...
 
 
@@ -72,11 +80,27 @@ class MinimaxGuess:
             + f"Num. buckets={self.number_of_buckets}"
         )
 
-    def __lt__(self, other: MinimaxGuess) -> bool:
-        return self.improves_upon(other)
+    def __lt__(self, other: Guess) -> bool:
+        if isinstance(other, MinimaxGuess):
+            return self.improves_upon(other)
 
-    def __gt__(self, other: MinimaxGuess) -> bool:
-        return other.improves_upon(self)
+        type1 = type(self).__name__
+        type2 = type(other).__name__
+        raise TypeError(f"'<' not supported between instances of type '{type1}' and '{type2}'")
+
+    def __gt__(self, other: Guess) -> bool:
+        if isinstance(other, MinimaxGuess):
+            return other.improves_upon(self)
+
+        type1 = type(self).__name__
+        type2 = type(other).__name__
+        raise TypeError(f"'<' not supported between instances of type '{type1}' and '{type2}'")
+
+    @staticmethod
+    def from_histogram(word: Word, is_potential_soln: bool, histogram: np.ndarray) -> MinimaxGuess:
+        num_buckets = np.count_nonzero(histogram)
+        size_of_largest_bucket = histogram.max()
+        return MinimaxGuess(word, is_potential_soln, num_buckets, size_of_largest_bucket)
 
 
 @dataclass(eq=True, frozen=True)
@@ -114,14 +138,33 @@ class EntropyGuess:
         flag = "Common" if self.is_common_word else "Uncommon"
         return f"Word={self.word} ({flag}), Entropy={self.entropy}"
 
-    def __lt__(self, other: EntropyGuess) -> bool:
-        return self.improves_upon(other)
+    def __lt__(self, other: Guess) -> bool:
+        if isinstance(other, EntropyGuess):
+            return self.improves_upon(other)
 
-    def __gt__(self, other: EntropyGuess) -> bool:
-        return other.improves_upon(self)
+        type1 = type(self).__name__
+        type2 = type(other).__name__
+        raise TypeError(f"'<' not supported between instances of type '{type1}' and '{type2}'")
+
+    def __gt__(self, other: Guess) -> bool:
+        if isinstance(other, EntropyGuess):
+            return other.improves_upon(self)
+
+        type1 = type(self).__name__
+        type2 = type(other).__name__
+        raise TypeError(f"'<' not supported between instances of type '{type1}' and '{type2}'")
 
     def __add__(self, entropy: float) -> EntropyGuess:
         return EntropyGuess(self.word, self.is_common_word, self.entropy + entropy)
+
+    @staticmethod
+    def from_histogram(word: Word, is_potential_soln: bool, histogram: np.ndarray) -> EntropyGuess:
+
+        counts = histogram[histogram > 0]
+        probabilites = counts / np.sum(counts)
+        entropy = -probabilites.dot(np.log2(probabilites))
+
+        return EntropyGuess(word, is_potential_soln, entropy)
 
 
 @dataclass(eq=True, frozen=True)
@@ -173,8 +216,18 @@ class MinimaxSimulGuess:
         flag = "Common" if self.is_common_word else "Uncommon"
         return f"Word={self.word} ({flag}), % Left={self.pct_left:.8f}"
 
-    def __lt__(self, other: MinimaxSimulGuess) -> bool:
-        return self.improves_upon(other)
+    def __lt__(self, other: Guess) -> bool:
+        if isinstance(other, MinimaxSimulGuess):
+            return self.improves_upon(other)
 
-    def __gt__(self, other: MinimaxSimulGuess) -> bool:
-        return other.improves_upon(self)
+        type1 = type(self).__name__
+        type2 = type(other).__name__
+        raise TypeError(f"'<' not supported between instances of type '{type1}' and '{type2}'")
+
+    def __gt__(self, other: Guess) -> bool:
+        if isinstance(other, MinimaxSimulGuess):
+            return other.improves_upon(self)
+
+        type1 = type(self).__name__
+        type2 = type(other).__name__
+        raise TypeError(f"'<' not supported between instances of type '{type1}' and '{type2}'")

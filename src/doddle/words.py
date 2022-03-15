@@ -153,7 +153,7 @@ class WordSeries:
             return pos
         return -1
 
-    def __getitem__(self, s: slice) -> WordSeries:
+    def __getitem__(self, s: slice | np.ndarray) -> WordSeries:
 
         is_slice = isinstance(s, slice)
         is_mask = isinstance(s, np.ndarray) and s.dtype == np.bool8
