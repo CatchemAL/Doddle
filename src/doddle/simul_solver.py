@@ -42,7 +42,7 @@ class SimulSolver(Generic[TSingleGuess, TSimulGuess], abc.ABC):
             guess_streams.append(stream)
 
         for guess_tuple in zip(*guess_streams):
-            simul_guess = self.to_simul_guess(unsolved_games, guess_tuple)
+            simul_guess = self.to_simul_guess(unsolved_games, guess_tuple)  # type: ignore
             yield simul_guess
 
     @abc.abstractmethod
