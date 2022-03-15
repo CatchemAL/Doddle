@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import abc
-from typing import Iterator
+from typing import Generic, Iterator, TypeVar
 
 import numpy as np
 
@@ -9,10 +9,12 @@ from .guess import EntropyGuess, MinimaxGuess
 from .histogram import Guess, HistogramBuilder
 from .words import Word, WordSeries
 
+TGuess = TypeVar("TGuess", bound=Guess)
 
-class Solver(abc.ABC):
+
+class Solver(Generic[TGuess], abc.ABC):
     @abc.abstractmethod
-    def get_best_guess(self, all_words: WordSeries, potential_solns: WordSeries) -> Guess:
+    def get_best_guess(self, all_words: WordSeries, potential_solns: WordSeries) -> TGuess:
         """Gets the best guess to play given two lists:
          - the full series of all_words that could possibly be played;
          - the series of potential_solns left to search (i.e. the words that have yet to
@@ -53,16 +55,14 @@ class Solver(abc.ABC):
         return seed_by_size[size]
 
 
-class MinimaxSolver(Solver):
+class MinimaxSolver(Solver[MinimaxGuess]):
     def __init__(self, histogram_builder: HistogramBuilder) -> None:
         self.hist_builder = histogram_builder
 
-    def get_best_guess(self, all_words: WordSeries, potential_solns: WordSeries) -> Guess:
+    def get_best_guess(self, all_words: WordSeries, potential_solns: WordSeries) -> MinimaxGuess:
         """See base class."""
-        return self.get_minimax_guess(all_words, potential_solns)
-
-    def get_minimax_guess(self, all_words: WordSeries, potential_solns: WordSeries) -> MinimaxGuess:
-        return min(self.all_guesses(all_words, potential_solns))
+        all_guesses = self.all_guesses(all_words, potential_solns)
+        return min(all_guesses)
 
     def all_guesses(self, all_words: WordSeries, potential_solns: WordSeries) -> Iterator[MinimaxGuess]:
 
@@ -88,7 +88,7 @@ class DeepMinimaxSolver(MinimaxSolver):
         super().__init__(histogram_builder)
         self.inner = inner_solver
 
-    def get_best_guess(self, all_words: WordSeries, potential_solns: WordSeries) -> Guess:
+    def get_best_guess(self, all_words: WordSeries, potential_solns: WordSeries) -> MinimaxGuess:
         """See base class."""
 
         N_GUESSES = 50
@@ -106,7 +106,7 @@ class DeepMinimaxSolver(MinimaxSolver):
             nested_best_guesses: list[MinimaxGuess] = []
             for worst_outcome in worst_outcomes[:N_BRANCHES]:
                 nested_potential_solns = solns_by_score[worst_outcome]
-                nested_best_guess = self.inner.get_minimax_guess(all_words, nested_potential_solns)
+                nested_best_guess = self.inner.get_best_guess(all_words, nested_potential_solns)
                 nested_best_guesses.append(nested_best_guess)
             worst_best_guess = max(nested_best_guesses)
             deep_worst_best_guess_by_guess[guess.word] = worst_best_guess
@@ -119,16 +119,14 @@ class DeepMinimaxSolver(MinimaxSolver):
         return best_guess  # TODO bug. Guess needs to convey depth of lower levels! Will affect 3+
 
 
-class EntropySolver(Solver):
+class EntropySolver(Solver[EntropyGuess]):
     def __init__(self, histogram_builder: HistogramBuilder) -> None:
         self.hist_builder = histogram_builder
 
-    def get_best_guess(self, all_words: WordSeries, potential_solns: WordSeries) -> Guess:
+    def get_best_guess(self, all_words: WordSeries, potential_solns: WordSeries) -> EntropyGuess:
         """See base class."""
-        return self.get_entropy_guess(all_words, potential_solns)
-
-    def get_entropy_guess(self, all_words: WordSeries, potential_solns: WordSeries) -> EntropyGuess:
-        return min(self.all_guesses(all_words, potential_solns))
+        all_guesses = self.all_guesses(all_words, potential_solns)
+        return min(all_guesses)
 
     def all_guesses(self, all_words: WordSeries, potential_solns: WordSeries) -> Iterator[EntropyGuess]:
 
@@ -157,7 +155,7 @@ class DeepEntropySolver(EntropySolver):
         super().__init__(histogram_builder)
         self.inner = inner_solver
 
-    def get_best_guess(self, all_words: WordSeries, potential_solns: WordSeries) -> Guess:
+    def get_best_guess(self, all_words: WordSeries, potential_solns: WordSeries) -> EntropyGuess:
         """See base class."""
 
         N_GUESSES = 10
@@ -175,7 +173,7 @@ class DeepEntropySolver(EntropySolver):
             avg_entropy_reduction = 0.0
             for nested_potential_solns in solns_by_outcome.values():
                 probability = len(nested_potential_solns) / len(potential_solns)
-                nested_best_guess = self.inner.get_entropy_guess(all_words, nested_potential_solns)
+                nested_best_guess = self.inner.get_best_guess(all_words, nested_potential_solns)
                 entropy_reduction = nested_best_guess.entropy * probability
                 avg_entropy_reduction += entropy_reduction
             deep_guesses.append(guess + avg_entropy_reduction)

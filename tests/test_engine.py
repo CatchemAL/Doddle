@@ -2,15 +2,15 @@ from unittest.mock import patch
 
 import pytest
 
-from doddle.engine import Engine, SimulEngine
+from doddle.engine import Benchmarker, Engine, SimulEngine
 from doddle.exceptions import FailedToFindASolutionError
 from doddle.guess import EntropyGuess, MinimaxGuess
 from doddle.histogram import HistogramBuilder
 from doddle.scoring import Scorer
 from doddle.simul_solver import MinimaxSimulSolver
 from doddle.solver import EntropySolver
-from doddle.views import RunReporter
-from doddle.words import Dictionary, Word, load_dictionary
+from doddle.views import BenchmarkReporter, RunReporter
+from doddle.words import Word, load_dictionary
 
 
 class TestEngine:
@@ -113,3 +113,16 @@ class TestSimulEngine:
         # Act + Assert
         with pytest.raises(FailedToFindASolutionError):
             sut.run(solns, [Word("STOLE")])
+
+
+class TestBenchmarker:
+    @patch("doddle.engine.Engine")
+    def test_benchmark(self, mock_engine) -> None:
+        # Arrange
+        reporter = BenchmarkReporter()
+        sut = Benchmarker(mock_engine, reporter)
+
+        # Act
+        sut.run_benchmark([])
+
+        # Assert
