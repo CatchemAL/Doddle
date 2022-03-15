@@ -11,9 +11,7 @@
             "module": "src.doddle",
             "args": [
                 "run",
-                "--answer=SWILL",
-                "--guess=RAISE",
-                "--solver=ENTROPY"
+                "--answer=SALTY",
             ]
         },
         {
