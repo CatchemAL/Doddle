@@ -1,6 +1,7 @@
+import pytest
+
 from doddle.guess import EntropyGuess, MinimaxGuess, MinimaxSimulGuess
 from doddle.words import Word
-import pytest
 
 
 class TestMinimaxGuess:
