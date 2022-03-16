@@ -136,7 +136,7 @@ class EntropyGuess:
 
     def __repr__(self) -> str:
         flag = "Common" if self.is_common_word else "Uncommon"
-        return f"Word={self.word} ({flag}), Entropy={self.entropy}"
+        return f"Word={self.word} ({flag}), Entropy={self.entropy:.4f}"
 
     def __lt__(self, other: Guess) -> bool:
         if isinstance(other, EntropyGuess):

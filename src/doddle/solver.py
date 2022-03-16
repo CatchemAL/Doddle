@@ -114,6 +114,9 @@ class DeepMinimaxSolver(MinimaxSolver):
         N_GUESSES = 50
         N_BRANCHES = 10
 
+        if len(potential_solns) <= 2:
+            return super().get_best_guess(all_words, potential_solns)
+
         guesses = self.all_guesses(all_words, potential_solns)
         best_guesses = sorted(guesses)[:N_GUESSES]
 
@@ -163,6 +166,9 @@ class DeepEntropySolver(EntropySolver):
         """See base class."""
 
         N_GUESSES = 10
+
+        if len(potential_solns) <= 2:
+            return super().get_best_guess(all_words, potential_solns)
 
         guesses = self.all_guesses(all_words, potential_solns)
         best_guesses = sorted(guesses)[:N_GUESSES]
