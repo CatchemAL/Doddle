@@ -19,11 +19,14 @@ class SolveController:
     solver: Solver
     view: SolveView
 
-    def solve(self, first_guess: Word | None) -> None:
+    def solve(self, first_guess: Word | None) -> bool:
         """Solves a game given an optional opening guess.
 
         Args:
             first_guess (Word | None): The opening guess.
+
+        Returns:
+          bool: True is the solve was successful.
         """
         all_words, available_answers = self.dictionary.words
         best_guess = first_guess or self.solver.seed(all_words.word_length)
@@ -32,12 +35,12 @@ class SolveController:
             (observed_score, best_guess) = self.view.get_user_score(best_guess)
             if self.scorer.is_perfect_score(observed_score):
                 self.view.report_success()
-                break
+                return True
 
             histogram = self.histogram_builder.get_solns_by_score(available_answers, best_guess)
             if observed_score not in histogram:
                 self.view.report_no_solution()
-                break
+                return False
 
             available_answers = histogram[observed_score]
             best_guess = self.solver.get_best_guess(all_words, available_answers).word

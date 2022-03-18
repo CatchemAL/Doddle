@@ -1,6 +1,6 @@
+from doddle.guess import MinimaxGuess
 from doddle.histogram import HistogramBuilder
 from doddle.scoring import Scorer, from_ternary
-from doddle.solver import MinimaxSolver
 from doddle.words import Word, WordSeries
 
 
@@ -59,7 +59,7 @@ class TestHistogramBuilder:
         potential_solns = WordSeries(words)
         all_words = WordSeries(words + [guess.value])
         histogram_builder = HistogramBuilder(Scorer(), all_words, potential_solns)
-        guess_factory = MinimaxSolver._create_guess
+        guess_factory = MinimaxGuess.from_histogram
 
         # Act
         guess_stream = histogram_builder.stream(all_words, potential_solns, guess_factory)

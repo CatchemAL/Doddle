@@ -153,11 +153,11 @@ class WordSeries:
             return pos
         return -1
 
-    def __getitem__(self, s: slice) -> WordSeries:
+    def __getitem__(self, s: slice | np.ndarray) -> WordSeries:
 
         is_slice = isinstance(s, slice)
         is_mask = isinstance(s, np.ndarray) and s.dtype == np.bool8
-        is_index = isinstance(s, np.ndarray) and s.dtype == np.int32
+        is_index = isinstance(s, np.ndarray) and s.dtype == np.int_
         can_index = is_slice or is_mask or is_index
 
         if can_index:

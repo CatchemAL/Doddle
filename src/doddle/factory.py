@@ -7,7 +7,7 @@ from .engine import Benchmarker, Engine, SimulBenchmarker, SimulEngine
 from .enums import SolverType
 from .histogram import HistogramBuilder
 from .scoring import Scorer
-from .simul_solver import MinimaxSimulSolver, SimulSolver
+from .simul_solver import EntropySimulSolver, MinimaxSimulSolver, SimulSolver
 from .solver import DeepEntropySolver, DeepMinimaxSolver, EntropySolver, MinimaxSolver, Solver
 from .views import BenchmarkReporter, NullRunReporter, RunReporter
 from .words import Dictionary, Word, load_dictionary
@@ -109,15 +109,16 @@ def create_models(
         for _ in range(1, depth):
             minimax_solver = DeepMinimaxSolver(histogram_builder, minimax_solver)
         solver: Solver = minimax_solver
+        simul_solver: SimulSolver = MinimaxSimulSolver(histogram_builder)
 
     elif solver_type == SolverType.ENTROPY:
         entropy_solver = EntropySolver(histogram_builder)
         for _ in range(1, depth):
             entropy_solver = DeepEntropySolver(histogram_builder, entropy_solver)
         solver = entropy_solver
+        simul_solver = EntropySimulSolver(histogram_builder)
+
     else:
         raise NotSupportedError(f"Solver type {solver_type} not recognised.")
-
-    simul_solver: SimulSolver = MinimaxSimulSolver(histogram_builder)
 
     return dictionary, scorer, histogram_builder, solver, simul_solver

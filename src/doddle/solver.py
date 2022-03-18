@@ -1,18 +1,20 @@
 from __future__ import annotations
 
 import abc
-from typing import Iterator
+from typing import Generic, Iterator
 
 import numpy as np
 
 from .guess import EntropyGuess, MinimaxGuess
-from .histogram import Guess, HistogramBuilder
+from .histogram import HistogramBuilder, TGuess, to_histogram
 from .words import Word, WordSeries
 
 
-class Solver(abc.ABC):
-    @abc.abstractmethod
-    def get_best_guess(self, all_words: WordSeries, potential_solns: WordSeries) -> Guess:
+class Solver(Generic[TGuess], abc.ABC):
+    def __init__(self, hist_builder: HistogramBuilder) -> None:
+        self.hist_builder = hist_builder
+
+    def get_best_guess(self, all_words: WordSeries, potential_solns: WordSeries) -> TGuess:
         """Gets the best guess to play given two lists:
          - the full series of all_words that could possibly be played;
          - the series of potential_solns left to search (i.e. the words that have yet to
@@ -23,9 +25,42 @@ class Solver(abc.ABC):
           potential_solns (WordSeries): The words that still remain as potential solutions.
 
         Returns:
-          Guess: Any object that implements the guess protocol.
+          Guess: The guess object implementing the guess protocol
         """
-        pass
+        if len(potential_solns) <= 2:
+            guess = potential_solns.words[0]
+            solns_by_score = self.hist_builder.get_solns_by_score(potential_solns, guess)
+            histogram = to_histogram(solns_by_score)
+            return self._build_guess(guess, True, histogram)
+
+        all_guesses = self.all_guesses(all_words, potential_solns)
+        return min(all_guesses)
+
+    def all_guesses(self, all_words: WordSeries, potential_solns: WordSeries) -> Iterator[TGuess]:
+        """Yields a stream of guesses based on the full universe of available words.
+
+        Args:
+            all_words (WordSeries): The full universe of words.
+            potential_solns (WordSeries): The words that still remain as potential solutions.
+
+        Yields:
+            Iterator[TGuess]: The guess object implementing the guess protocol
+        """
+        yield from self.hist_builder.stream(all_words, potential_solns, self._build_guess)
+
+    @abc.abstractmethod
+    def _build_guess(self, word: Word, is_potential_soln: bool, histogram: np.ndarray) -> TGuess:
+        """Factory method for building a guess from a histogram
+
+        Args:
+            word (Word): The word that was guessed
+            is_potential_soln (bool): Whether the word could possibly be a solution
+            histogram (np.ndarray): The associated histogram in optimised, vector form.
+
+        Returns:
+            TGuess: The guess object implementing the guess protocol
+        """
+        ...
 
     @property
     @abc.abstractmethod
@@ -35,7 +70,7 @@ class Solver(abc.ABC):
         Returns:
           list[Word]: The list of all seeds.
         """
-        pass
+        ...
 
     def seed(self, size: int) -> Word:
         """Gets the optimal starting word to use for a given solver
@@ -53,34 +88,19 @@ class Solver(abc.ABC):
         return seed_by_size[size]
 
 
-class MinimaxSolver(Solver):
+class MinimaxSolver(Solver[MinimaxGuess]):
     def __init__(self, histogram_builder: HistogramBuilder) -> None:
-        self.hist_builder = histogram_builder
-
-    def get_best_guess(self, all_words: WordSeries, potential_solns: WordSeries) -> Guess:
-        """See base class."""
-        return self.get_minimax_guess(all_words, potential_solns)
-
-    def get_minimax_guess(self, all_words: WordSeries, potential_solns: WordSeries) -> MinimaxGuess:
-        return min(self.all_guesses(all_words, potential_solns))
-
-    def all_guesses(self, all_words: WordSeries, potential_solns: WordSeries) -> Iterator[MinimaxGuess]:
-
-        if len(potential_solns) <= 2:
-            yield MinimaxGuess(potential_solns.words[0], True, 1, 1)
-        else:
-            yield from self.hist_builder.stream(all_words, potential_solns, self._create_guess)
+        super().__init__(histogram_builder)
 
     @property
     def all_seeds(self) -> list[Word]:
-        seeds = {"OLEA", "RAISE", "TAILER", "TENAILS", "CENTRALS", "SECRETION"}
+        """See base class."""
+        seeds = ["OLEA", "RAISE", "TAILER", "TENAILS", "CENTRALS", "SECRETION"]
         return [Word(seed) for seed in seeds]
 
-    @staticmethod
-    def _create_guess(word: Word, is_common_word: bool, histogram: np.ndarray) -> MinimaxGuess:
-        num_buckets = np.count_nonzero(histogram)
-        size_of_largest_bucket = histogram.max()
-        return MinimaxGuess(word, is_common_word, num_buckets, size_of_largest_bucket)
+    def _build_guess(self, word: Word, is_potential_soln: bool, histogram: np.ndarray) -> MinimaxGuess:
+        """See base class."""
+        return MinimaxGuess.from_histogram(word, is_potential_soln, histogram)
 
 
 class DeepMinimaxSolver(MinimaxSolver):
@@ -88,68 +108,50 @@ class DeepMinimaxSolver(MinimaxSolver):
         super().__init__(histogram_builder)
         self.inner = inner_solver
 
-    def get_best_guess(self, all_words: WordSeries, potential_solns: WordSeries) -> Guess:
+    def get_best_guess(self, all_words: WordSeries, potential_solns: WordSeries) -> MinimaxGuess:
         """See base class."""
 
         N_GUESSES = 50
         N_BRANCHES = 10
 
+        if len(potential_solns) <= 2:
+            return super().get_best_guess(all_words, potential_solns)
+
         guesses = self.all_guesses(all_words, potential_solns)
         best_guesses = sorted(guesses)[:N_GUESSES]
 
-        deep_worst_best_guess_by_guess: dict[Word, MinimaxGuess] = {}
-
+        combined_guesses: list[MinimaxGuess] = []
         for guess in best_guesses:
-            # TODO If perfect guess...
+            if guess.perfectly_partitions():
+                return MinimaxGuess(guess.word, guess.is_common_word, 0, 0)
+
             solns_by_score = self.hist_builder.get_solns_by_score(potential_solns, guess.word)
-            worst_outcomes = sorted(solns_by_score, key=lambda s: -len(solns_by_score[s]))
-            nested_best_guesses: list[MinimaxGuess] = []
-            for worst_outcome in worst_outcomes[:N_BRANCHES]:
-                nested_potential_solns = solns_by_score[worst_outcome]
-                nested_best_guess = self.inner.get_minimax_guess(all_words, nested_potential_solns)
-                nested_best_guesses.append(nested_best_guess)
-            worst_best_guess = max(nested_best_guesses)
-            deep_worst_best_guess_by_guess[guess.word] = worst_best_guess
+            worst_scores = sorted(solns_by_score, key=lambda s: -len(solns_by_score[s]))
+            best_deep_guesses: list[MinimaxGuess] = []
+            for worst_score in worst_scores[:N_BRANCHES]:
+                potential_deep_solns = solns_by_score[worst_score]
+                deep_guess = self.inner.get_best_guess(all_words, potential_deep_solns)
+                best_deep_guesses.append(deep_guess)
+            worst_best_deep_guess = max(best_deep_guesses)
+            combined_guess = guess >> worst_best_deep_guess
+            combined_guesses.append(combined_guess)
 
-        def get_guess_given_word(word: Word) -> MinimaxGuess:
-            return deep_worst_best_guess_by_guess[word]
-
-        best_guess_str = min(deep_worst_best_guess_by_guess, key=get_guess_given_word)
-        best_guess = next(guess for guess in best_guesses if guess.word == best_guess_str)
-        return best_guess  # TODO bug. Guess needs to convey depth of lower levels! Will affect 3+
+        return min(combined_guesses)
 
 
-class EntropySolver(Solver):
+class EntropySolver(Solver[EntropyGuess]):
     def __init__(self, histogram_builder: HistogramBuilder) -> None:
-        self.hist_builder = histogram_builder
-
-    def get_best_guess(self, all_words: WordSeries, potential_solns: WordSeries) -> Guess:
-        """See base class."""
-        return self.get_entropy_guess(all_words, potential_solns)
-
-    def get_entropy_guess(self, all_words: WordSeries, potential_solns: WordSeries) -> EntropyGuess:
-        return min(self.all_guesses(all_words, potential_solns))
-
-    def all_guesses(self, all_words: WordSeries, potential_solns: WordSeries) -> Iterator[EntropyGuess]:
-
-        if len(potential_solns) <= 2:
-            yield EntropyGuess(potential_solns.words[0], True, 1)
-        else:
-            yield from self.hist_builder.stream(all_words, potential_solns, self._create_guess)
+        super().__init__(histogram_builder)
 
     @property
     def all_seeds(self) -> list[Word]:
-        seeds = {"OLEA", "RAISE", "TAILER", "TENAILS", "CENTRALS", "SECRETION"}
+        """See base class."""
+        seeds = ["OLEA", "RAISE", "TAILER", "TENAILS", "CENTRALS", "SECRETION"]
         return [Word(seed) for seed in seeds]
 
-    @staticmethod
-    def _create_guess(word: Word, is_common_word: bool, histogram: np.ndarray) -> EntropyGuess:
-
-        counts = histogram[histogram > 0]
-        probabilites = counts / np.sum(counts)
-        entropy = -probabilites.dot(np.log2(probabilites))
-
-        return EntropyGuess(word, is_common_word, entropy)
+    def _build_guess(self, word: Word, is_potential_soln: bool, histogram: np.ndarray) -> EntropyGuess:
+        """See base class."""
+        return EntropyGuess.from_histogram(word, is_potential_soln, histogram)
 
 
 class DeepEntropySolver(EntropySolver):
@@ -157,28 +159,35 @@ class DeepEntropySolver(EntropySolver):
         super().__init__(histogram_builder)
         self.inner = inner_solver
 
-    def get_best_guess(self, all_words: WordSeries, potential_solns: WordSeries) -> Guess:
+    def get_best_guess(self, all_words: WordSeries, potential_solns: WordSeries) -> EntropyGuess:
         """See base class."""
 
         N_GUESSES = 10
 
+        if len(potential_solns) <= 2:
+            return super().get_best_guess(all_words, potential_solns)
+
         guesses = self.all_guesses(all_words, potential_solns)
         best_guesses = sorted(guesses)[:N_GUESSES]
-        deep_guesses: list[EntropyGuess] = []
 
+        combined_guesses: list[EntropyGuess] = []
         for guess in best_guesses:
-            solns_by_outcome = self.hist_builder.get_solns_by_score(potential_solns, guess.word)
+            solns_by_score = self.hist_builder.get_solns_by_score(potential_solns, guess.word)
 
-            if guess.is_common_word and all(len(s) == 1 for s in solns_by_outcome.values()):
-                return guess
+            if max(len(s) for s in solns_by_score.values()) == 1:
+                return EntropyGuess(guess.word, guess.is_common_word, float("inf"))
 
             avg_entropy_reduction = 0.0
-            for nested_potential_solns in solns_by_outcome.values():
-                probability = len(nested_potential_solns) / len(potential_solns)
-                nested_best_guess = self.inner.get_entropy_guess(all_words, nested_potential_solns)
-                entropy_reduction = nested_best_guess.entropy * probability
+            for potential_deep_solns in solns_by_score.values():
+                probability = len(potential_deep_solns) / len(potential_solns)
+                deep_guess = self.inner.get_best_guess(all_words, potential_deep_solns)
+                entropy_reduction = deep_guess.entropy * probability
                 avg_entropy_reduction += entropy_reduction
-            deep_guesses.append(guess + avg_entropy_reduction)
+            combined_guess = guess + avg_entropy_reduction
+            combined_guesses.append(combined_guess)
 
-        deep_best_guess = min(deep_guesses)  # TODO not good enough. Where there are ties, look up!
+        # TODO If multiple guesses solve the problem in two steps, ideally
+        # we want the guess that had the greatest entropy reduction at step
+        # one. Right now it will go by potential solution, then alphabetical
+        deep_best_guess = min(combined_guesses)
         return deep_best_guess

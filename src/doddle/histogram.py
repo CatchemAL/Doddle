@@ -103,18 +103,12 @@ class HistogramBuilder:
 
         # First, we precompute the scores for all remaining solutions
         self.score_matrix.precompute(potential_solns)
-
-        # Efficiently flag words that could feasibly be a solution
-        indices = all_words.find_index(potential_solns.words)
-        is_common = np.zeros(len(all_words), dtype=bool)
-        is_common[indices] = True
-
         scores = self.score_matrix.storage[:, potential_solns.index]
 
         histogram = self._allocate_histogram_vector(all_words.word_length)
         for i, word in enumerate(all_words):
-            _populate_histogram(scores, i, histogram)
-            yield guess_factory(word, is_common[i], histogram)
+            is_common = _populate_histogram(scores, i, histogram)
+            yield guess_factory(word, is_common, histogram)
 
     @staticmethod
     def _allocate_histogram_vector(word_length: int) -> np.ndarray:
@@ -129,8 +123,17 @@ class HistogramBuilder:
         return np.zeros(3**word_length, dtype=int)
 
 
+def to_histogram(solns_by_score: dict[int, WordSeries]) -> np.ndarray:
+    length = max(solns_by_score) + 1
+    vector = np.zeros(shape=(length,))
+    for score, solns in solns_by_score.items():
+        vector[score] = len(solns)
+
+    return vector
+
+
 @njit
-def _populate_histogram(matrix: np.ndarray, row: int, hist: np.ndarray) -> None:
+def _populate_histogram(matrix: np.ndarray, row: int, hist: np.ndarray) -> bool:
     """Aggressive optimisation of the histogram creation.
 
     This is performance critical code. Here, we use a preallocated vector
@@ -139,7 +142,7 @@ def _populate_histogram(matrix: np.ndarray, row: int, hist: np.ndarray) -> None:
     represents a score.
 
     Hence the reason we use a decimal representation of each ternary score - we
-    need a desnre representation of the score to build an efficient histogram.
+    need a dense representation of the score to build an efficient histogram.
 
     Args:
         matrix (np.ndarray): The internal, precomputed score matrix
@@ -150,6 +153,9 @@ def _populate_histogram(matrix: np.ndarray, row: int, hist: np.ndarray) -> None:
     for j in range(matrix.shape[1]):
         idx = matrix[row, j]
         hist[idx] += 1
+    is_common: bool = hist[-1] > 0
+    # hist[-1] = 0 # TODO should we zero this out. Pros and cons...
+    return is_common
 
 
 class ScoreMatrix:

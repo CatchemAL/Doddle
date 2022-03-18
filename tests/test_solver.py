@@ -1,0 +1,94 @@
+from doddle.histogram import HistogramBuilder
+from doddle.scoring import Scorer
+from doddle.solver import DeepEntropySolver, DeepMinimaxSolver, EntropySolver, MinimaxSolver
+from doddle.words import Word, WordSeries
+
+
+class TestMinimaxSolver:
+    def test_get_best_guess(self) -> None:
+        # Arrange
+        remaining = (
+            ["SNAKE", "SPACE", "SPADE", "SCALE", "SCARE", "SNARE", "SPARE"]
+            + ["SHADE", "SHAKE", "SHAME", "SHAPE", "SHAVE", "SHALE"]
+            + ["SHARE", "SHARK", "SKATE", "STAGE", "STAVE", "SLATE", "STALE"]
+        )
+
+        words = ["BLAST", "TRASH", "CARRY", "NYMPH", "PLANT"] + remaining
+        potential_solns = WordSeries(remaining)
+        all_words = WordSeries(words)
+        histogram_builder = HistogramBuilder(Scorer(), all_words, potential_solns)
+        sut = MinimaxSolver(histogram_builder)
+
+        # Act
+        best_guess = sut.get_best_guess(all_words, potential_solns)
+
+        # Assert
+        assert best_guess.word == Word("TRASH")
+
+
+class TestDeepMinimaxSolver:
+    def test_get_best_guess(self) -> None:
+        # Arrange
+        remaining = (
+            ["SNAKE", "SPACE", "SPADE", "SCALE", "SCARE", "SNARE", "SPARE"]
+            + ["SHADE", "SHAKE", "SHAME", "SHAPE", "SHAVE", "SHALE"]
+            + ["SHARE", "SHARK", "SKATE", "STAGE", "STAVE", "SLATE", "STALE"]
+        )
+
+        words = ["BLAST", "TRASH", "CARRY", "NYMPH", "PLANT"] + remaining
+        potential_solns = WordSeries(remaining)
+        all_words = WordSeries(words)
+        histogram_builder = HistogramBuilder(Scorer(), all_words, potential_solns)
+        inner_solver = MinimaxSolver(histogram_builder)
+        sut = DeepMinimaxSolver(histogram_builder, inner_solver)
+
+        # Act
+        best_guess = sut.get_best_guess(all_words, potential_solns)
+
+        # Assert
+        assert best_guess.word == Word("SHARK")
+
+
+class TestEntropySolver:
+    def test_get_best_guess(self) -> None:
+        # Arrange
+        remaining = (
+            ["SNAKE", "SPACE", "SPADE", "SCALE", "SCARE", "SNARE", "SPARE"]
+            + ["SHADE", "SHAKE", "SHAME", "SHAPE", "SHAVE", "SHALE"]
+            + ["SHARE", "SHARK", "SKATE", "STAGE", "STAVE", "SLATE", "STALE"]
+        )
+
+        words = ["BLAST", "TRASH", "CARRY", "NYMPH", "PLANT"] + remaining
+        potential_solns = WordSeries(remaining)
+        all_words = WordSeries(words)
+        histogram_builder = HistogramBuilder(Scorer(), all_words, potential_solns)
+        sut = EntropySolver(histogram_builder)
+
+        # Act
+        best_guess = sut.get_best_guess(all_words, potential_solns)
+
+        # Assert
+        assert best_guess.word == Word("PLANT")
+
+
+class TestDeepEntropySolver:
+    def test_get_best_guess(self) -> None:
+        # Arrange
+        remaining = (
+            ["SNAKE", "SPACE", "SPADE", "SCALE", "SCARE", "SNARE", "SPARE"]
+            + ["SHADE", "SHAKE", "SHAME", "SHAPE", "SHAVE", "SHALE"]
+            + ["SHARE", "SHARK", "SKATE", "STAGE", "STAVE", "SLATE", "STALE"]
+        )
+
+        words = ["BLAST", "TRASH", "CARRY", "NYMPH", "PLANT"] + remaining
+        potential_solns = WordSeries(remaining)
+        all_words = WordSeries(words)
+        histogram_builder = HistogramBuilder(Scorer(), all_words, potential_solns)
+        inner_solver = EntropySolver(histogram_builder)
+        sut = DeepEntropySolver(histogram_builder, inner_solver)
+
+        # Act
+        best_guess = sut.get_best_guess(all_words, potential_solns)
+
+        # Assert
+        assert best_guess.word == Word("NYMPH")
