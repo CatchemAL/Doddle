@@ -52,7 +52,7 @@ class Doddle:
     def __init__(
         self,
         size: int = 5,
-        solver_type: SolverType = SolverType.MINIMAX,
+        solver_type: SolverType | str = SolverType.MINIMAX,
         depth: int = 1,
         extras: Sequence[Word] | Sequence[str] | None = None,
         lazy_eval: bool = True,
@@ -64,7 +64,7 @@ class Doddle:
           size (int, optional):
             The word length. Defaults to 5.
 
-          solver_type (SolverType, optional):
+          solver_type (SolverType | str, optional):
             Enum stating the solver heuristic to use. Defaults to SolverType.MINIMAX.
 
           depth (int, optional):
@@ -88,9 +88,14 @@ class Doddle:
         self.size = size
         e = [Word(extra) for extra in extras] if extras else []
 
+        if isinstance(solver_type, str):
+            solve_type = SolverType.from_str(solver_type)
+        else:
+            solve_type = solver_type
+
         dictionary, scorer, histogram_builder, solver, simul_solver = create_models(
             size,
-            solver_type=solver_type,
+            solver_type=solve_type,
             depth=depth,
             extras=e,
             lazy_eval=lazy_eval,
