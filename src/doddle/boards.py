@@ -345,7 +345,7 @@ class EmojiScoreboardPrinter:
         header = f"Doddle {n}/{limit}"
 
         emoji_by_num = self._get_score_emojjis()
-        boards_per_line = min(num_boards // 2 + num_boards % 2, 8)
+        boards_per_line = max(2, min(num_boards // 2 + num_boards % 2, 8))
 
         icons: list[str] = []
         if len(scoreboards) > 1:
