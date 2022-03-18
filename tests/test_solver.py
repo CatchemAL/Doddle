@@ -46,7 +46,7 @@ class TestDeepMinimaxSolver:
         best_guess = sut.get_best_guess(all_words, potential_solns)
 
         # Assert
-        assert best_guess.word == Word("PLANT")
+        assert best_guess.word == Word("SHARK")
 
 
 class TestEntropySolver:

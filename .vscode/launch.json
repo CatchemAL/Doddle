@@ -11,7 +11,8 @@
             "module": "src.doddle",
             "args": [
                 "run",
-                "--answer=LOATH,TRIED,CACTI,PLUSH,SPLAT,CROAK,FELON,TWEAK",
+                "--answer=POWER",
+                "--depth=2"
             ]
         },
         {

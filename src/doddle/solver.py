@@ -120,26 +120,23 @@ class DeepMinimaxSolver(MinimaxSolver):
         guesses = self.all_guesses(all_words, potential_solns)
         best_guesses = sorted(guesses)[:N_GUESSES]
 
-        deep_worst_best_guess_by_guess: dict[Word, MinimaxGuess] = {}
-
+        combined_guesses: list[MinimaxGuess] = []
         for guess in best_guesses:
-            # TODO If perfect guess...
+            if guess.perfectly_partitions():
+                return MinimaxGuess(guess.word, guess.is_common_word, 0, 0)
+
             solns_by_score = self.hist_builder.get_solns_by_score(potential_solns, guess.word)
-            worst_outcomes = sorted(solns_by_score, key=lambda s: -len(solns_by_score[s]))
-            nested_best_guesses: list[MinimaxGuess] = []
-            for worst_outcome in worst_outcomes[:N_BRANCHES]:
-                nested_potential_solns = solns_by_score[worst_outcome]
-                nested_best_guess = self.inner.get_best_guess(all_words, nested_potential_solns)
-                nested_best_guesses.append(nested_best_guess)
-            worst_best_guess = max(nested_best_guesses)
-            deep_worst_best_guess_by_guess[guess.word] = worst_best_guess
+            worst_scores = sorted(solns_by_score, key=lambda s: -len(solns_by_score[s]))
+            best_deep_guesses: list[MinimaxGuess] = []
+            for worst_score in worst_scores[:N_BRANCHES]:
+                potential_deep_solns = solns_by_score[worst_score]
+                deep_guess = self.inner.get_best_guess(all_words, potential_deep_solns)
+                best_deep_guesses.append(deep_guess)
+            worst_best_deep_guess = max(best_deep_guesses)
+            combined_guess = guess >> worst_best_deep_guess
+            combined_guesses.append(combined_guess)
 
-        def get_guess_given_word(word: Word) -> MinimaxGuess:
-            return deep_worst_best_guess_by_guess[word]
-
-        best_guess_str = min(deep_worst_best_guess_by_guess, key=get_guess_given_word)
-        best_guess = next(guess for guess in best_guesses if guess.word == best_guess_str)
-        return best_guess  # TODO bug. Guess needs to convey depth of lower levels! Will affect 3+
+        return min(combined_guesses)
 
 
 class EntropySolver(Solver[EntropyGuess]):
@@ -172,21 +169,25 @@ class DeepEntropySolver(EntropySolver):
 
         guesses = self.all_guesses(all_words, potential_solns)
         best_guesses = sorted(guesses)[:N_GUESSES]
-        deep_guesses: list[EntropyGuess] = []
 
+        combined_guesses: list[EntropyGuess] = []
         for guess in best_guesses:
-            solns_by_outcome = self.hist_builder.get_solns_by_score(potential_solns, guess.word)
+            solns_by_score = self.hist_builder.get_solns_by_score(potential_solns, guess.word)
 
-            if guess.is_common_word and all(len(s) == 1 for s in solns_by_outcome.values()):
-                return guess
+            if max(len(s) for s in solns_by_score.values()) == 1:
+                return EntropyGuess(guess.word, guess.is_common_word, float("inf"))
 
             avg_entropy_reduction = 0.0
-            for nested_potential_solns in solns_by_outcome.values():
-                probability = len(nested_potential_solns) / len(potential_solns)
-                nested_best_guess = self.inner.get_best_guess(all_words, nested_potential_solns)
-                entropy_reduction = nested_best_guess.entropy * probability
+            for potential_deep_solns in solns_by_score.values():
+                probability = len(potential_deep_solns) / len(potential_solns)
+                deep_guess = self.inner.get_best_guess(all_words, potential_deep_solns)
+                entropy_reduction = deep_guess.entropy * probability
                 avg_entropy_reduction += entropy_reduction
-            deep_guesses.append(guess + avg_entropy_reduction)
+            combined_guess = guess + avg_entropy_reduction
+            combined_guesses.append(combined_guess)
 
-        deep_best_guess = min(deep_guesses)  # TODO not good enough. Where there are ties, look up!
+        # TODO If multiple guesses solve the problem in two steps, ideally
+        # we want the guess that had the greatest entropy reduction at step
+        # one. Right now it will go by potential solution, then alphabetical
+        deep_best_guess = min(combined_guesses)
         return deep_best_guess

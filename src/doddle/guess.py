@@ -70,6 +70,40 @@ class MinimaxGuess:
 
         return self.word < other.word
 
+    def perfectly_partitions(self) -> bool:
+        """Whether a guess partitions the histogram into buckets of size one.
+
+        Returns:
+            bool: Returns whether the guess partitions the histogram into bucekts of size one.
+        """
+        return self.size_of_largest_bucket == 1
+
+    def combine(self, other: MinimaxGuess) -> MinimaxGuess:
+        """Combines a guess with a follow-up, deep guess.
+
+        Args:
+            other (MinimaxGuess): The follow-up guess.
+
+        Returns:
+            MinimaxGuess: Returns the combined guess.
+        """
+        num_buckets = other.number_of_buckets
+        largest_bucket = other.size_of_largest_bucket
+        return MinimaxGuess(self.word, self.is_common_word, num_buckets, largest_bucket)
+
+    def __rshift__(self, other: MinimaxGuess) -> MinimaxGuess:
+        """Syntactic sugar to combine guesses.
+
+        e.g. combined_guess = guess >> deep_guess
+
+        Args:
+            other (MinimaxGuess): The follow-up guess.
+
+        Returns:
+            MinimaxGuess: Returns the combined guess.
+        """
+        return self.combine(other)
+
     def __str__(self) -> str:
         return str(self.word)
 

@@ -92,6 +92,31 @@ class TestMinimaxGuess:
         assert string == "BEARD"
         assert str_repr == "Word=BEARD (Common), Largest bucket=20, Num. buckets=4"
 
+    def test_minimax_guess_partitions(self) -> None:
+        # Arrange
+        word1 = Word("beard")
+        guess1 = MinimaxGuess(word1, True, 20, 1)
+
+        # Act
+        is_partitioned = guess1.perfectly_partitions()
+
+        # Assert
+        assert is_partitioned
+
+    def test_minimax_guess_combines(self) -> None:
+        # Arrange
+        word1 = Word("SNAKE")
+        word2 = Word("SHARK")
+        guess1 = MinimaxGuess(word1, True, 5, 20)
+        guess2 = MinimaxGuess(word2, False, 3, 4)
+        expected = MinimaxGuess(word1, True, 3, 4)
+
+        # Act
+        combined_guess = guess1 >> guess2
+
+        # Assert
+        assert combined_guess == expected
+
 
 class TestEntropyGuess:
     def test_entropy_guess_where_expected_shannon_entropy_differs(self) -> None:
