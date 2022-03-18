@@ -1,4 +1,6 @@
+import sys
 from argparse import ArgumentParser, Namespace
+from typing import Sequence
 
 from .controllers import HideController, SolveController
 from .enums import SolverType
@@ -83,6 +85,10 @@ def benchmark_performance(args: Namespace) -> None:
 
 
 def main() -> None:
+    parse_args(sys.argv[1:])
+
+
+def parse_args(args: Sequence[str]) -> None:
 
     parser = ArgumentParser()
     subparsers = parser.add_subparsers()
@@ -117,5 +123,5 @@ def main() -> None:
     benchmark_parser.add_argument("--simul", required=False, default=1, type=int)
     benchmark_parser.set_defaults(func=benchmark_performance)
 
-    args = parser.parse_args()
-    args.func(args)
+    namespace = parser.parse_args(args)
+    namespace.func(namespace)
