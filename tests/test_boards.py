@@ -64,6 +64,22 @@ class TestScoreboard:
         # Assert
         assert actual == expected
 
+    def test_repr(self) -> None:
+        # Arrange
+        sut = Scoreboard()
+
+        sut.add_row(1, Word("ULTRA"), Word("RAISE"), "01000", 117)
+        sut.add_row(2, Word("ULTRA"), Word("URBAN"), "20010", 5)
+        sut.add_row(3, Word("ULTRA"), Word("ULTRA"), "22222", 1)
+
+        expected = "Soln=ULTRA (3 guesses)"
+
+        # Act
+        actual = repr(sut)
+
+        # Assert
+        assert actual == expected
+
     def test_emoji_repr(self) -> None:
         # Arrange
         sut = Scoreboard()
