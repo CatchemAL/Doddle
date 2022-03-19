@@ -277,10 +277,10 @@ class HtmlScoreboardPrinter:
             num_left_str = str(num_left) if soln != guess else ""
 
             if has_dividers and row.n != prev_row:
-                row_divider = """<tr>
+                row_divider = """
+                <tr>
                     <td colspan="5" class="divider"><hr /></td>
-                </tr>
-                """
+                </tr>"""
                 row_strings.append(row_divider)
 
             row_template = f"""
@@ -290,8 +290,7 @@ class HtmlScoreboardPrinter:
                 <td><tt>{guess}</tt></td>
                 <td>{score}</td>
                 <td>{num_left_str}</td>
-            </tr>
-            """
+            </tr>"""
             row_strings.append(row_template)
             prev_row = row.n
 
@@ -308,8 +307,7 @@ class HtmlScoreboardPrinter:
             <th>Poss</th>
           </tr>
         </thead>
-        <tbody>
-          {all_rows}
+        <tbody>{all_rows}
         </tbody>
         </table>
         """

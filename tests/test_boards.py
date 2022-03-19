@@ -56,6 +56,81 @@ class TestScoreboard:
         # Assert
         assert actual == expected
 
+    def test_html_repr(self) -> None:
+        # Arrange
+        sut = Scoreboard()
+
+        sut.add_row(1, Word("ULTRA"), Word("RAISE"), "01000", 117)
+        sut.add_row(1, Word("BLAST"), Word("URBAN"), "20010", 5)
+        sut.add_row(2, Word("ULTRA"), Word("BLAST"), "02101", 1)
+        sut.add_row(2, Word("BLAST"), Word("BLAST"), "22222", 1)
+        sut.add_row(3, Word("ULTRA"), Word("ULTRA"), "22222", 1)
+
+        expected = """
+        <table>
+        <thead>
+          <tr>
+            <th></th>
+            <th>Soln</th>
+            <th>Guess</th>
+            <th>Score</th>
+            <th>Poss</th>
+          </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <th>1</th>
+                <td><tt>ULTRA</tt></td>
+                <td><tt>RAISE</tt></td>
+                <td>⬜🟨⬜⬜⬜</td>
+                <td>117</td>
+            </tr>
+            <tr>
+                <th>1</th>
+                <td><tt>BLAST</tt></td>
+                <td><tt>URBAN</tt></td>
+                <td>🟩⬜⬜🟨⬜</td>
+                <td>5</td>
+            </tr>
+                <tr>
+                    <td colspan="5" class="divider"><hr /></td>
+                </tr>
+            <tr>
+                <th>2</th>
+                <td><tt>ULTRA</tt></td>
+                <td><tt>BLAST</tt></td>
+                <td>⬜🟩🟨⬜🟨</td>
+                <td>1</td>
+            </tr>
+            <tr>
+                <th>2</th>
+                <td><tt>BLAST</tt></td>
+                <td><tt>BLAST</tt></td>
+                <td>🟩🟩🟩🟩🟩</td>
+                <td></td>
+            </tr>
+                <tr>
+                    <td colspan="5" class="divider"><hr /></td>
+                </tr>
+            <tr>
+                <th>3</th>
+                <td><tt>ULTRA</tt></td>
+                <td><tt>ULTRA</tt></td>
+                <td>🟩🟩🟩🟩🟩</td>
+                <td></td>
+            </tr>
+        </tbody>
+        </table>
+        """
+
+        # Act
+        actual = sut._repr_html_()
+        actual_sanitised = actual.strip().replace(" ", "")
+        expected_sanitised = expected.strip().replace(" ", "")
+
+        # Assert
+        assert actual_sanitised == expected_sanitised
+
 
 class TestScoreboardPrinter:
     def test_build_string(self) -> None:
