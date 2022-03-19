@@ -100,15 +100,6 @@ class Scoreboard:
         """
         return iter(self.rows)
 
-    def __next__(self) -> ScoreboardRow:
-        """Returns the next row in the scorebaord.
-
-        Returns:
-          ScoreboardRow:
-            The next scoreboard row.
-        """
-        return next(self.rows)  # type: ignore
-
     def __repr__(self) -> str:
         """String representation of a board"""
         return f"Soln={self.rows[0].soln} ({len(self)} guesses)"
