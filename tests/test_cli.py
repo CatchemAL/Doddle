@@ -1,11 +1,58 @@
+from sys import argv
 from unittest.mock import MagicMock, patch
 
 from doddle import cli
+from doddle.controllers import HideController, SolveController
 from doddle.enums import SolverType
 from doddle.words import Word
 
 
 class TestMain:
+    @patch.object(SolveController, "solve")
+    @patch.object(cli, "create_models")
+    def test_cli_with_solve(self, patch_create_models: MagicMock, patch_solve: MagicMock) -> None:
+        # Arrange
+        run_args = ["solve", "--guess=FLAME"]
+
+        expected_guess = Word("FLAME")
+        expected_size = 5
+        expected_solver_type = SolverType.MINIMAX
+        expected_depth = 1
+        expected_extras = [expected_guess]
+
+        return_values = (MagicMock(), MagicMock(), MagicMock(), MagicMock(), MagicMock())
+        patch_create_models.return_value = return_values
+
+        # Act
+        cli.parse_args(run_args)
+
+        # Assert
+        patch_create_models.assert_called_once_with(
+            expected_size, solver_type=expected_solver_type, depth=expected_depth, extras=expected_extras
+        )
+
+        patch_solve.assert_called_once_with(expected_guess)
+
+    @patch.object(HideController, "hide")
+    @patch.object(cli, "create_models")
+    def test_cli_with_hide(self, patch_create_models: MagicMock, patch_hide: MagicMock) -> None:
+        # Arrange
+        run_args = ["hide", "--guess=FLAME"]
+
+        expected_guess = Word("FLAME")
+        expected_size = 5
+        expected_extras = [expected_guess]
+
+        return_values = (MagicMock(), MagicMock(), MagicMock(), MagicMock(), MagicMock())
+        patch_create_models.return_value = return_values
+
+        # Act
+        cli.parse_args(run_args)
+
+        # Assert
+        patch_create_models.assert_called_once_with(expected_size, extras=expected_extras)
+        patch_hide.assert_called_once_with(expected_guess)
+
     @patch.object(cli, "create_engine")
     def test_cli_with_single_run(self, patch_create_engine: MagicMock) -> None:
         # Arrange
@@ -119,3 +166,14 @@ class TestMain:
         )
 
         mock_simul_benchmarker.run_benchmark.assert_called_once_with(expected_guesses, expected_simul)
+
+    @patch.object(cli, "parse_args")
+    def test_main_is_called_with_system_args(self, mock_parse_args: MagicMock) -> None:
+        # Arrange
+        args = argv[1:]
+
+        # Act
+        cli.main()
+
+        # Assert
+        mock_parse_args.assert_called_once_with(args)
