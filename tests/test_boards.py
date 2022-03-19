@@ -18,6 +18,27 @@ class TestScoreboardRow:
         # Assert
         assert actual == expected
 
+    def test_row_to_dict(self) -> None:
+        # Arrange
+        soln = Word("SMOKE")
+        guess = Word("GUESS")
+        score = "00110"
+        num_left = 123
+        sut = ScoreboardRow(3, soln, guess, score, num_left)
+        expected = {
+            "n": 3,
+            "Soln": str(soln),
+            "Guess": str(guess),
+            "Score": score,
+            "Poss": num_left,
+        }
+
+        # Act
+        actual = sut.to_dict(False)
+
+        # Assert
+        assert actual == expected
+
 
 class TestScoreboard:
     def test_emoji_repr(self) -> None:
