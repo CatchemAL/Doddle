@@ -1,7 +1,22 @@
 from colorama import Fore
 
-from doddle.boards import Keyboard, KeyboardPrinter, Scoreboard, ScoreboardPrinter
+from doddle.boards import Keyboard, KeyboardPrinter, Scoreboard, ScoreboardPrinter, ScoreboardRow
 from doddle.words import Word
+
+
+class TestScoreboardRow:
+    def test_row_repr(self) -> None:
+        # Arrange
+        soln = Word("SMOKE")
+        guess = Word("GUESS")
+        sut = ScoreboardRow(3, soln, guess, "00110", 123)
+        expected = "n=3, soln=SMOKE, guess=GUESS, score=00110, num_left=123"
+
+        # Act
+        actual = repr(sut)
+
+        # Assert
+        assert actual == expected
 
 
 class TestScoreboard:
