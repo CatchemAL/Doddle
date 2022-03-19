@@ -1,4 +1,5 @@
 from unittest.mock import MagicMock, patch
+
 from colorama import Fore
 
 from doddle.boards import (
