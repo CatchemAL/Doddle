@@ -1,6 +1,15 @@
+from unittest.mock import MagicMock, patch
 from colorama import Fore
 
-from doddle.boards import Keyboard, KeyboardPrinter, Scoreboard, ScoreboardPrinter, ScoreboardRow
+from doddle.boards import (
+    EmojiScoreboardPrinter,
+    HtmlScoreboardPrinter,
+    Keyboard,
+    KeyboardPrinter,
+    Scoreboard,
+    ScoreboardPrinter,
+    ScoreboardRow,
+)
 from doddle.words import Word
 
 
@@ -209,6 +218,17 @@ class TestScoreboardPrinter:
         # Assert
         assert scoreboard_str == expected
 
+    def test_print_last_round_if_empty(self) -> None:
+        # Arrange
+        sut = ScoreboardPrinter(size=5)
+        scoreboard = Scoreboard()
+
+        # Act
+        expected = sut.print_last_round(scoreboard)
+
+        # Assert
+        assert expected is None
+
 
 class TestKeyboard:
     def test_with_one_update(self) -> None:
@@ -272,3 +292,47 @@ class TestKeyboardPrinter:
 
         # Assert
         assert expected == actual
+
+
+class TestHtmlScoreboardPrinter:
+    @patch.object(HtmlScoreboardPrinter, "build_string")
+    def test_print(self, mock_build_string: MagicMock) -> None:
+        # Arrange
+        sut = HtmlScoreboardPrinter()
+        mocked_printout = "Mocked printout"
+        mock_build_string.return_value = mocked_printout
+        scoreboard = Scoreboard()
+
+        # Act
+        sut.print(scoreboard)
+
+        # Assert
+        mock_build_string.assert_called_once_with(scoreboard)
+
+
+class TestEmojiScoreboardPrinter:
+    @patch.object(EmojiScoreboardPrinter, "build_string")
+    def test_print(self, mock_build_string: MagicMock) -> None:
+        # Arrange
+        sut = EmojiScoreboardPrinter()
+        mocked_printout = "Mocked printout"
+        mock_build_string.return_value = mocked_printout
+        scoreboard = Scoreboard()
+
+        # Act
+        sut.print(scoreboard)
+
+        # Assert
+        mock_build_string.assert_called_once_with(scoreboard)
+
+    def test_build_string(self) -> None:
+        # Arrange
+        sut = EmojiScoreboardPrinter()
+        scoreboard = Scoreboard()
+        expected = ""
+
+        # Act
+        actual = sut.build_string(scoreboard)
+
+        # Assert
+        assert actual == expected
