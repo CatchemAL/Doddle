@@ -1,4 +1,6 @@
-from doddle.words import Word
+import numpy as np
+from doddle.words import Word, WordSeries
+import pytest
 
 
 class TestWords:
@@ -41,7 +43,7 @@ class TestWords:
         joined_chars = "".join(chars)
 
         # Assert
-        assert joined_chars == "SNAKE"
+        assert joined_chars == repr(word)
 
     def test_word_hashing(self) -> None:
         # Arrange
@@ -59,3 +61,92 @@ class TestWords:
         assert word2 in words
         assert word3 in words
         assert word4 in words
+
+
+class TestWordSeries:
+    def test_wordseries_regular_index_slice(self) -> None:
+        # Arrange
+        alphabet = [chr(i + ord("A")) for i in np.arange(0, 26)]
+        series = WordSeries(alphabet)
+        expected_index = np.array([2, 3, 4])
+        expected_words = np.array([Word("C"), Word("D"), Word("E")])
+
+        # Act
+        sliced = series[2:5]
+
+        # Assert
+        assert np.all(sliced.index == expected_index)
+        assert np.all(sliced.words == expected_words)
+
+    def test_wordseries_irregular_index_slice(self) -> None:
+        # Arrange
+        alphabet = [chr(i + ord("A")) for i in np.arange(0, 26)]
+        series = WordSeries(alphabet)[np.arange(2, 26, 3)]
+        expected_index = np.array([8, 11, 14])
+        expected_words = np.array([Word(c) for c in list("ILO")])
+
+        # Act
+        sliced = series[2:5]
+
+        # Assert
+        assert np.all(sliced.index == expected_index)
+        assert np.all(sliced.words == expected_words)
+
+    def test_wordseries_find_index(self) -> None:
+        # Arrange
+        alphabet = [chr(i + ord("A")) for i in np.arange(0, 26)]
+        series = WordSeries(alphabet)
+
+        # Act
+        index1 = series.find_index("C")
+        index2 = series.find_index("N/A")
+        index3 = series.find_index(np.array(["C", "E"]))
+
+        # Assert
+        assert index1 == +2
+        assert index2 == -1
+        assert np.all(index3 == np.array([2, 4]))
+
+    def test_wordseries_contains(self) -> None:
+        # Arrange
+        series = WordSeries(["XYZ", "ABC", "PQR"])
+
+        # Act
+        contains1 = "XYZ" in series
+        contains2 = "abc" in series
+        contains3 = "PQR" in series
+        contains3 = "PQR" in series
+        contains4 = "nah" in series
+        contains1b = Word("XYZ") in series
+        contains2b = Word("abc") in series
+        contains3b = Word("PQR") in series
+        contains4b = Word("nah") in series
+
+        # Assert
+        assert contains1
+        assert contains2
+        assert contains3
+        assert not contains4
+        assert contains1b
+        assert contains2b
+        assert contains3b
+        assert not contains4b
+
+    def test_wordseries_iloc(self) -> None:
+        # Arrange
+        series = WordSeries(["XYZ", "ABC", "PQR"])
+        expected = Word("PQR")
+
+        # Act
+        actual = series.iloc[1]
+
+        # Assert
+        assert actual == expected
+
+    def test_wordseries_iloc_raises_if_not_integer(self) -> None:
+        # Arrange
+        series = WordSeries(["XYZ", "ABC", "PQR"])
+
+        # Act + Assert
+        with pytest.raises(ValueError):
+            series.iloc["ABC"]

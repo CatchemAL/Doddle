@@ -116,7 +116,7 @@ class WordSeries:
         """
         return 0 if len(self) == 0 else len(self.words[0])
 
-    def contains(self, value: str | Word) -> bool:
+    def __contains__(self, value: str | Word) -> bool:
         """Whether the series contains the word
 
         Args:
@@ -125,10 +125,7 @@ class WordSeries:
         Returns:
             bool: Returns True if the word is in the series.
         """
-        word = Word(value)
-        words = cast(Sequence[Word], self.words)
-        pos = bisect_left(words, word)
-        return pos < len(self) and words[pos] == word
+        return self.__find_index(value) >= 0
 
     def find_index(self, word: str | Word | np.ndarray) -> int | np.ndarray:
         """Finds the numerical index associated with a Word in the series.
@@ -167,7 +164,7 @@ class WordSeries:
 
         message = (
             "Indexer must be a slice or logical array. "
-            + "Use series.loc[5] or series['RAISE'] if you need to index by position or word."
+            + "Use series.loc[5] if you need to index by position."
         )
 
         raise ValueError(message)
@@ -197,11 +194,11 @@ class WordSeries:
             return "\n".join(row_strings)
 
     @property
-    def iloc(self) -> _WordLoc:
-        return _WordLoc(self)
+    def iloc(self) -> _iLocIndexer:
+        return _iLocIndexer(self)
 
 
-class _WordLoc:
+class _iLocIndexer:
     def __init__(self, series: WordSeries) -> None:
         self.series = series
 
