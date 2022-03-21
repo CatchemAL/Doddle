@@ -1,6 +1,7 @@
 import numpy as np
-from doddle.words import Word, WordSeries
 import pytest
+
+from doddle.words import Word, WordSeries
 
 
 class TestWords:
