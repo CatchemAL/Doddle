@@ -144,6 +144,23 @@ class TestWordSeries:
         # Assert
         assert actual == expected
 
+    def test_wordseries_repr(self) -> None:
+        # Arrange
+        series = WordSeries(["XYZ", "ABC", "PQR"])
+        expected = "[0]     ABC\n[1]     PQR\n[2]     XYZ"
+
+        alphabet_long = [chr(i + ord("A")) for i in np.arange(0, 26)] * 5
+        series_long = WordSeries(alphabet_long)
+
+        # Act
+        actual_repr = repr(series)
+        actual_str = str(series)
+
+        # Assert
+        assert actual_repr == expected
+        assert actual_str == actual_repr
+        assert repr(series_long) == str(series_long)
+
     def test_wordseries_iloc_raises_if_not_integer(self) -> None:
         # Arrange
         series = WordSeries(["XYZ", "ABC", "PQR"])
