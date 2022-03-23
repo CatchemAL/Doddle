@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from doddle.words import Word, WordSeries
+from doddle.words import Dictionary, Word, WordSeries
 
 
 class TestWords:
@@ -175,4 +175,18 @@ class TestWordSeries:
 
         # Act + Assert
         with pytest.raises(ValueError):
-            series.iloc[["ABC", "XYZ"]]
+            series[["ABC", "XYZ"]]
+
+
+class TestDictionary:
+    def test_wordseries_regular_index_slice(self) -> None:
+        # Arrange
+        all_words = WordSeries(["XYZ", "ABC", "PQR", "DEF"])
+        common_words = WordSeries(["XYZ", "ABC", "DEF"])
+        sut = Dictionary(all_words, common_words)
+
+        # Act
+        actual = sut.word_length
+
+        # Assert
+        assert actual == 3
