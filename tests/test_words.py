@@ -168,3 +168,11 @@ class TestWordSeries:
         # Act + Assert
         with pytest.raises(ValueError):
             series.iloc["ABC"]
+
+    def test_wordseries_indexing_raises(self) -> None:
+        # Arrange
+        series = WordSeries(["XYZ", "ABC", "PQR"])
+
+        # Act + Assert
+        with pytest.raises(ValueError):
+            series.iloc[["ABC", "XYZ"]]
