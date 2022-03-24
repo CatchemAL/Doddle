@@ -116,9 +116,16 @@ class HideView(InputMixin):
 
 class BenchmarkReporter:
     def display(self, histogram: defaultdict[int, int]) -> None:
-        print("| # | Count |")
-        print("|---|-------|")
+        report = self._build_report(histogram)
+        print(report)
+
+    def _build_report(self, histogram: dict[int, int]) -> str:
+        lines: list[str] = []
+        lines.append("| # | Count |")
+        lines.append("|---|-------|")
 
         for (num, count) in sorted(histogram.items()):
             padded_num_left = f"{count:,}".rjust(5, " ")
-            print(f"| {num} | {padded_num_left} |")
+            lines.append(f"| {num} | {padded_num_left} |")
+
+        return "\n".join(lines)
