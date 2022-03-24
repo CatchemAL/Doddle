@@ -1,6 +1,7 @@
 from unittest.mock import MagicMock, patch
 
 import numpy as np
+
 from doddle.guess import MinimaxGuess
 from doddle.histogram import HistogramBuilder, ScoreMatrix, _populate_histogram
 from doddle.scoring import Scorer, from_ternary
