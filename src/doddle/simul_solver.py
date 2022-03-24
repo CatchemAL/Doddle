@@ -47,16 +47,16 @@ class SimulSolver(Generic[TSingleGuess, TSimulGuess], abc.ABC):
 
     @abc.abstractmethod
     def single_guess(self, guess: Word, is_potential_soln: bool, histogram: np.ndarray) -> TSingleGuess:
-        ...
+        ...  # pragma: no cover
 
     @abc.abstractmethod
     def to_simul_guess(self, games: list[Game], single_guesses: tuple[TSingleGuess]) -> TSimulGuess:
-        ...
+        ...  # pragma: no cover
 
     @property
     @abc.abstractmethod
     def all_seeds(self) -> list[Word]:
-        ...
+        ...  # pragma: no cover
 
     def seed(self, size: int) -> Word:
         seed_by_size = {len(word): word for word in self.all_seeds}
@@ -65,7 +65,7 @@ class SimulSolver(Generic[TSingleGuess, TSimulGuess], abc.ABC):
 
 class MinimaxSimulSolver(SimulSolver[MinimaxGuess, MinimaxSimulGuess]):
     def __init__(self, histogram_builder: HistogramBuilder) -> None:
-        self.hist_builder = histogram_builder
+        super().__init__(histogram_builder)
 
     def single_guess(self, guess: Word, is_potential_soln: bool, histogram: np.ndarray) -> MinimaxGuess:
         return MinimaxGuess.from_histogram(guess, is_potential_soln, histogram)
@@ -94,7 +94,7 @@ class MinimaxSimulSolver(SimulSolver[MinimaxGuess, MinimaxSimulGuess]):
 
 class EntropySimulSolver(SimulSolver[EntropyGuess, EntropyGuess]):
     def __init__(self, histogram_builder: HistogramBuilder) -> None:
-        self.hist_builder = histogram_builder
+        super().__init__(histogram_builder)
 
     def single_guess(self, guess: Word, is_potential_soln: bool, histogram: np.ndarray) -> EntropyGuess:
         return EntropyGuess.from_histogram(guess, is_potential_soln, histogram)

@@ -154,7 +154,6 @@ def _populate_histogram(matrix: np.ndarray, row: int, hist: np.ndarray) -> bool:
         idx = matrix[row, j]
         hist[idx] += 1
     is_common: bool = hist[-1] > 0
-    # hist[-1] = 0 # TODO should we zero this out. Pros and cons...
     return is_common
 
 

@@ -10,7 +10,8 @@ from doddle.scoring import Scorer
 from doddle.simul_solver import MinimaxSimulSolver
 from doddle.solver import EntropySolver
 from doddle.views import BenchmarkReporter, RunReporter
-from doddle.words import Word, load_dictionary
+from doddle.words import Word
+from .fake_dictionary import load_test_dictionary
 
 
 class TestEngine:
@@ -19,7 +20,7 @@ class TestEngine:
         # Arrange
         size = 5
         soln = Word("FUNKY")
-        dictionary = load_dictionary(size)
+        dictionary = load_test_dictionary(size)
         scorer = Scorer(size)
         histogram_builder = HistogramBuilder(scorer, dictionary.all_words, dictionary.common_words)
         solver = EntropySolver(histogram_builder)
@@ -43,7 +44,7 @@ class TestEngine:
         # Arrange
         size = 5
         soln = Word("FUNKY")
-        dictionary = load_dictionary(size)
+        dictionary = load_test_dictionary(size)
         scorer = Scorer(size)
         histogram_builder = HistogramBuilder(scorer, dictionary.all_words, dictionary.common_words)
         solver = EntropySolver(histogram_builder)
@@ -69,7 +70,7 @@ class TestSimulEngine:
             Word("TOWER"),
         ]
 
-        dictionary = load_dictionary(size)
+        dictionary = load_test_dictionary(size)
         scorer = Scorer(size)
         histogram_builder = HistogramBuilder(scorer, dictionary.all_words, dictionary.common_words)
         solver = MinimaxSimulSolver(histogram_builder)
@@ -101,7 +102,7 @@ class TestSimulEngine:
             Word("TOWER"),
         ]
 
-        dictionary = load_dictionary(size)
+        dictionary = load_test_dictionary(size)
         scorer = Scorer(size)
         histogram_builder = HistogramBuilder(scorer, dictionary.all_words, dictionary.common_words)
         solver = MinimaxSimulSolver(histogram_builder)
