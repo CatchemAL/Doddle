@@ -66,6 +66,25 @@ class TestDeepMinimaxSolver:
         # Assert
         assert actual.word == expected
 
+    def test_get_best_guess_when_perfectly_partitioned(self) -> None:
+        # Arrange
+        remaining = ["SNAKE", "SPACE", "SHAPE"]
+        expected = Word("SHAPE")
+
+        words = ["BLAST", "TRASH", "CARRY", "NYMPH", "PLANT"] + remaining
+        potential_solns = WordSeries(remaining)
+        all_words = WordSeries(words)
+        histogram_builder = HistogramBuilder(Scorer(), all_words, potential_solns)
+        inner_solver = MinimaxSolver(histogram_builder)
+        sut = DeepMinimaxSolver(histogram_builder, inner_solver)
+
+        # Act
+        actual = sut.get_best_guess(all_words, potential_solns)
+
+        # Assert
+        assert actual.word == expected
+        assert actual.size_of_largest_bucket == 0
+
 
 class TestEntropySolver:
     def test_get_best_guess(self) -> None:
@@ -128,3 +147,22 @@ class TestDeepEntropySolver:
 
         # Assert
         assert actual.word == expected
+
+    def test_get_best_guess_when_perfectly_partitioned(self) -> None:
+        # Arrange
+        remaining = ["SNAKE", "SPACE", "SHAPE"]
+        expected = Word("SHAPE")
+
+        words = ["BLAST", "TRASH", "CARRY", "NYMPH", "PLANT"] + remaining
+        potential_solns = WordSeries(remaining)
+        all_words = WordSeries(words)
+        histogram_builder = HistogramBuilder(Scorer(), all_words, potential_solns)
+        inner_solver = EntropySolver(histogram_builder)
+        sut = DeepEntropySolver(histogram_builder, inner_solver)
+
+        # Act
+        actual = sut.get_best_guess(all_words, potential_solns)
+
+        # Assert
+        assert actual.word == expected
+        assert actual.entropy == float("inf")
