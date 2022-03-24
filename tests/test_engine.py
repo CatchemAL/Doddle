@@ -11,6 +11,7 @@ from doddle.simul_solver import MinimaxSimulSolver
 from doddle.solver import EntropySolver
 from doddle.views import BenchmarkReporter, RunReporter
 from doddle.words import Word
+
 from .fake_dictionary import load_test_dictionary
 
 

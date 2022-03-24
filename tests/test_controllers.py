@@ -9,6 +9,7 @@ from doddle.scoring import Scorer, from_ternary
 from doddle.solver import MinimaxSolver
 from doddle.views import HideView, SolveView
 from doddle.words import Word
+
 from .fake_dictionary import load_test_dictionary
 
 

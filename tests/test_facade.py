@@ -1,8 +1,9 @@
 from unittest.mock import MagicMock, patch
+
 import pytest
 
-from doddle import Doddle
-from doddle import factory
+from doddle import Doddle, factory
+
 from .fake_dictionary import load_test_dictionary
 
 
