@@ -26,7 +26,7 @@ class DoddleGame(Protocol):
         Returns:
             int: Return the number of rounds played to date in the current game.
         """
-        ...
+        ...  # pragma: no cover
 
     def user_guess(self, n: int) -> Word | None:
         """Gets the nth user guess of None if not specified.
@@ -37,7 +37,7 @@ class DoddleGame(Protocol):
         Returns:
             Word | None: The nth user guess or None if not specified.
         """
-        ...
+        ...  # pragma: no cover
 
 
 class Game:
