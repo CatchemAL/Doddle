@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from concurrent.futures import ProcessPoolExecutor
 from typing import Iterable
 from unittest.mock import ANY, MagicMock, patch
