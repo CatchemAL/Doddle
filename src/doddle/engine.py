@@ -148,7 +148,7 @@ class SimulBenchmarker:
     reporter: BenchmarkReporter
 
     def run_benchmark(
-        self, user_guesses: list[Word], num_simul: int, num_runs: int = 10_000
+        self, user_guesses: list[Word], num_simul: int, num_runs: int = 1_000
     ) -> list[SimultaneousGame]:
         """Benchmarks a simul engine given a list of opening guesses.
 
