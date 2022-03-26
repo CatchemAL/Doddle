@@ -16,6 +16,13 @@ source = [
 ]
 
 [tool.pytest.ini_options]
+addopts = "-v"
 filterwarnings = [
     "ignore:.*The 'u' format is deprecated.*:DeprecationWarning", # https://github.com/mhammond/pywin32/issues/1802
 ]
+
+[tool.coverage.run]
+branch = false
+
+[tool.coverage.report]
+skip_covered = false
