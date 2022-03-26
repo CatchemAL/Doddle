@@ -164,7 +164,7 @@ class WordSeries:
 
         message = (
             "Indexer must be a slice or logical array. "
-            + "Use series.loc[5] if you need to index by position."
+            + "Use series.iloc[5] if you need to index by position."
         )
 
         raise ValueError(message)

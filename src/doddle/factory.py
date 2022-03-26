@@ -1,10 +1,10 @@
 from __future__ import annotations
 
-from sqlite3 import NotSupportedError  # TODO
 from typing import Sequence
 
 from .engine import Benchmarker, Engine, SimulBenchmarker, SimulEngine
 from .enums import SolverType
+from .exceptions import SolverNotSupportedError
 from .histogram import HistogramBuilder
 from .scoring import Scorer
 from .simul_solver import EntropySimulSolver, MinimaxSimulSolver, SimulSolver
@@ -119,6 +119,6 @@ def create_models(
         simul_solver = EntropySimulSolver(histogram_builder)
 
     else:
-        raise NotSupportedError(f"Solver type {solver_type} not recognised.")
+        raise SolverNotSupportedError(f"Solver type {solver_type} not recognised.")
 
     return dictionary, scorer, histogram_builder, solver, simul_solver

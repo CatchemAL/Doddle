@@ -9,7 +9,7 @@ import numpy as np
 from .words import Word
 
 
-class Guess(Protocol):
+class Guess(Protocol):  # pragma: no cover
     """Strucural protocol for a guess."""
 
     @property

@@ -1,16 +1,24 @@
-from unittest.mock import patch
+from __future__ import annotations
+
+from concurrent.futures import ProcessPoolExecutor
+from typing import Iterable
+from unittest.mock import ANY, MagicMock, patch
 
 import pytest
 
-from doddle.engine import Benchmarker, Engine, SimulEngine
+from doddle import factory
+from doddle.engine import Engine, SimulEngine
 from doddle.exceptions import FailedToFindASolutionError
+from doddle.game import Game, SimultaneousGame
 from doddle.guess import EntropyGuess, MinimaxGuess
 from doddle.histogram import HistogramBuilder
 from doddle.scoring import Scorer
 from doddle.simul_solver import MinimaxSimulSolver
 from doddle.solver import EntropySolver
-from doddle.views import BenchmarkReporter, RunReporter
-from doddle.words import Word, load_dictionary
+from doddle.views import RunReporter
+from doddle.words import Word, WordSeries
+
+from .fake_dictionary import load_test_dictionary
 
 
 class TestEngine:
@@ -19,7 +27,7 @@ class TestEngine:
         # Arrange
         size = 5
         soln = Word("FUNKY")
-        dictionary = load_dictionary(size)
+        dictionary = load_test_dictionary(size)
         scorer = Scorer(size)
         histogram_builder = HistogramBuilder(scorer, dictionary.all_words, dictionary.common_words)
         solver = EntropySolver(histogram_builder)
@@ -43,7 +51,7 @@ class TestEngine:
         # Arrange
         size = 5
         soln = Word("FUNKY")
-        dictionary = load_dictionary(size)
+        dictionary = load_test_dictionary(size)
         scorer = Scorer(size)
         histogram_builder = HistogramBuilder(scorer, dictionary.all_words, dictionary.common_words)
         solver = EntropySolver(histogram_builder)
@@ -69,7 +77,7 @@ class TestSimulEngine:
             Word("TOWER"),
         ]
 
-        dictionary = load_dictionary(size)
+        dictionary = load_test_dictionary(size)
         scorer = Scorer(size)
         histogram_builder = HistogramBuilder(scorer, dictionary.all_words, dictionary.common_words)
         solver = MinimaxSimulSolver(histogram_builder)
@@ -101,7 +109,7 @@ class TestSimulEngine:
             Word("TOWER"),
         ]
 
-        dictionary = load_dictionary(size)
+        dictionary = load_test_dictionary(size)
         scorer = Scorer(size)
         histogram_builder = HistogramBuilder(scorer, dictionary.all_words, dictionary.common_words)
         solver = MinimaxSimulSolver(histogram_builder)
@@ -116,13 +124,62 @@ class TestSimulEngine:
 
 
 class TestBenchmarker:
-    @patch("doddle.engine.Engine")
-    def test_benchmark(self, mock_engine) -> None:
+    @patch.object(factory, "load_dictionary")
+    @patch.object(ProcessPoolExecutor, "map")
+    def test_benchmark(self, patch_map: MagicMock, patch_load_dictionary: MagicMock) -> None:
+
         # Arrange
-        reporter = BenchmarkReporter()
-        sut = Benchmarker(mock_engine, reporter)
+        def game_factory(f, solns: WordSeries, chunksize: int) -> Iterable[Game]:
+            for soln in solns:
+                game = Game(WordSeries([soln.value]), soln, [])
+                game.is_solved = True
+                game.scoreboard.add_row(1, soln, Word("GUESS"), "20101", 125)
+                game.scoreboard.add_row(2, soln, soln, "22222", 1)
+                yield game
+
+        patch_load_dictionary.return_value = load_test_dictionary()
+        patch_map.side_effect = game_factory
+
+        sut = factory.create_benchmarker(5)
+        solns = sut.engine.dictionary.common_words
 
         # Act
-        sut.run_benchmark([])
+        games = sut.run_benchmark([])
 
         # Assert
+        patch_map.assert_called_once_with(ANY, solns, chunksize=20)
+        assert len(games) == len(solns)
+        assert all((game.is_solved for game in games))
+
+
+class TestSimulBenchmarker:
+    @patch.object(factory, "load_dictionary")
+    @patch.object(ProcessPoolExecutor, "map")
+    def test_benchmark(self, patch_map: MagicMock, patch_load_dictionary: MagicMock) -> None:
+
+        # Arrange
+        num_simul = 4
+        num_runs = 100
+        patch_load_dictionary.return_value = load_test_dictionary()
+
+        sut = factory.create_simul_benchmarker(5)
+        solns = sut.engine.dictionary.common_words
+
+        def game_factory(
+            f, solns_factory: Iterable[list[Word]], chunksize: int
+        ) -> Iterable[SimultaneousGame]:
+
+            for game_solns in solns_factory:
+                game = SimultaneousGame(solns, game_solns, [])
+                game.is_solved = True
+                yield game
+
+        patch_map.side_effect = game_factory
+
+        # Act
+        games = sut.run_benchmark([], num_simul, num_runs)
+
+        # Assert
+        patch_map.assert_called_once_with(ANY, ANY, chunksize=20)
+        assert len(games) == 100
+        assert all((game.is_solved for game in games))

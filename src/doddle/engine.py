@@ -90,7 +90,7 @@ class SimulEngine:
         simul_game = SimultaneousGame(common_words, solns, user_guesses)
         guess = simul_game.user_guess(0) or self.solver.seed(all_words.word_length)
 
-        MAX_ITERS = 25
+        MAX_ITERS = 20 + len(solns)
         for i in range(1, MAX_ITERS + 1):
             for game in simul_game:
                 if game.is_solved:
@@ -118,7 +118,7 @@ class Benchmarker:
     engine: Engine
     reporter: BenchmarkReporter
 
-    def run_benchmark(self, user_guesses: list[Word]) -> None:
+    def run_benchmark(self, user_guesses: list[Word]) -> list[Game]:
         """Benchmarks an engine given a list of user-supplied, opening guesses.
 
         Args:
@@ -129,12 +129,15 @@ class Benchmarker:
 
         total = len(dictionary.common_words)
         histogram: defaultdict[int, int] = defaultdict(int)
-        with ProcessPoolExecutor(max_workers=8) as executor:
-            games = tqdm(executor.map(f, dictionary.common_words), total=total)
-            for game in games:
+        solved_games: list[Game] = []
+        with ProcessPoolExecutor() as executor:
+            games = executor.map(f, dictionary.common_words, chunksize=20)
+            for game in tqdm(games, total=total):
+                solved_games.append(game)
                 histogram[game.rounds] += 1
 
         self.reporter.display(histogram)
+        return solved_games
 
 
 @dataclass
@@ -144,7 +147,9 @@ class SimulBenchmarker:
     engine: SimulEngine
     reporter: BenchmarkReporter
 
-    def run_benchmark(self, user_guesses: list[Word], num_simul: int, num_runs: int = 10_000) -> None:
+    def run_benchmark(
+        self, user_guesses: list[Word], num_simul: int, num_runs: int = 1_000
+    ) -> list[SimultaneousGame]:
         """Benchmarks a simul engine given a list of opening guesses.
 
         Args:
@@ -169,10 +174,13 @@ class SimulBenchmarker:
 
         game_factory = generate_games()
 
+        solved_games: list[SimultaneousGame] = []
         histogram: defaultdict[int, int] = defaultdict(int)
-        with ProcessPoolExecutor(max_workers=8) as executor:
-            games = tqdm(executor.map(f, game_factory), total=num_runs)
-            for game in games:
+        with ProcessPoolExecutor() as executor:
+            games = executor.map(f, game_factory, chunksize=20)
+            for game in tqdm(games, total=num_runs):
+                solved_games.append(game)
                 histogram[game.rounds] += 1
 
         self.reporter.display(histogram)
+        return solved_games
