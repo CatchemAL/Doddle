@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from multiprocessing import current_process
+from multiprocessing.shared_memory import SharedMemory
 from typing import Callable, Iterator, TypeVar
 
 import numpy as np
@@ -103,7 +105,7 @@ class HistogramBuilder:
 
         # First, we precompute the scores for all remaining solutions
         self.score_matrix.precompute(potential_solns)
-        scores = self.score_matrix.storage[:, potential_solns.index]
+        scores = self.score_matrix._storage[:, potential_solns.index]
 
         histogram = self._allocate_histogram_vector(all_words.word_length)
         for i, word in enumerate(all_words):
@@ -157,7 +159,41 @@ def _populate_histogram(matrix: np.ndarray, row: int, hist: np.ndarray) -> bool:
     return is_common
 
 
-class ScoreMatrix:
+class MemoryMappedStorage:
+    def __init__(self, data: np.ndarray) -> None:
+        self.shared_memory = self.create_shared_memory_block(data)
+        self.shape = data.shape
+        self.dtype = data.dtype
+        self._id = id(self)
+        self._process_id = current_process().pid
+
+    @property
+    def _storage(self) -> np.ndarray:
+        return np.ndarray(self.shape, dtype=self.dtype, buffer=self.shared_memory.buf)
+
+    def create_shared_memory_block(self, data: np.ndarray) -> SharedMemory:
+        shared_memory = SharedMemory(create=True, size=data.nbytes)
+
+        # For convenience, create a temporary Numpy wrapper around the data so we can
+        # efficiently copy from the original Numpy buffer to the shared memory buffer
+        tmp: np.ndarray = np.ndarray(shape=data.shape, dtype=data.dtype, buffer=shared_memory.buf)
+        tmp[:] = data[:]
+
+        return shared_memory
+
+    def __del__(self) -> None:
+
+        # Always release the memory associated with the process
+        self.shared_memory.close()
+
+        if self._id == id(self) and self._process_id == current_process().pid:
+            # Completely free the memory if the destructor is being called
+            # on the original storage class. Objects copied into sub-processes
+            # will have different object IDs.
+            self.shared_memory.unlink()
+
+
+class ScoreMatrix(MemoryMappedStorage):
     """
     Internal storage of all words scored against all words.
 
@@ -180,14 +216,16 @@ class ScoreMatrix:
             potential_solns (WordSeries): All words that could be a solution.
             lazy_eval (bool, optional): Whether to perform lazy evaluation. Defaults to True.
         """
+        rows, cols = all_words.index.max() + 1, potential_solns.index.max() + 1
+        storage = np.full((rows, cols), -1, dtype=int)
+
+        self.is_calculated = np.zeros(cols, dtype=bool)
+        self.is_fully_initialized = False
+        super().__init__(storage)
+
         self.scorer = scorer
         self.potential_solns = potential_solns
         self.all_words = all_words
-
-        rows, cols = all_words.index.max() + 1, potential_solns.index.max() + 1
-        self.is_calculated = np.zeros(cols, dtype=bool)
-        self.storage = np.full((rows, cols), -1, dtype=int)
-        self.is_fully_initialized = False
 
         if not lazy_eval:
             self.precompute(potential_solns)
@@ -209,6 +247,6 @@ class ScoreMatrix:
 
         # TODO investigate performance of np.vectorize
         func = np.vectorize(self.scorer.score_word)
-        self.storage[:, solns.index] = func(col_words, row_words).T
+        self._storage[:, solns.index] = func(col_words, row_words).T
         self.is_calculated[solns.index] = True
         self.is_fully_initialized = bool(np.all(self.is_calculated))
