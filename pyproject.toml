@@ -14,3 +14,8 @@ source = [
     "src",
     "*/site-packages"
 ]
+
+[tool.pytest.ini_options]
+filterwarnings = [
+    "ignore:.*The 'u' format is deprecated.*:DeprecationWarning", # https://github.com/mhammond/pywin32/issues/1802
+]
