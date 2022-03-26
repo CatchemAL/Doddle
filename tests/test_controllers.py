@@ -8,7 +8,9 @@ from doddle.histogram import HistogramBuilder
 from doddle.scoring import Scorer, from_ternary
 from doddle.solver import MinimaxSolver
 from doddle.views import HideView, SolveView
-from doddle.words import Word, load_dictionary
+from doddle.words import Word
+
+from .fake_dictionary import load_test_dictionary
 
 
 class TestSolveController:
@@ -18,7 +20,7 @@ class TestSolveController:
 
         # Arrange
         size = 5
-        dictionary = load_dictionary(size)
+        dictionary = load_test_dictionary(size)
         scorer = Scorer(size)
         histogram_builder = HistogramBuilder(scorer, dictionary.all_words, dictionary.common_words)
         solver = MinimaxSolver(histogram_builder)
@@ -64,11 +66,9 @@ class TestSolveController:
             MinimaxGuess(Word("MONTH"), True, 10, 1),
         ]
 
-        # solver.get_best_guess(all_words, available_answers)
-
         # Arrange
         size = 5
-        dictionary = load_dictionary(size)
+        dictionary = load_test_dictionary(size)
         scorer = Scorer(size)
         histogram_builder = HistogramBuilder(scorer, dictionary.all_words, dictionary.common_words)
         solver = MinimaxSolver(histogram_builder)
@@ -89,7 +89,7 @@ class TestHideController:
 
         # Arrange
         size = 5
-        dictionary = load_dictionary(size)
+        dictionary = load_test_dictionary(size)
         scorer = Scorer(size)
         histogram_builder = HistogramBuilder(scorer, dictionary.all_words, dictionary.common_words)
         view = HideView(size)
@@ -99,9 +99,7 @@ class TestHideController:
             Word("SNAKE"),
             Word("MOUNT"),
             Word("CHILD"),
-            Word("ARROW"),
-            Word("BILLY"),
-            Word("FILLY"),
+            Word("VIVID"),
         ]
 
         sut = HideController(dictionary, scorer, histogram_builder, view)

@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from doddle.words import Dictionary, Word, WordSeries
+from doddle.words import Dictionary, Word, WordSeries, load_dictionary
 
 
 class TestWords:
@@ -190,3 +190,27 @@ class TestDictionary:
 
         # Assert
         assert actual == 3
+
+    def test_load_dictionary_official(self) -> None:
+        # Arrange
+        size = 5
+        dictionary = load_dictionary(size)
+
+        # Act
+        all_words, common_words = dictionary.words
+
+        # Assert
+        assert len(all_words) == 12970
+        assert len(common_words) == 2314
+
+    def test_load_dictionary_unofficial(self) -> None:
+        # Arrange
+        size = 6
+        dictionary = load_dictionary(size)
+
+        # Act
+        all_words, common_words = dictionary.words
+
+        # Assert
+        assert len(all_words) == 15787
+        assert len(common_words) == 4563

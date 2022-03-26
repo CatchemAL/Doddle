@@ -9,6 +9,11 @@ from .scoring import from_ternary, to_ternary
 from .words import Word, WordSeries
 
 
+class InputMixin:
+    def get_input(self, prompt: str) -> str:
+        return input(prompt)  # pragma: no cover
+
+
 class RunReporter:
     """Realtime reporter to display progress of a DoddleGame during a solve."""
 
@@ -25,12 +30,12 @@ class RunReporter:
 class NullRunReporter(RunReporter):
     """Null implementation of a RunReporter"""
 
-    def display(self, game: DoddleGame) -> None:
+    def display(self, _: DoddleGame) -> None:
         """Does nothing"""
         pass
 
 
-class SolveView:
+class SolveView(InputMixin):
 
     score_expr = re.compile(r"[0-2]+$")
     word_expr = re.compile(r"^([A-Z]+)=([0-2]+)$")
@@ -55,7 +60,7 @@ class SolveView:
         is_valid = False
 
         while not is_valid:
-            user_response = input(f"Enter score for {guess}:\n")
+            user_response = self.get_input(f"Enter score for {guess}:\n")
             sanitized_response = user_response.upper().replace(" ", "")
             (observed_score, guess, is_valid) = self._parse_response(guess, sanitized_response)
 
@@ -76,7 +81,7 @@ class SolveView:
         return (-1, guess, False)
 
 
-class HideView:
+class HideView(InputMixin):
     def __init__(self, size: int) -> None:
         self.scoreboard = Scoreboard()
         self.keyboard = Keyboard()
@@ -104,16 +109,23 @@ class HideView:
     def get_user_guess(self) -> Word:
         guess = ""
         while len(guess) != self.size or not guess.isalpha():
-            guess = input("Please enter your guess:\n").upper()
+            guess = self.get_input("Please enter your guess:\n").upper()
 
         return Word(guess)
 
 
 class BenchmarkReporter:
     def display(self, histogram: defaultdict[int, int]) -> None:
-        print("| # | Count |")
-        print("|---|-------|")
+        report = self._build_report(histogram)
+        print(report)
+
+    def _build_report(self, histogram: dict[int, int]) -> str:
+        lines: list[str] = []
+        lines.append("| # | Count |")
+        lines.append("|---|-------|")
 
         for (num, count) in sorted(histogram.items()):
             padded_num_left = f"{count:,}".rjust(5, " ")
-            print(f"| {num} | {padded_num_left} |")
+            lines.append(f"| {num} | {padded_num_left} |")
+
+        return "\n".join(lines)

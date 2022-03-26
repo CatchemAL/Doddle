@@ -1,7 +1,12 @@
+from unittest.mock import MagicMock, patch
+
+import numpy as np
+
 from doddle.guess import MinimaxGuess
-from doddle.histogram import HistogramBuilder
+from doddle.histogram import HistogramBuilder, ScoreMatrix, _populate_histogram
 from doddle.scoring import Scorer, from_ternary
 from doddle.words import Word, WordSeries
+from tests.fake_dictionary import load_test_dictionary
 
 
 class TestHistogramBuilder:
@@ -73,3 +78,71 @@ class TestHistogramBuilder:
 
         for g in guesses:
             assert g.is_common_word ^ (g.word == guess)
+
+    def test_populate_histogram(self) -> None:
+        # Arrange
+        matrix = np.array(
+            [
+                [6, 0, 2, 0, 2, 4, 6],
+                [6, 1, 3, 1, 3, 5, 6],
+                [7, 2, 8, 2, 8, 3, 7],
+                [1, 3, 9, 3, 9, 2, 1],
+            ]
+        )
+
+        histogram = np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+        expected = np.array([0, 0, 2, 1, 0, 0, 0, 2, 2, 0])
+
+        # Act
+        is_potential_soln = _populate_histogram.py_func(matrix, 2, histogram)
+
+        # Assert
+        assert not is_potential_soln
+        assert all(histogram == expected)
+
+    def test_populate_histogram_with_potential_soln(self) -> None:
+        # Arrange
+        matrix = np.array(
+            [
+                [6, 0, 2, 0, 2, 4, 6],
+                [6, 1, 3, 1, 3, 5, 6],
+                [7, 2, 8, 2, 8, 3, 7],
+                [1, 3, 9, 3, 9, 2, 1],
+            ]
+        )
+
+        histogram = np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+        expected = np.array([0, 2, 1, 2, 0, 0, 0, 0, 0, 2])
+
+        # Act
+        is_potential_soln = _populate_histogram.py_func(matrix, 3, histogram)
+
+        # Assert
+        assert is_potential_soln
+        assert all(histogram == expected)
+
+
+class TestScoreMatrix:
+    @patch.object(ScoreMatrix, "precompute")
+    def test_create_without_lazy_eval_calls_precompute(self, patch_precompute: MagicMock) -> None:
+        # Arrange
+        scorer = Scorer()
+        all_words, potential_solns = load_test_dictionary().words
+
+        # Act
+        _ = ScoreMatrix(scorer, all_words, potential_solns, lazy_eval=False)
+
+        # Assert
+        patch_precompute.assert_called_once()
+
+    @patch.object(ScoreMatrix, "precompute")
+    def test_create_with_lazy_eval_does_not_precompute(self, patch_precompute: MagicMock) -> None:
+        # Arrange
+        scorer = Scorer()
+        all_words, potential_solns = load_test_dictionary().words
+
+        # Act
+        _ = ScoreMatrix(scorer, all_words, potential_solns, lazy_eval=True)
+
+        # Assert
+        patch_precompute.assert_not_called()

@@ -60,7 +60,7 @@ class Solver(Generic[TGuess], abc.ABC):
         Returns:
             TGuess: The guess object implementing the guess protocol
         """
-        ...
+        ...  # pragma: no cover
 
     @property
     @abc.abstractmethod
@@ -70,7 +70,7 @@ class Solver(Generic[TGuess], abc.ABC):
         Returns:
           list[Word]: The list of all seeds.
         """
-        ...
+        ...  # pragma: no cover
 
     def seed(self, size: int) -> Word:
         """Gets the optimal starting word to use for a given solver
