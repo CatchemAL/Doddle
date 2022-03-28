@@ -1,8 +1,9 @@
 import graphviz
+
+from doddle.enums import SolverType
 from doddle.factory import create_benchmarker
 from doddle.scoring import to_ternary
 from doddle.words import Word
-from doddle.enums import SolverType
 
 SIZE = 5
 
