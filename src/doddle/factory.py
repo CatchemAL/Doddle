@@ -2,7 +2,8 @@ from __future__ import annotations
 
 from typing import Sequence
 
-from .engine import Benchmarker, Engine, SimulBenchmarker, SimulEngine
+from .benchmarking import Benchmarker, SimulBenchmarker
+from .engine import Engine, SimulEngine
 from .enums import SolverType
 from .exceptions import SolverNotSupportedError
 from .histogram import HistogramBuilder

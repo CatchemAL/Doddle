@@ -2,13 +2,13 @@ from __future__ import annotations
 
 from typing import Sequence, Union
 
-from doddle.game import Game, SimultaneousGame
-
+from .benchmarking import Benchmarker, SimulBenchmarker
 from .boards import Scoreboard
-from .engine import Benchmarker, Engine, SimulBenchmarker, SimulEngine
+from .engine import Engine, SimulEngine
 from .enums import SolverType
 from .factory import create_models
-from .views import NullBenchmarkReporter, NullRunReporter, RunReporter
+from .game import Game, SimultaneousGame
+from .views import NullBenchmarkReporter, NullRunReporter
 from .words import Word
 
 WordType = Union[str, Word]

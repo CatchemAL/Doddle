@@ -1,6 +1,6 @@
 from graphviz import Digraph  # type: ignore
 
-from doddle.game import Game
+from .game import Game
 
 
 def digraph(games: list[Game]) -> Digraph:
