@@ -71,7 +71,7 @@ class SimulEngine:
     dictionary: Dictionary
     scorer: Scorer
     histogram_builder: HistogramBuilder
-    solver: SimulSolver
+    solver: SimulSolver[Guess, Guess]
     reporter: RunReporter
 
     def run(self, solns: list[Word], user_guesses: list[Word]) -> SimultaneousGame:

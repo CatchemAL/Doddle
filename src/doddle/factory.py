@@ -98,7 +98,7 @@ def create_models(
     depth: int = 1,
     extras: Sequence[Word] | None = None,
     lazy_eval: bool = True,
-) -> tuple[Dictionary, Scorer, HistogramBuilder, Solver, SimulSolver]:
+) -> tuple[Dictionary, Scorer, HistogramBuilder, Solver[Guess], SimulSolver[Guess, Guess]]:
 
     dictionary = load_dictionary(size, extras=extras)
     all_words, potential_solns = dictionary.words
@@ -107,12 +107,13 @@ def create_models(
     histogram_builder = HistogramBuilder(scorer, all_words, potential_solns, lazy_eval)
 
     solver: Solver[Guess]
+    simul_solver: SimulSolver[Guess, Guess]
     if solver_type == SolverType.MINIMAX:
         minimax_solver = MinimaxSolver(histogram_builder)
         for _ in range(1, depth):
             minimax_solver = DeepMinimaxSolver(histogram_builder, minimax_solver)
         solver = minimax_solver
-        simul_solver: SimulSolver = MinimaxSimulSolver(histogram_builder)
+        simul_solver = MinimaxSimulSolver(histogram_builder)
 
     elif solver_type == SolverType.ENTROPY:
         entropy_solver = EntropySolver(histogram_builder)
