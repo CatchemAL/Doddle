@@ -129,3 +129,11 @@ class BenchmarkReporter:
             lines.append(f"| {num} | {padded_num_left} |")
 
         return "\n".join(lines)
+
+
+class NullBenchmarkReporter(BenchmarkReporter):
+    """Null implementation of a RunReporter"""
+
+    def display(self, _: defaultdict[int, int]) -> None:
+        """Does nothing"""
+        pass

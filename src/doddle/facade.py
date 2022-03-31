@@ -2,11 +2,13 @@ from __future__ import annotations
 
 from typing import Sequence, Union
 
+from doddle.game import Game, SimultaneousGame
+
 from .boards import Scoreboard
-from .engine import Engine, SimulEngine
+from .engine import Benchmarker, Engine, SimulBenchmarker, SimulEngine
 from .enums import SolverType
 from .factory import create_models
-from .views import NullRunReporter, RunReporter
+from .views import NullBenchmarkReporter, NullRunReporter, RunReporter
 from .words import Word
 
 WordType = Union[str, Word]
@@ -56,7 +58,6 @@ class Doddle:
         depth: int = 1,
         extras: Sequence[Word] | Sequence[str] | None = None,
         lazy_eval: bool = True,
-        reporter: RunReporter | None = None,
     ):
         """Initialises a new instance of a Doddle object.
 
@@ -101,9 +102,13 @@ class Doddle:
             lazy_eval=lazy_eval,
         )
 
-        callback = reporter if reporter else NullRunReporter()
+        callback = NullRunReporter()
+        benchmarkReporter = NullBenchmarkReporter()
+
         self.engine = Engine(dictionary, scorer, histogram_builder, solver, callback)
         self.simul_engine = SimulEngine(dictionary, scorer, histogram_builder, simul_solver, callback)
+        self.benchmarker = Benchmarker(self.engine, benchmarkReporter)
+        self.simul_benchmarker = SimulBenchmarker(self.engine, benchmarkReporter)
         self.dictionary = dictionary
 
     def __call__(
@@ -178,6 +183,22 @@ class Doddle:
 
         simul_game = self.simul_engine.run(solns, guesses)
         return simul_game.scoreboard
+
+    def benchmark(self, guess: WordType | Sequence[WordType] | None = None) -> list[Game]:
+        self.benchmarker.engine.histogram_builder.score_matrix.precompute()
+
+        guesses = self.__to_word_list(guess, "guess") if guess else []
+        games = self.benchmarker.run_benchmark(guesses)
+        return games
+
+    def simul_benchmark(
+        self, num_simul: int, num_rounds: int = 1000, guess: WordType | Sequence[WordType] | None = None
+    ) -> list[SimultaneousGame]:
+        self.benchmarker.engine.histogram_builder.score_matrix.precompute()
+
+        guesses = self.__to_word_list(guess, "guess") if guess else []
+        games = self.simul_benchmarker.run_benchmark(guesses, num_simul, num_rounds)
+        return games
 
     @staticmethod
     def __to_word_list(words: WordType | Sequence[WordType] | None, label: str) -> list[Word]:
