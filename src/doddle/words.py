@@ -127,7 +127,7 @@ class WordSeries:
         """
         return self.__find_index(value) >= 0
 
-    def find_index(self, word: str | Word | np.ndarray) -> int | np.ndarray:
+    def find_index(self, word: str | Word | np.ndarray) -> int | np.ndarray:  # TODO @overload
         """Finds the numerical index associated with a Word in the series.
 
         Args:

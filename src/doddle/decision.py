@@ -1,9 +1,11 @@
+from typing import Iterable
+
 from graphviz import Digraph  # type: ignore
 
 from .game import Game
 
 
-def digraph(games: list[Game]) -> Digraph:
+def digraph(games: Iterable[Game]) -> Digraph:
 
     GREY = "#787c7e"
     YELLOW = "#c9b458"
@@ -54,7 +56,7 @@ def digraph(games: list[Game]) -> Digraph:
         digraph.node(path, label=html)
         seen.add(pair)
 
-    scoreboards = [game.scoreboard for game in games]
+    scoreboards = (game.scoreboard for game in games)
     # worst_solve = max(scoreboard.rows[-1].n for scoreboard in scoreboards)
     # scores = [0] * worst_solve
 
