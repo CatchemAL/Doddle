@@ -1,8 +1,5 @@
-from typing import Iterator
-from graphviz import Digraph
-from doddle.boards import Scoreboard  # type: ignore
-from .scoring import from_ternary
-from itertools import groupby
+from graphviz import Digraph  # type: ignore
+
 from doddle.game import Game
 
 

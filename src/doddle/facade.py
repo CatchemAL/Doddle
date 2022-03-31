@@ -108,7 +108,7 @@ class Doddle:
         self.engine = Engine(dictionary, scorer, histogram_builder, solver, callback)
         self.simul_engine = SimulEngine(dictionary, scorer, histogram_builder, simul_solver, callback)
         self.benchmarker = Benchmarker(self.engine, benchmarkReporter)
-        self.simul_benchmarker = SimulBenchmarker(self.engine, benchmarkReporter)
+        self.simul_benchmarker = SimulBenchmarker(self.simul_engine, benchmarkReporter)
         self.dictionary = dictionary
 
     def __call__(
