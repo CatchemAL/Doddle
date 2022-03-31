@@ -3,7 +3,8 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from doddle import factory
-from doddle.engine import Benchmarker, Engine, SimulBenchmarker, SimulEngine
+from doddle.benchmarking import Benchmarker, SimulBenchmarker
+from doddle.engine import Engine, SimulEngine
 from doddle.enums import SolverType
 from doddle.exceptions import SolverNotSupportedError
 from doddle.factory import (
