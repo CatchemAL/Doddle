@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from typing import Sequence
 
+from doddle.guess import Guess
+
 from .engine import Benchmarker, Engine, SimulBenchmarker, SimulEngine
 from .enums import SolverType
 from .exceptions import SolverNotSupportedError
@@ -104,11 +106,12 @@ def create_models(
     scorer = Scorer(size)
     histogram_builder = HistogramBuilder(scorer, all_words, potential_solns, lazy_eval)
 
+    solver: Solver[Guess]
     if solver_type == SolverType.MINIMAX:
         minimax_solver = MinimaxSolver(histogram_builder)
         for _ in range(1, depth):
             minimax_solver = DeepMinimaxSolver(histogram_builder, minimax_solver)
-        solver: Solver = minimax_solver
+        solver = minimax_solver
         simul_solver: SimulSolver = MinimaxSimulSolver(histogram_builder)
 
     elif solver_type == SolverType.ENTROPY:

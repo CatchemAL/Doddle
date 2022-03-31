@@ -11,6 +11,7 @@ from tqdm import tqdm  # type: ignore
 
 from .exceptions import FailedToFindASolutionError
 from .game import Game, SimultaneousGame
+from .guess import Guess
 from .histogram import HistogramBuilder
 from .scoring import Scorer
 from .simul_solver import SimulSolver
@@ -26,7 +27,7 @@ class Engine:
     dictionary: Dictionary
     scorer: Scorer
     histogram_builder: HistogramBuilder
-    solver: Solver
+    solver: Solver[Guess]
     reporter: RunReporter
 
     def run(self, solution: Word, user_guesses: list[Word]) -> Game:
