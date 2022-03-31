@@ -1,20 +1,22 @@
 from __future__ import annotations
 
 import abc
-from typing import Generic, Iterator
+from typing import Generic, Iterator, TypeVar
 
 import numpy as np
 
-from .guess import EntropyGuess, MinimaxGuess
-from .histogram import HistogramBuilder, TGuess, to_histogram
+from .guess import EntropyGuess, Guess, MinimaxGuess
+from .histogram import HistogramBuilder, to_histogram
 from .words import Word, WordSeries
 
+TGuess_co = TypeVar("TGuess_co", bound=Guess, covariant=True)
 
-class Solver(Generic[TGuess], abc.ABC):
+
+class Solver(Generic[TGuess_co], abc.ABC):
     def __init__(self, hist_builder: HistogramBuilder) -> None:
         self.hist_builder = hist_builder
 
-    def get_best_guess(self, all_words: WordSeries, potential_solns: WordSeries) -> TGuess:
+    def get_best_guess(self, all_words: WordSeries, potential_solns: WordSeries) -> TGuess_co:
         """Gets the best guess to play given two lists:
          - the full series of all_words that could possibly be played;
          - the series of potential_solns left to search (i.e. the words that have yet to
@@ -36,7 +38,7 @@ class Solver(Generic[TGuess], abc.ABC):
         all_guesses = self.all_guesses(all_words, potential_solns)
         return min(all_guesses)
 
-    def all_guesses(self, all_words: WordSeries, potential_solns: WordSeries) -> Iterator[TGuess]:
+    def all_guesses(self, all_words: WordSeries, potential_solns: WordSeries) -> Iterator[TGuess_co]:
         """Yields a stream of guesses based on the full universe of available words.
 
         Args:
@@ -49,7 +51,7 @@ class Solver(Generic[TGuess], abc.ABC):
         yield from self.hist_builder.stream(all_words, potential_solns, self._build_guess)
 
     @abc.abstractmethod
-    def _build_guess(self, word: Word, is_potential_soln: bool, histogram: np.ndarray) -> TGuess:
+    def _build_guess(self, word: Word, is_potential_soln: bool, histogram: np.ndarray) -> TGuess_co:
         """Factory method for building a guess from a histogram
 
         Args:
