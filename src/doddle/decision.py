@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING, Iterable
 
 if TYPE_CHECKING:
-    from graphviz import Digraph  # type: ignore
+    from graphviz import Digraph  # type: ignore # pragma: no cover
 
 from .game import Game
 
