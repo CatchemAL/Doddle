@@ -1,7 +1,7 @@
 from unittest.mock import MagicMock, patch
 
 from doddle.scoring import from_ternary
-from doddle.views import BenchmarkReporter, HideView, InputMixin, SolveView
+from doddle.views import BenchmarkReporter, HideView, InputMixin, NullBenchmarkReporter, SolveView
 from doddle.words import Word
 
 
@@ -77,3 +77,16 @@ class TestBenchmarkReporter:
 
         # Assert
         assert actual == expected[1:-1]
+
+
+class TestNullBenchmarkReporter:
+    def test_display_does_nothing(self) -> None:
+        # Arrange
+        histogram = {2: 76, 3: 1000, 4: 1203, 5: 63}
+        sut = NullBenchmarkReporter()
+
+        # Act
+        actual = sut.display(histogram)
+
+        # Assert
+        assert actual is None

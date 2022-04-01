@@ -194,7 +194,7 @@ class Doddle:
     def simul_benchmark(
         self, num_simul: int, num_rounds: int = 1000, guess: WordType | Sequence[WordType] | None = None
     ) -> list[SimultaneousGame]:
-        self.benchmarker.engine.histogram_builder.score_matrix.precompute()
+        self.simul_benchmarker.engine.histogram_builder.score_matrix.precompute()
 
         guesses = self.__to_word_list(guess, "guess") if guess else []
         games = self.simul_benchmarker.run_benchmark(guesses, num_simul, num_rounds)
