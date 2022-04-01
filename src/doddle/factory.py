@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from typing import Sequence
 
+from doddle.guess import Guess
+
 from .benchmarking import Benchmarker, SimulBenchmarker
 from .engine import Engine, SimulEngine
 from .enums import SolverType

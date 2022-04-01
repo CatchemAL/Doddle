@@ -7,7 +7,7 @@ from .boards import Scoreboard
 from .engine import Engine, SimulEngine
 from .enums import SolverType
 from .factory import create_models
-from .game import Game, SimultaneousGame
+from .game import SimultaneousGame
 from .views import NullBenchmarkReporter, NullRunReporter
 from .words import Word
 
