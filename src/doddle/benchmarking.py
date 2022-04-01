@@ -17,7 +17,7 @@ from .views import BenchmarkReporter
 from .words import Word
 
 if typing.TYPE_CHECKING:
-    from graphviz import Digraph  # type: ignore
+    from graphviz import Digraph  # type: ignore # pragma: no cover
 
 
 class __Printer(Protocol):
