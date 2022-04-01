@@ -17,12 +17,12 @@ from .views import BenchmarkReporter
 from .words import Word
 
 if typing.TYPE_CHECKING:
-    from graphviz import Digraph
+    from graphviz import Digraph  # type: ignore
 
 
 class __Printer(Protocol):
     def text(self, value: str) -> None:
-        ...
+        ...  # pragma: no cover
 
 
 @dataclass
@@ -37,7 +37,7 @@ class Benchmark:
     def num_guesses(self) -> int:
         return sum(game.rounds for game in self.games)
 
-    def mean(self) -> int:
+    def mean(self) -> float:
         return self.num_guesses() / self.num_games()
 
     def std(self) -> float:

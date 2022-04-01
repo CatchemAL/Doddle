@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Sequence, Union
 
-from .benchmarking import Benchmarker, SimulBenchmarker
+from .benchmarking import Benchmark, Benchmarker, SimulBenchmarker
 from .boards import Scoreboard
 from .engine import Engine, SimulEngine
 from .enums import SolverType
@@ -184,12 +184,12 @@ class Doddle:
         simul_game = self.simul_engine.run(solns, guesses)
         return simul_game.scoreboard
 
-    def benchmark(self, guess: WordType | Sequence[WordType] | None = None) -> list[Game]:
+    def benchmark(self, guess: WordType | Sequence[WordType] | None = None) -> Benchmark:
         self.benchmarker.engine.histogram_builder.score_matrix.precompute()
 
         guesses = self.__to_word_list(guess, "guess") if guess else []
-        games = self.benchmarker.run_benchmark(guesses)
-        return games
+        benchmark = self.benchmarker.run_benchmark(guesses)
+        return benchmark
 
     def simul_benchmark(
         self, num_simul: int, num_rounds: int = 1000, guess: WordType | Sequence[WordType] | None = None

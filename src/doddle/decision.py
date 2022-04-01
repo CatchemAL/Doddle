@@ -1,11 +1,12 @@
-from typing import Iterable
+from typing import TYPE_CHECKING, Iterable
 
-from graphviz import Digraph  # type: ignore
+if TYPE_CHECKING:
+    from graphviz import Digraph  # type: ignore
 
 from .game import Game
 
 
-def digraph(games: Iterable[Game]) -> Digraph:
+def digraph(games: Iterable[Game]) -> "Digraph":
 
     GREY = "#787c7e"
     YELLOW = "#c9b458"
@@ -108,7 +109,9 @@ def digraph(games: Iterable[Game]) -> Digraph:
     return digraph
 
 
-def _create_digraph() -> Digraph:
+def _create_digraph() -> "Digraph":
+
+    from graphviz import Digraph  # type: ignore
 
     digraph = Digraph(
         "Doddle",
