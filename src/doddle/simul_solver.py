@@ -10,8 +10,8 @@ from .guess import EntropyGuess, Guess, MinimaxGuess, MinimaxSimulGuess
 from .histogram import HistogramBuilder, to_histogram
 from .words import Word, WordSeries
 
-TSingleGuess = TypeVar("TSingleGuess", bound=Guess)
-TSimulGuess = TypeVar("TSimulGuess", bound=Guess)
+TSingleGuess = TypeVar("TSingleGuess", bound=Guess, covariant=True)
+TSimulGuess = TypeVar("TSimulGuess", bound=Guess, covariant=True)
 
 
 class SimulSolver(Generic[TSingleGuess, TSimulGuess], abc.ABC):

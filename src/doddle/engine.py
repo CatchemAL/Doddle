@@ -4,6 +4,7 @@ from dataclasses import dataclass
 
 from .exceptions import FailedToFindASolutionError
 from .game import Game, SimultaneousGame
+from .guess import Guess
 from .histogram import HistogramBuilder
 from .scoring import Scorer
 from .simul_solver import SimulSolver
@@ -19,7 +20,7 @@ class Engine:
     dictionary: Dictionary
     scorer: Scorer
     histogram_builder: HistogramBuilder
-    solver: Solver
+    solver: Solver[Guess]
     reporter: RunReporter
 
     def run(self, solution: Word, user_guesses: list[Word]) -> Game:
@@ -63,7 +64,7 @@ class SimulEngine:
     dictionary: Dictionary
     scorer: Scorer
     histogram_builder: HistogramBuilder
-    solver: SimulSolver
+    solver: SimulSolver[Guess, Guess]
     reporter: RunReporter
 
     def run(self, solns: list[Word], user_guesses: list[Word]) -> SimultaneousGame:
