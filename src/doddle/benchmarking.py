@@ -11,6 +11,7 @@ from typing import Callable, Iterable, Protocol
 
 from tqdm import tqdm  # type: ignore
 
+from .boards import BenchmarkPrinter
 from .engine import Engine, SimulEngine
 from .game import Game, SimultaneousGame
 from .views import BenchmarkReporter
@@ -72,6 +73,8 @@ class Benchmark:
         return f"Benchmark (games={n}, guesses={num_guesses}, mean={mean:.4f})"
 
     def _repr_pretty_(self, p: __Printer, _: bool) -> None:
+        printer = BenchmarkPrinter()
+
         display = """
 1 |                    (1)
 2 | *                 (76)
