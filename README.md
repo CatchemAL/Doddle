@@ -46,12 +46,24 @@ Doddle 5/7
 ⬛⬛⬛⬛⬛⬛ 🟩🟩🟩🟩🟩🟩
 ```
 
+### Beautiful Visualisations 🌴🌴🌴
+Doddle is not a black box. Create beautiful visualisations with just two lines of code that render the entire decision tree of games. Follow the flow diagram to see how Doddle plays a game. You can render the tree for any choice of opening guess, combination of guesses, depth or solver type.
+```python
+benchmark = doddle.benchmark(guess="CRATE")
+benchmark.digraph()
+```
+
+<img src="https://raw.githubusercontent.com/CatchemAl/Doddle/main/images/sample.svg" width="900">
+Note that the full tree has been truncated here for obvious reasons!
+
 ## Install
-You can install Doddle with 
+Install Doddle with 
 
 `$ pip install doddle`
 
 `$ pip install doddle[decision]`       <--- use this if you want awesome decision trees
+
+Doddle strives to keep dependencies to a minimum. For that reason, the decision tree functionality is included as an optional install and adds an additional dependency on [graphviz](https://pypi.org/project/graphviz/). Please note that the GraphViz python package assumes you have the (open-source) GraphViz executable correctly installed on your machine. Please see the graphviz [documentation](https://graphviz.readthedocs.io/en/stable/#installation) for more details.
 
 ## Commands
 Doddle includes three entry points as part of the installation process.
@@ -476,4 +488,9 @@ In the example above, the expected number of Shannon bits is 2.83 which tells us
 The guess with the highest information content, as measured in Shannon bits, is picked. In this case, `THURL` is pretty optimal.
 
 ## Tutorial
-Work through the tutorial [here](https://github.com/CatchemAl/Doddle/tree/main/tutorial) to see Doddle in action!
+Work through the tutorials [here](https://github.com/CatchemAl/Doddle/tree/main/tutorial) to see Doddle in action!
+1. Learn to use Doddle via the API
+2. Run benchmarks and generate trees
+
+
+Happy Doddling!

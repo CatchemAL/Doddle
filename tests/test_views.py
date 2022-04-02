@@ -1,7 +1,7 @@
 from unittest.mock import MagicMock, patch
 
 from doddle.scoring import from_ternary
-from doddle.views import BenchmarkReporter, HideView, InputMixin, SolveView
+from doddle.views import HideView, InputMixin, SolveView
 from doddle.words import Word
 
 
@@ -54,26 +54,3 @@ class TestHideView:
 
         # Assert
         assert word == expected_word
-
-
-class TestBenchmarkReporter:
-    def test_build_report(self) -> None:
-        # Arrange
-        histogram = {2: 76, 3: 1000, 4: 1203, 5: 63}
-
-        expected = """
-| # | Count |
-|---|-------|
-| 2 |    76 |
-| 3 | 1,000 |
-| 4 | 1,203 |
-| 5 |    63 |
-"""
-
-        sut = BenchmarkReporter()
-
-        # Act
-        actual = sut._build_report(histogram)
-
-        # Assert
-        assert actual == expected[1:-1]

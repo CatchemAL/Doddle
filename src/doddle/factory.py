@@ -2,14 +2,17 @@ from __future__ import annotations
 
 from typing import Sequence
 
-from .engine import Benchmarker, Engine, SimulBenchmarker, SimulEngine
+from doddle.guess import Guess
+
+from .benchmarking import Benchmarker, BenchmarkReporter, SimulBenchmarker
+from .engine import Engine, SimulEngine
 from .enums import SolverType
 from .exceptions import SolverNotSupportedError
 from .histogram import HistogramBuilder
 from .scoring import Scorer
 from .simul_solver import EntropySimulSolver, MinimaxSimulSolver, SimulSolver
 from .solver import DeepEntropySolver, DeepMinimaxSolver, EntropySolver, MinimaxSolver, Solver
-from .views import BenchmarkReporter, NullRunReporter, RunReporter
+from .views import NullRunReporter, RunReporter
 from .words import Dictionary, Word, load_dictionary
 
 
@@ -96,7 +99,7 @@ def create_models(
     depth: int = 1,
     extras: Sequence[Word] | None = None,
     lazy_eval: bool = True,
-) -> tuple[Dictionary, Scorer, HistogramBuilder, Solver, SimulSolver]:
+) -> tuple[Dictionary, Scorer, HistogramBuilder, Solver[Guess], SimulSolver[Guess, Guess]]:
 
     dictionary = load_dictionary(size, extras=extras)
     all_words, potential_solns = dictionary.words
@@ -104,12 +107,14 @@ def create_models(
     scorer = Scorer(size)
     histogram_builder = HistogramBuilder(scorer, all_words, potential_solns, lazy_eval)
 
+    solver: Solver[Guess]
+    simul_solver: SimulSolver[Guess, Guess]
     if solver_type == SolverType.MINIMAX:
         minimax_solver = MinimaxSolver(histogram_builder)
         for _ in range(1, depth):
             minimax_solver = DeepMinimaxSolver(histogram_builder, minimax_solver)
-        solver: Solver = minimax_solver
-        simul_solver: SimulSolver = MinimaxSimulSolver(histogram_builder)
+        solver = minimax_solver
+        simul_solver = MinimaxSimulSolver(histogram_builder)
 
     elif solver_type == SolverType.ENTROPY:
         entropy_solver = EntropySolver(histogram_builder)

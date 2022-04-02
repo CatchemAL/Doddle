@@ -12,7 +12,7 @@
             "args": [
                 "run",
                 "--answer=POWER",
-                "--depth=2"
+                "--depth=1"
             ]
         },
         {
