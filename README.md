@@ -53,6 +53,9 @@ benchmark = doddle.benchmark(guess="CRATE")
 benchmark.digraph()
 ```
 
+<img src="https://raw.githubusercontent.com/CatchemAl/Doddle/main/images/sample.svg" width="900">
+Note that the full tree has been truncated here for obvious reasons!
+
 ## Install
 Install Doddle with 
 
@@ -485,4 +488,9 @@ In the example above, the expected number of Shannon bits is 2.83 which tells us
 The guess with the highest information content, as measured in Shannon bits, is picked. In this case, `THURL` is pretty optimal.
 
 ## Tutorial
-Work through the tutorial [here](https://github.com/CatchemAl/Doddle/tree/main/tutorial) to see Doddle in action!
+Work through the tutorials [here](https://github.com/CatchemAl/Doddle/tree/main/tutorial) to see Doddle in action!
+1. Learn to use Doddle via the API
+2. Run benchmarks and generate trees
+
+
+Happy Doddling!
