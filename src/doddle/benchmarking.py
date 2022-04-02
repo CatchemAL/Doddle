@@ -61,6 +61,22 @@ class Benchmark:
 
         return sqrt(variance)
 
+    def to_csv(self, path: str) -> None:
+        def solution(scoreboard: Scoreboard) -> str:
+            return scoreboard.rows[0].soln.value
+
+        ordered_scoreboards = sorted(self.scoreboards, key=solution)
+
+        lines: list[str] = []
+        for scoreboard in ordered_scoreboards:
+            line = ",".join(str(row.guess) for row in scoreboard.rows)
+            lines.append(line)
+
+        contents = "\n".join(lines)
+
+        with open(path, "w") as f:
+            f.write(contents)
+
     def digraph(self, *, predicate: Callable[[Scoreboard], bool] | None = None) -> "Digraph":
 
         if predicate:
