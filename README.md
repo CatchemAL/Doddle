@@ -10,15 +10,16 @@
 [![Tutorial](https://img.shields.io/badge/doddle-tutorial-orange?logo=jupyter)](https://github.com/CatchemAl/Doddle/blob/main/tutorial/Getting%20Started.ipynb)
 
 ### Command line Interface Features
-Doddle exposes three entry points via the command line:
+Doddle exposes four entry points via the command line: `run`, `solve`, `hide`, `benchmark`
 1)  **Run** the solver to see how the game is optimally played
 2) **Solve** a game in realtime using Doddle's solver
 3) Play a variation of the game where the solver attempts to **hide** the answer from you for as long as possible (inspired by [Absurdle](https://qntm.org/files/absurdle/absurdle.html))
+4) **Benchmark** Doddle against the entire dictionary to see how well it performs
 
 The commands can be run with additional parameters:
 - Play using words of length 4-9 (inclusive) by adding the optional `--size` parameter (default is 5).
 - Choose your solver using the `--solver=ENTROPY` or `--solver=MINIMAX` parameter (default is minimax)
-- Run deep searches using the depth parameter (default is 1)
+- Run deep searches using the `--depth` parameter (default is 1)
 - Solve multiple games of Wordle at the same time. This mode is inspired by popular spin-offs such as [Dordle](https://zaratustra.itch.io/dordle), [Quordle](https://www.quordle.com/#/) and [Octordle](https://octordle.com/). Playing multiple games with Doddle is easy: just add more answers to the run command `doddle run --answer=ULTRA,QUICK,SOLVE` and Doddle will solve them all at the same time.
 
 ### A Clean API
@@ -26,7 +27,7 @@ Doddle exposes a tonne of features, packed behind a simple API. Wanna play two s
 ```python
 from doddle import Doddle
 doddle = Doddle(size=6)
-scoreboard = doddle(answer=['THOUGH', 'FUSION'], guess='PRAYER')
+scoreboard = doddle(answer=["THOUGH", "FUSION"], guess="PRAYER")
 ```
 Want custom emojis to show how the solver performed?
 ```python
@@ -49,6 +50,8 @@ Doddle 5/7
 You can install Doddle with 
 
 `$ pip install doddle`
+
+`$ pip install doddle[decision]`       <--- use this if you want awesome decision trees
 
 ## Commands
 Doddle includes three entry points as part of the installation process.
@@ -120,8 +123,36 @@ Hide is a spin on the conventional Wordle game. Here, Doddle uses its solver to 
 
 <img src="https://raw.githubusercontent.com/CatchemAl/Doddle/main/images/DoddleHide.png" width="350">
 
-
 Similar to the original Wordle game, a keyboard is rendered to display what characters have been guessed so far.
+
+### Benchmark
+```ruby
+doddle benchmark
+doddle benchmark --guess=CRATE
+doddle benchmark --guess=CRATE --solver=ENTROPY
+doddle benchmark --guess=SOLUTION,STRENGTH --solver=ENTROPY
+doddle benchmark --guess=MIND --solver=MINIMAX --depth=2
+doddle benchmark --simul=4
+```
+Doddle comes with inbuilt benchmarking capabilities. This allows you to run a configuration of Doddle (e.g. starting guess, solver type, depth etc.) against all words in the dictionary. To benchmark an octordle stlye game (eight simultaneous games), simply add `--simul=8`.
+
+Doddle is built with performance in mind: a simple 5-letter game under minimax will complete in about 27 seconds on my machine (specs + timings may vary). See how your favourite starting word performs against every word in the dictionary:
+
+```
+>>> doddle benchmark --guess=CRATE --solver=ENTROPY
+
+1 |                                                         (1)
+2 | ***                                                    (83)
+3 | **************************************************  (1,204)
+4 | ****************************************              (968)
+5 | **                                                     (58)
+
+Guess:    CRATE
+Games:    2,314
+Guesses:  7,941
+Mean:     3.432
+Std:      0.608
+```
 
 ## Calling Doddle from Python
 
@@ -129,7 +160,7 @@ In addition to running Doddle via the command line, Doddle exposes an intuitive 
 ```python
 from doddle import Doddle
 doddle = Doddle()
-scoreboard = doddle(answer='FLAME')
+scoreboard = doddle(answer="FLAME")
 scoreboard
 ```
 IPython compatible tools such as Jupyter Lab inherently understand Doddle objects and will render them in rich HTML. Simply returning the scoreboard above will render the below:
@@ -182,7 +213,7 @@ doddle = Doddle(lazy_eval=False)
 ```
 This will take a few seconds to initialise, but subsequent solves will be materially faster. To play a 'quordle' style game, with two guesses of your choice, simply call:
 ```python
-scoreboard = doddle(answer=['FLAME','SNAKE','BLAST','CRAVE'], guess=['SHALE','IRATE'])
+scoreboard = doddle(answer=["FLAME","SNAKE","BLAST","CRAVE"], guess=["SHALE","IRATE"])
 emojis = scoreboard.emoji()
 print(emojis)
 ```
