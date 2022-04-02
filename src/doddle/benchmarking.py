@@ -11,6 +11,7 @@ from typing import Callable, Iterable, Protocol
 
 from tqdm import tqdm  # type: ignore
 
+from .decision import GraphBuilder
 from .engine import Engine, SimulEngine
 from .game import Game, SimultaneousGame
 from .views import BenchmarkReporter
@@ -51,13 +52,14 @@ class Benchmark:
         return sqrt(variance)
 
     def digraph(self, *, predicate: Callable[[Game], bool] | None = None) -> "Digraph":
-        from .decision import digraph
 
         if predicate:
             filtered_games = filter(predicate, self.games)
-            return digraph(filtered_games)
+            builder = GraphBuilder(filtered_games)
+        else:
+            builder = GraphBuilder(self.games)
 
-        return digraph(self.games)
+        return builder.build()
 
     @property
     def opening_guess(self) -> Word:

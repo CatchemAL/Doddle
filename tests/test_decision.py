@@ -1,7 +1,7 @@
 from doddle.decision import _create_digraph
 
 
-def test_create_digraph() -> None:
+def _test_create_digraph() -> None:
     # Arrange
     expected = """
 digraph Doddle {

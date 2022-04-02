@@ -2,13 +2,13 @@ from __future__ import annotations
 
 from concurrent.futures import ProcessPoolExecutor
 from typing import Iterable
-from unittest import mock
 from unittest.mock import ANY, MagicMock, PropertyMock, patch
 
 import pytest
 
-from doddle import decision, factory
+from doddle import benchmarking, decision, factory
 from doddle.benchmarking import Benchmark, BenchmarkPrinter
+from doddle.decision import GraphBuilder
 from doddle.game import Game, SimultaneousGame
 from doddle.words import Word, WordSeries
 
@@ -95,8 +95,8 @@ class TestBenchmark:
         # Assert
         mock_printer.text.assert_called_once_with(expected)
 
-    @patch.object(decision, "digraph")
-    def test_digraph(self, mock_digraph: MagicMock) -> None:
+    @patch.object(benchmarking, "GraphBuilder")
+    def test_digraph(self, mock_builder: MagicMock) -> None:
         # Arrange
         def game_factory(solns: WordSeries) -> Iterable[Game]:
             for soln in solns:
@@ -116,10 +116,10 @@ class TestBenchmark:
         sut.digraph()
 
         # Assert
-        mock_digraph.assert_called_once_with(games)
+        mock_builder.assert_called_once_with(games)
 
-    @patch.object(decision, "digraph")
-    def test_digraph_with_filter(self, mock_digraph: MagicMock) -> None:
+    @patch.object(benchmarking, "GraphBuilder")
+    def test_digraph_with_filter(self, mock_builder: MagicMock) -> None:
         # Arrange
         def game_factory(solns: WordSeries) -> Iterable[Game]:
             for soln in solns:
@@ -144,7 +144,7 @@ class TestBenchmark:
         sut.digraph(predicate=some_filter)
 
         # Assert
-        assert len(list(mock_digraph.call_args[0][0])) == len(game_words)
+        assert len(list(mock_builder.call_args[0][0])) == len(game_words)
 
 
 class TestBenchmarker:
