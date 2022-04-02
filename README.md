@@ -46,12 +46,21 @@ Doddle 5/7
 ⬛⬛⬛⬛⬛⬛ 🟩🟩🟩🟩🟩🟩
 ```
 
+### Beautiful Visualisations 🌴🌴🌴
+Doddle is not a black box. Create beautiful visualisations with just two lines of code that render the entire decision tree of games. Follow the flow diagram to see how Doddle plays a game. You can render the tree for any choice of opening guess, combination of guesses, depth or solver type.
+```python
+benchmark = doddle.benchmark(guess="CRATE")
+benchmark.digraph()
+```
+
 ## Install
-You can install Doddle with 
+Install Doddle with 
 
 `$ pip install doddle`
 
 `$ pip install doddle[decision]`       <--- use this if you want awesome decision trees
+
+Doddle strives to keep dependencies to a minimum. For that reason, the decision tree functionality is included as an optional install and adds an additional dependency on [graphviz](https://pypi.org/project/graphviz/). Please note that the GraphViz python package assumes you have the (open-source) GraphViz executable correctly installed on your machine. Please see the graphviz [documentation](https://graphviz.readthedocs.io/en/stable/#installation) for more details.
 
 ## Commands
 Doddle includes three entry points as part of the installation process.
