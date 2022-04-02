@@ -1,0 +1,140 @@
+digraph Doddle {
+	graph [dpi=60 fontname="Courier New" label="
+Made with <3 using Doddle (https://pypi.org/project/doddle)" labelloc=b rankdir=LR]
+	node [fontname="Courier New" shape=plaintext]
+	edge [arrowhead=vee color=cadetblue]
+	g1 [label=CRATE]
+	01011 [label=<
+            <table border="0" cellborder="0" cellspacing="2">
+                <tr>
+                    <td bgcolor="#787c7e" width="22" height="22"><font face="Helvetica" color="white">C</font></td>
+                    <td bgcolor="#c9b458" width="22" height="22"><font face="Helvetica" color="white">R</font></td>
+                    <td bgcolor="#787c7e" width="22" height="22"><font face="Helvetica" color="white">A</font></td>
+                    <td bgcolor="#c9b458" width="22" height="22"><font face="Helvetica" color="white">T</font></td>
+                    <td bgcolor="#c9b458" width="22" height="22"><font face="Helvetica" color="white">E</font></td>
+                </tr>
+            </table>>]
+	g1 -> 01011
+	"01011-g2" [label=TETRI]
+	01011 -> "01011-g2"
+	"01011-21010" [label=<
+            <table border="0" cellborder="0" cellspacing="2">
+                <tr>
+                    <td bgcolor="#6aaa64" width="22" height="22"><font face="Helvetica" color="white">T</font></td>
+                    <td bgcolor="#c9b458" width="22" height="22"><font face="Helvetica" color="white">E</font></td>
+                    <td bgcolor="#787c7e" width="22" height="22"><font face="Helvetica" color="white">T</font></td>
+                    <td bgcolor="#c9b458" width="22" height="22"><font face="Helvetica" color="white">R</font></td>
+                    <td bgcolor="#787c7e" width="22" height="22"><font face="Helvetica" color="white">I</font></td>
+                </tr>
+            </table>>]
+	"01011-g2" -> "01011-21010"
+	"01011-21010-g3" [label=THREW]
+	"01011-21010" -> "01011-21010-g3"
+	"01011-21010-20121" [label=<
+            <table border="0" cellborder="0" cellspacing="2">
+                <tr>
+                    <td bgcolor="#6aaa64" width="22" height="22"><font face="Helvetica" color="white">T</font></td>
+                    <td bgcolor="#787c7e" width="22" height="22"><font face="Helvetica" color="white">H</font></td>
+                    <td bgcolor="#c9b458" width="22" height="22"><font face="Helvetica" color="white">R</font></td>
+                    <td bgcolor="#6aaa64" width="22" height="22"><font face="Helvetica" color="white">E</font></td>
+                    <td bgcolor="#c9b458" width="22" height="22"><font face="Helvetica" color="white">W</font></td>
+                </tr>
+            </table>>]
+	"01011-21010-g3" -> "01011-21010-20121"
+	"01011-21010-20121-g4" [label=TOWER]
+	"01011-21010-20121" -> "01011-21010-20121-g4"
+	"01011-21010-20121-22222" [label=<
+            <table border="0" cellborder="0" cellspacing="2">
+                <tr>
+                    <td bgcolor="#6aaa64" width="22" height="22"><font face="Helvetica" color="white">T</font></td>
+                    <td bgcolor="#6aaa64" width="22" height="22"><font face="Helvetica" color="white">O</font></td>
+                    <td bgcolor="#6aaa64" width="22" height="22"><font face="Helvetica" color="white">W</font></td>
+                    <td bgcolor="#6aaa64" width="22" height="22"><font face="Helvetica" color="white">E</font></td>
+                    <td bgcolor="#6aaa64" width="22" height="22"><font face="Helvetica" color="white">R</font></td>
+                </tr>
+            </table>>]
+	"01011-21010-20121-g4" -> "01011-21010-20121-22222"
+	"01011-g2" [label=SOLID]
+	"01011-21010" [label=<
+            <table border="0" cellborder="0" cellspacing="2">
+                <tr>
+                    <td bgcolor="#6aaa64" width="22" height="22"><font face="Helvetica" color="white">S</font></td>
+                    <td bgcolor="#c9b458" width="22" height="22"><font face="Helvetica" color="white">O</font></td>
+                    <td bgcolor="#787c7e" width="22" height="22"><font face="Helvetica" color="white">L</font></td>
+                    <td bgcolor="#c9b458" width="22" height="22"><font face="Helvetica" color="white">I</font></td>
+                    <td bgcolor="#787c7e" width="22" height="22"><font face="Helvetica" color="white">D</font></td>
+                </tr>
+            </table>>]
+	"01011-21010-g3" [label=WOOLY]
+	"01011-21010-20121" [label=<
+            <table border="0" cellborder="0" cellspacing="2">
+                <tr>
+                    <td bgcolor="#6aaa64" width="22" height="22"><font face="Helvetica" color="white">W</font></td>
+                    <td bgcolor="#787c7e" width="22" height="22"><font face="Helvetica" color="white">O</font></td>
+                    <td bgcolor="#c9b458" width="22" height="22"><font face="Helvetica" color="white">O</font></td>
+                    <td bgcolor="#6aaa64" width="22" height="22"><font face="Helvetica" color="white">L</font></td>
+                    <td bgcolor="#c9b458" width="22" height="22"><font face="Helvetica" color="white">Y</font></td>
+                </tr>
+            </table>>]
+	"01011-21010-20121-g4" [label=LOWLY]
+	"01011-21010-20121-22222" [label=<
+            <table border="0" cellborder="0" cellspacing="2">
+                <tr>
+                    <td bgcolor="#6aaa64" width="22" height="22"><font face="Helvetica" color="white">L</font></td>
+                    <td bgcolor="#6aaa64" width="22" height="22"><font face="Helvetica" color="white">O</font></td>
+                    <td bgcolor="#6aaa64" width="22" height="22"><font face="Helvetica" color="white">W</font></td>
+                    <td bgcolor="#6aaa64" width="22" height="22"><font face="Helvetica" color="white">L</font></td>
+                    <td bgcolor="#6aaa64" width="22" height="22"><font face="Helvetica" color="white">Y</font></td>
+                </tr>
+            </table>>]
+	00202 [label=<
+            <table border="0" cellborder="0" cellspacing="2">
+                <tr>
+                    <td bgcolor="#787c7e" width="22" height="22"><font face="Helvetica" color="white">C</font></td>
+                    <td bgcolor="#787c7e" width="22" height="22"><font face="Helvetica" color="white">R</font></td>
+                    <td bgcolor="#6aaa64" width="22" height="22"><font face="Helvetica" color="white">A</font></td>
+                    <td bgcolor="#787c7e" width="22" height="22"><font face="Helvetica" color="white">T</font></td>
+                    <td bgcolor="#6aaa64" width="22" height="22"><font face="Helvetica" color="white">E</font></td>
+                </tr>
+            </table>>]
+	g1 -> 00202
+	"00202-g2" [label=SLUNG]
+	00202 -> "00202-g2"
+	"00202-20000" [label=<
+            <table border="0" cellborder="0" cellspacing="2">
+                <tr>
+                    <td bgcolor="#6aaa64" width="22" height="22"><font face="Helvetica" color="white">S</font></td>
+                    <td bgcolor="#787c7e" width="22" height="22"><font face="Helvetica" color="white">L</font></td>
+                    <td bgcolor="#787c7e" width="22" height="22"><font face="Helvetica" color="white">U</font></td>
+                    <td bgcolor="#787c7e" width="22" height="22"><font face="Helvetica" color="white">N</font></td>
+                    <td bgcolor="#787c7e" width="22" height="22"><font face="Helvetica" color="white">G</font></td>
+                </tr>
+            </table>>]
+	"00202-g2" -> "00202-20000"
+	"00202-20000-g3" [label=AMPED]
+	"00202-20000" -> "00202-20000-g3"
+	"00202-20000-10110" [label=<
+            <table border="0" cellborder="0" cellspacing="2">
+                <tr>
+                    <td bgcolor="#c9b458" width="22" height="22"><font face="Helvetica" color="white">A</font></td>
+                    <td bgcolor="#787c7e" width="22" height="22"><font face="Helvetica" color="white">M</font></td>
+                    <td bgcolor="#c9b458" width="22" height="22"><font face="Helvetica" color="white">P</font></td>
+                    <td bgcolor="#c9b458" width="22" height="22"><font face="Helvetica" color="white">E</font></td>
+                    <td bgcolor="#787c7e" width="22" height="22"><font face="Helvetica" color="white">D</font></td>
+                </tr>
+            </table>>]
+	"00202-20000-g3" -> "00202-20000-10110"
+	"00202-20000-10110-g4" [label=LOWLY]
+	"00202-20000-10110" -> "00202-20000-10110-g4"
+	"00202-20000-10110-22222" [label=<
+            <table border="0" cellborder="0" cellspacing="2">
+                <tr>
+                    <td bgcolor="#6aaa64" width="22" height="22"><font face="Helvetica" color="white">L</font></td>
+                    <td bgcolor="#6aaa64" width="22" height="22"><font face="Helvetica" color="white">O</font></td>
+                    <td bgcolor="#6aaa64" width="22" height="22"><font face="Helvetica" color="white">W</font></td>
+                    <td bgcolor="#6aaa64" width="22" height="22"><font face="Helvetica" color="white">L</font></td>
+                    <td bgcolor="#6aaa64" width="22" height="22"><font face="Helvetica" color="white">Y</font></td>
+                </tr>
+            </table>>]
+	"00202-20000-10110-g4" -> "00202-20000-10110-22222"
+}

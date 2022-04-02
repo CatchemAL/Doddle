@@ -165,7 +165,7 @@ class TestEntropyGuess:
         assert not is_better
         assert is_worse
 
-    def test_entropy_guess_where_all_same_sorts_alphabetically(self) -> None:
+    def test_entropy_add_entropy_from_second_guess(self) -> None:
         # Arrange
         word = Word("SNAKE")
         guess = EntropyGuess(word, False, 5)

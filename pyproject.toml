@@ -26,3 +26,6 @@ branch = false
 
 [tool.coverage.report]
 skip_covered = false
+
+[tool.mypy]
+plugins = "numpy.typing.mypy_plugin"

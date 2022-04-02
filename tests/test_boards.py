@@ -51,7 +51,7 @@ class TestScoreboardRow:
 
 
 class TestScoreboard:
-    def test_emoji_repr(self) -> None:
+    def test_emoji_repr_single(self) -> None:
         # Arrange
         sut = Scoreboard()
 
@@ -90,7 +90,7 @@ class TestScoreboard:
         # Assert
         assert actual == expected
 
-    def test_emoji_repr(self) -> None:
+    def test_emoji_repr_dordle(self) -> None:
         # Arrange
         sut = Scoreboard()
 

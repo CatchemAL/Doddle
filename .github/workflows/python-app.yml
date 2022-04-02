@@ -46,6 +46,7 @@ jobs:
     
     - name: Test with pytest
       run: |
+        pip install .[decision]
         pip install pytest-cov
         pytest --cov=doddle --cov-report=term:skip-covered --cov-report=xml tests/
 
