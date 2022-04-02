@@ -1,8 +1,9 @@
+import os
+from pathlib import Path
+
 from doddle.decision import GraphBuilder
 from doddle.game import Game
 from doddle.words import Word, WordSeries
-from pathlib import Path
-import os
 
 
 def test_create_digraph() -> None:
