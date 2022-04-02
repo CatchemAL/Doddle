@@ -1,9 +1,10 @@
 from typing import TYPE_CHECKING, Iterable
 
+from doddle.boards import Scoreboard
+
 if TYPE_CHECKING:
     from graphviz import Digraph  # type: ignore # pragma: no cover
 
-from .game import Game
 
 GREY = "#787c7e"
 YELLOW = "#c9b458"
@@ -11,16 +12,15 @@ GREEN = "#6aaa64"
 
 
 class GraphBuilder:
-    def __init__(self, games: Iterable[Game]) -> None:
+    def __init__(self, scoreboards: Iterable[Scoreboard]) -> None:
         self.color_by_score = [GREY, YELLOW, GREEN]
         self.seen: set[tuple[str, str]] = set()
         self.digraph = self._create_digraph()
-        self.games = games
+        self.scoreboards = scoreboards
 
     def build(self) -> "Digraph":
 
-        scoreboards = (game.scoreboard for game in self.games)
-        for scoreboard in scoreboards:
+        for scoreboard in self.scoreboards:
             scores = ""
             prev_score_path = ""
             for row in scoreboard.rows:

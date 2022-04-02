@@ -2,13 +2,12 @@ from __future__ import annotations
 
 from typing import Sequence, Union
 
-from .benchmarking import Benchmark, Benchmarker, SimulBenchmarker
+from .benchmarking import Benchmark, Benchmarker, NullBenchmarkReporter, SimulBenchmarker
 from .boards import Scoreboard
 from .engine import Engine, SimulEngine
 from .enums import SolverType
 from .factory import create_models
-from .game import SimultaneousGame
-from .views import NullBenchmarkReporter, NullRunReporter
+from .views import NullRunReporter
 from .words import Word
 
 WordType = Union[str, Word]
@@ -193,12 +192,12 @@ class Doddle:
 
     def simul_benchmark(
         self, num_simul: int, num_rounds: int = 1000, guess: WordType | Sequence[WordType] | None = None
-    ) -> list[SimultaneousGame]:
+    ) -> Benchmark:
         self.simul_benchmarker.engine.histogram_builder.score_matrix.precompute()
 
         guesses = self.__to_word_list(guess, "guess") if guess else []
-        games = self.simul_benchmarker.run_benchmark(guesses, num_simul, num_rounds)
-        return games
+        benchmark = self.simul_benchmarker.run_benchmark(guesses, num_simul, num_rounds)
+        return benchmark
 
     @staticmethod
     def __to_word_list(words: WordType | Sequence[WordType] | None, label: str) -> list[Word]:

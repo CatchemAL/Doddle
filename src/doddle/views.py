@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import re
-from collections import defaultdict
 
 from .boards import Keyboard, KeyboardPrinter, Scoreboard, ScoreboardPrinter
 from .game import DoddleGame
@@ -112,28 +111,3 @@ class HideView(InputMixin):
             guess = self.get_input("Please enter your guess:\n").upper()
 
         return Word(guess)
-
-
-class BenchmarkReporter:
-    def display(self, histogram: defaultdict[int, int]) -> None:
-        report = self._build_report(histogram)
-        print(report)
-
-    def _build_report(self, histogram: dict[int, int]) -> str:
-        lines: list[str] = []
-        lines.append("| # | Count |")
-        lines.append("|---|-------|")
-
-        for (num, count) in sorted(histogram.items()):
-            padded_num_left = f"{count:,}".rjust(5, " ")
-            lines.append(f"| {num} | {padded_num_left} |")
-
-        return "\n".join(lines)
-
-
-class NullBenchmarkReporter(BenchmarkReporter):
-    """Null implementation of a RunReporter"""
-
-    def display(self, _: defaultdict[int, int]) -> None:
-        """Does nothing"""
-        pass

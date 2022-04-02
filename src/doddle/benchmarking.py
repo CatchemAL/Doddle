@@ -7,18 +7,21 @@ from concurrent.futures import ProcessPoolExecutor
 from dataclasses import dataclass
 from functools import partial
 from math import sqrt
-from typing import Callable, Iterable, Protocol
+from typing import Callable, Iterable, Protocol, TypeVar
 
 from tqdm import tqdm  # type: ignore
 
+from doddle.boards import Scoreboard
+
 from .decision import GraphBuilder
 from .engine import Engine, SimulEngine
-from .game import Game, SimultaneousGame
-from .views import BenchmarkReporter
+from .game import DoddleGame, Game, SimultaneousGame
 from .words import Word
 
 if typing.TYPE_CHECKING:
     from graphviz import Digraph  # type: ignore # pragma: no cover
+
+TGame = TypeVar("TGame", bound=DoddleGame, covariant=True)
 
 
 class __Printer(Protocol):
@@ -30,7 +33,14 @@ class __Printer(Protocol):
 class Benchmark:
     guesses: list[Word]
     histogram: dict[int, int]
-    games: list[Game]
+    scoreboards: list[Scoreboard]
+
+    @property
+    def opening_guess(self) -> Word:
+        if self.guesses:
+            return self.guesses[0]
+
+        return self.scoreboards[0].rows[0].guess
 
     def num_games(self) -> int:
         return sum(self.histogram.values())
@@ -51,23 +61,15 @@ class Benchmark:
 
         return sqrt(variance)
 
-    def digraph(self, *, predicate: Callable[[Game], bool] | None = None) -> "Digraph":
+    def digraph(self, *, predicate: Callable[[Scoreboard], bool] | None = None) -> "Digraph":
 
         if predicate:
-            filtered_games = filter(predicate, self.games)
+            filtered_games = filter(predicate, self.scoreboards)
             builder = GraphBuilder(filtered_games)
         else:
-            builder = GraphBuilder(self.games)
+            builder = GraphBuilder(self.scoreboards)
 
         return builder.build()
-
-    @property
-    def opening_guess(self) -> Word:
-        if self.guesses:
-            return self.guesses[0]
-
-        first_game = self.games[0]
-        return first_game.scoreboard.rows[0].guess
 
     def __repr__(self) -> str:
         n = self.num_games()
@@ -106,8 +108,10 @@ class Benchmarker:
                 solved_games.append(game)
                 histogram[game.rounds] += 1
 
-        self.reporter.display(histogram)
-        return Benchmark(user_guesses, histogram, solved_games)
+        scoreboards = [game.scoreboard for game in solved_games]
+        benchmark = Benchmark(user_guesses, histogram, scoreboards)
+        self.reporter.display(benchmark)
+        return benchmark
 
 
 @dataclass
@@ -119,7 +123,7 @@ class SimulBenchmarker:
 
     def run_benchmark(
         self, user_guesses: list[Word], num_simul: int, num_runs: int = 1_000
-    ) -> list[SimultaneousGame]:
+    ) -> Benchmark:
         """Benchmarks a simul engine given a list of opening guesses.
 
         Args:
@@ -152,8 +156,10 @@ class SimulBenchmarker:
                 solved_games.append(game)
                 histogram[game.rounds] += 1
 
-        self.reporter.display(histogram)
-        return solved_games
+        scoreboards = [game.scoreboard for game in solved_games]
+        benchmark = Benchmark(user_guesses, histogram, scoreboards)
+        self.reporter.display(benchmark)
+        return benchmark
 
 
 class BenchmarkPrinter:
@@ -206,3 +212,18 @@ Std:      {benchmark.std():.3f}
             rows.append(row)
 
         return "\n".join(rows)
+
+
+class BenchmarkReporter:
+    def display(self, benchmark: Benchmark) -> None:
+        printer = BenchmarkPrinter()
+        report = printer.build_string(benchmark)
+        print(report)
+
+
+class NullBenchmarkReporter(BenchmarkReporter):
+    """Null implementation of a RunReporter"""
+
+    def display(self, _: Benchmark) -> None:
+        """Does nothing"""
+        pass

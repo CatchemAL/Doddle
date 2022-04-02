@@ -6,9 +6,8 @@ from unittest.mock import ANY, MagicMock, PropertyMock, patch
 
 import pytest
 
-from doddle import benchmarking, decision, factory
-from doddle.benchmarking import Benchmark, BenchmarkPrinter
-from doddle.decision import GraphBuilder
+from doddle import benchmarking, factory
+from doddle.benchmarking import Benchmark, BenchmarkPrinter, BenchmarkReporter, NullBenchmarkReporter
 from doddle.game import Game, SimultaneousGame
 from doddle.words import Word, WordSeries
 
@@ -174,13 +173,16 @@ class TestBenchmarker:
         patch_map.assert_called_once_with(ANY, solns, chunksize=20)
         assert benchmark.opening_guess == Word("GUESS")
         assert benchmark.num_games() == len(solns)
-        assert all((game.is_solved for game in benchmark.games))
+        assert all(scoreboard.rows[-1].score == "22222" for scoreboard in benchmark.scoreboards)
 
 
 class TestSimulBenchmarker:
     @patch.object(factory, "load_dictionary")
     @patch.object(ProcessPoolExecutor, "map")
-    def test_benchmark(self, patch_map: MagicMock, patch_load_dictionary: MagicMock) -> None:
+    @patch.object(BenchmarkReporter, "display")
+    def test_benchmark(
+        self, patch_display: MagicMock, patch_map: MagicMock, patch_load_dictionary: MagicMock
+    ) -> None:
 
         # Arrange
         num_simul = 4
@@ -202,12 +204,11 @@ class TestSimulBenchmarker:
         patch_map.side_effect = game_factory
 
         # Act
-        games = sut.run_benchmark([], num_simul, num_runs)
+        benchmark = sut.run_benchmark([], num_simul, num_runs)
 
         # Assert
         patch_map.assert_called_once_with(ANY, ANY, chunksize=20)
-        assert len(games) == 100
-        assert all((game.is_solved for game in games))
+        assert benchmark.num_games() == num_runs
 
 
 class TestBenchmarkPrinter:
@@ -240,7 +241,7 @@ Std:      0.595
         assert actual == expected.strip()
 
     @patch.object(Benchmark, "opening_guess", new_callable=PropertyMock)
-    def test_describe(self, patch_opening_guess) -> None:
+    def test_describe(self, patch_opening_guess: MagicMock) -> None:
         # Arrange
         guesses = []
         histogram = {1: 1, 2: 76, 3: 1256, 4: 1031, 5: 52}
@@ -263,3 +264,35 @@ Std:      0.595
 
         # Assert
         assert actual.strip() == expected.strip()
+
+
+class TestBenchmarkReporter:
+    @patch.object(BenchmarkPrinter, "build_string")
+    def test_build_report(self, patch_build_string: MagicMock) -> None:
+        # Arrange
+        guesses = []
+        histogram = {1: 1, 2: 76, 3: 1256, 4: 1031, 5: 52}
+        games = []
+        benchmark = Benchmark(guesses, histogram, games)
+        histogram = {2: 76, 3: 1000, 4: 1203, 5: 63}
+
+        sut = BenchmarkReporter()
+
+        # Act
+        sut.display(benchmark)
+
+        # Assert
+        patch_build_string.assert_called_once_with(benchmark)
+
+
+class TestNullBenchmarkReporter:
+    def test_display_does_nothing(self) -> None:
+        # Arrange
+        histogram = {2: 76, 3: 1000, 4: 1203, 5: 63}
+        sut = NullBenchmarkReporter()
+
+        # Act
+        actual = sut.display(histogram)
+
+        # Assert
+        assert actual is None

@@ -4,7 +4,7 @@ from typing import Sequence
 
 from doddle.guess import Guess
 
-from .benchmarking import Benchmarker, SimulBenchmarker
+from .benchmarking import Benchmarker, BenchmarkReporter, SimulBenchmarker
 from .engine import Engine, SimulEngine
 from .enums import SolverType
 from .exceptions import SolverNotSupportedError
@@ -12,7 +12,7 @@ from .histogram import HistogramBuilder
 from .scoring import Scorer
 from .simul_solver import EntropySimulSolver, MinimaxSimulSolver, SimulSolver
 from .solver import DeepEntropySolver, DeepMinimaxSolver, EntropySolver, MinimaxSolver, Solver
-from .views import BenchmarkReporter, NullRunReporter, RunReporter
+from .views import NullRunReporter, RunReporter
 from .words import Dictionary, Word, load_dictionary
 
 

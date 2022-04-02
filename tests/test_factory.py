@@ -85,23 +85,6 @@ class TestFactory:
         assert isinstance(solver2e, DeepEntropySolver)
 
     @patch.object(factory, "load_dictionary")
-    def test_create_models(self, patch_load_dictionary: MagicMock) -> None:
-        # Arrange
-        patch_load_dictionary.return_value = load_test_dictionary()
-
-        # Act
-        _, _, _, solver1m, _ = create_models(5, solver_type=SolverType.MINIMAX, depth=1)
-        _, _, _, solver2m, _ = create_models(5, solver_type=SolverType.MINIMAX, depth=2)
-        _, _, _, solver1e, _ = create_models(5, solver_type=SolverType.ENTROPY, depth=1)
-        _, _, _, solver2e, _ = create_models(5, solver_type=SolverType.ENTROPY, depth=2)
-
-        # Assert
-        assert isinstance(solver1m, MinimaxSolver)
-        assert isinstance(solver2m, DeepMinimaxSolver)
-        assert isinstance(solver1e, EntropySolver)
-        assert isinstance(solver2e, DeepEntropySolver)
-
-    @patch.object(factory, "load_dictionary")
     def test_create_models_with_unrecognised_enum_raises(self, patch_load_dictionary: MagicMock) -> None:
         # Arrange
         patch_load_dictionary.return_value = load_test_dictionary()
