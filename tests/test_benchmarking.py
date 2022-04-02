@@ -2,7 +2,8 @@ from __future__ import annotations
 
 from concurrent.futures import ProcessPoolExecutor
 from typing import Iterable
-from unittest.mock import ANY, MagicMock, patch
+from unittest import mock
+from unittest.mock import ANY, MagicMock, PropertyMock, patch
 
 import pytest
 
@@ -237,3 +238,28 @@ Std:      0.595
 
         # Assert
         assert actual == expected.strip()
+
+    @patch.object(Benchmark, "opening_guess", new_callable=PropertyMock)
+    def test_describe(self, patch_opening_guess) -> None:
+        # Arrange
+        guesses = []
+        histogram = {1: 1, 2: 76, 3: 1256, 4: 1031, 5: 52}
+        games = []
+        benchmark = Benchmark(guesses, histogram, games)
+        sut = BenchmarkPrinter()
+
+        patch_opening_guess.return_value = Word("CRATE")
+
+        expected = """
+Guess:    CRATE
+Games:    2,416
+Guesses:  8,305
+Mean:     3.438
+Std:      0.595
+        """
+
+        # Act
+        actual = sut.describe(benchmark)
+
+        # Assert
+        assert actual.strip() == expected.strip()
