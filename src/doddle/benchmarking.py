@@ -11,7 +11,6 @@ from typing import Callable, Iterable, Protocol
 
 from tqdm import tqdm  # type: ignore
 
-from .boards import BenchmarkPrinter
 from .engine import Engine, SimulEngine
 from .game import Game, SimultaneousGame
 from .views import BenchmarkReporter
@@ -33,10 +32,10 @@ class Benchmark:
     games: list[Game]
 
     def num_games(self) -> int:
-        return len(self.games)
+        return sum(self.histogram.values())
 
     def num_guesses(self) -> int:
-        return sum(game.rounds for game in self.games)
+        return sum(k * v for k, v in self.histogram.items())
 
     def mean(self) -> float:
         return self.num_guesses() / self.num_games()
@@ -45,7 +44,9 @@ class Benchmark:
 
         n = self.num_games()
         mean = self.mean()
-        variance = sum((game.rounds - mean) ** 2 for game in self.games) / n
+
+        mean_x_squared = sum(k * k * v for k, v in self.histogram.items()) / n
+        variance = mean_x_squared - (mean * mean)
 
         return sqrt(variance)
 
@@ -74,20 +75,8 @@ class Benchmark:
 
     def _repr_pretty_(self, p: __Printer, _: bool) -> None:
         printer = BenchmarkPrinter()
-
-        display = """
-1 |                    (1)
-2 | *                 (76)
-3 | ************   (1,262)
-4 | **********     (1,076)
-5 | *                 (52)
-
-Guess:    CRATE
-Games:    2,341
-Guesses:  8,912
-Mean:     3.429
-Std:      0.601"""
-        p.text(display[1:])
+        text_display = printer.build_string(self)
+        p.text(text_display)
 
 
 @dataclass
@@ -163,3 +152,55 @@ class SimulBenchmarker:
 
         self.reporter.display(histogram)
         return solved_games
+
+
+class BenchmarkPrinter:
+    def build_string(self, benchmark: Benchmark) -> str:
+        chart = self.bar_chart(benchmark.histogram)
+        stats = self.describe(benchmark)
+        return f"{chart}\n\n{stats}"
+
+    @staticmethod
+    def describe(benchmark: Benchmark) -> str:
+
+        if benchmark.guesses:
+            guess = ",".join(str(word) for word in benchmark.guesses)
+        else:
+            guess = str(benchmark.opening_guess)
+
+        stats = f"""
+Guess:    {guess}
+Games:    {benchmark.num_games():,}
+Guesses:  {benchmark.num_guesses():,}
+Mean:     {benchmark.mean():.3f}
+Std:      {benchmark.std():.3f}
+        """
+
+        return stats.strip()
+
+    @staticmethod
+    def bar_chart(histogram: dict[int, int]) -> str:
+
+        CHARS = 50
+
+        worst_score = max(histogram.keys())
+        largest = max(histogram.values())
+        increment = largest / CHARS
+
+        stars: list[str] = []
+        for i in range(worst_score):
+            value = histogram.get(i + 1, 0)
+            num = round(value / increment)
+            stars.append("*" * num)
+
+        max_stars = max(len(star) for star in stars)
+
+        rows: list[str] = []
+        for i, star in enumerate(stars):
+            value = histogram.get(i + 1, 0)
+            counts = f"({value:,})".rjust(9, " ")
+            padded_star = star.ljust(max_stars, " ")
+            row = f"{i+1} | {padded_star}{counts}"
+            rows.append(row)
+
+        return "\n".join(rows)

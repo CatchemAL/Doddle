@@ -4,8 +4,10 @@ from concurrent.futures import ProcessPoolExecutor
 from typing import Iterable
 from unittest.mock import ANY, MagicMock, patch
 
+import pytest
+
 from doddle import decision, factory
-from doddle.benchmarking import Benchmark
+from doddle.benchmarking import Benchmark, BenchmarkPrinter
 from doddle.game import Game, SimultaneousGame
 from doddle.words import Word, WordSeries
 
@@ -15,18 +17,9 @@ from .fake_dictionary import load_test_dictionary
 class TestBenchmark:
     def test_statistics(self) -> None:
         # Arrange
-        def game_factory(solns: WordSeries) -> Iterable[Game]:
-            for soln in solns:
-                game = Game(WordSeries([soln.value]), soln, [])
-                game.is_solved = True
-                game.scoreboard.add_row(1, soln, Word("START"), "20101", 125)
-                game.scoreboard.add_row(2, soln, soln, "22222", 1)
-                yield game
-
-        guesses = [Word("START")]
+        guesses = [Word("START"), Word("TOWER")]
         histogram = {1: 1, 2: 76, 3: 1256, 4: 1031, 5: 52}
-        solns = load_test_dictionary().common_words
-        games = list(game_factory(solns))
+        games: list[Game] = []
 
         sut = Benchmark(guesses, histogram, games)
 
@@ -37,10 +30,10 @@ class TestBenchmark:
         std = sut.std()
 
         # Assert
-        assert mean == 2
-        assert num_games == len(solns)
-        assert num_guesses == 2 * num_games
-        assert std == 0
+        assert mean == pytest.approx(3.4375, abs=1e-9)
+        assert num_games == 2416
+        assert num_guesses == 8305
+        assert std == pytest.approx(0.595430481760274, abs=1e-9)
         assert sut.guesses == guesses
         assert sut.opening_guess == guesses[0]
 
@@ -66,38 +59,32 @@ class TestBenchmark:
         print(str_repr)
 
         # Assert
-        assert str_repr == "Benchmark (games=91, guesses=182, mean=2.0000)"
+        assert str_repr == "Benchmark (games=2416, guesses=8305, mean=3.4375)"
 
-    def test_repr_pretty(self) -> None:
+    @patch.object(BenchmarkPrinter, "build_string")
+    def test_repr_pretty(self, patch_build_string: MagicMock) -> None:
         # Arrange
-        def game_factory(solns: WordSeries) -> Iterable[Game]:
-            for soln in solns:
-                game = Game(WordSeries([soln.value]), soln, [])
-                game.is_solved = True
-                game.scoreboard.add_row(1, soln, Word("START"), "20101", 125)
-                game.scoreboard.add_row(2, soln, soln, "22222", 1)
-                yield game
-
         guesses = [Word("START")]
         histogram = {1: 1, 2: 76, 3: 1256, 4: 1031, 5: 52}
-        solns = load_test_dictionary().common_words
-        games = list(game_factory(solns))
+        games = []
 
         mock_printer = MagicMock()
         mock_printer.text = MagicMock()
 
         expected = """
-1 |                    (1)
-2 | *                 (76)
-3 | ************   (1,262)
-4 | **********     (1,076)
-5 | *                 (52)
+        1 |                    (1)
+        2 | *                 (76)
+        3 | ************   (1,262)
+        4 | **********     (1,076)
+        5 | *                 (52)
 
-Guess:    CRATE
-Games:    2,341
-Guesses:  8,912
-Mean:     3.429
-Std:      0.601"""
+        Guess:    CRATE
+        Games:    2,341
+        Guesses:  8,912
+        Mean:     3.429
+        Std:      0.601"""
+
+        patch_build_string.return_value = expected
 
         sut = Benchmark(guesses, histogram, games)
 
@@ -105,7 +92,7 @@ Std:      0.601"""
         sut._repr_pretty_(mock_printer, False)
 
         # Assert
-        mock_printer.text.assert_called_once_with(expected[1:])
+        mock_printer.text.assert_called_once_with(expected)
 
     @patch.object(decision, "digraph")
     def test_digraph(self, mock_digraph: MagicMock) -> None:
@@ -220,3 +207,33 @@ class TestSimulBenchmarker:
         patch_map.assert_called_once_with(ANY, ANY, chunksize=20)
         assert len(games) == 100
         assert all((game.is_solved for game in games))
+
+
+class TestBenchmarkPrinter:
+    def test_build_string(self) -> None:
+        # Arrange
+        guesses = [Word("START")]
+        histogram = {1: 1, 2: 76, 3: 1256, 4: 1031, 5: 52}
+        games = []
+        benchmark = Benchmark(guesses, histogram, games)
+        sut = BenchmarkPrinter()
+
+        expected = """
+1 |                                                         (1)
+2 | ***                                                    (76)
+3 | **************************************************  (1,256)
+4 | *****************************************           (1,031)
+5 | **                                                     (52)
+
+Guess:    START
+Games:    2,416
+Guesses:  8,305
+Mean:     3.438
+Std:      0.595
+        """
+
+        # Act
+        actual = sut.build_string(benchmark)
+
+        # Assert
+        assert actual == expected.strip()
