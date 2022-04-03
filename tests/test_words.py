@@ -200,8 +200,8 @@ class TestDictionary:
         all_words, common_words = dictionary.words
 
         # Assert
-        assert len(all_words) == 12970
-        assert len(common_words) == 2314
+        assert len(all_words) == 12971
+        assert len(common_words) == 2315
 
     def test_load_dictionary_unofficial(self) -> None:
         # Arrange

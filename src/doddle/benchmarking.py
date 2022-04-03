@@ -6,17 +6,20 @@ from collections import defaultdict
 from concurrent.futures import ProcessPoolExecutor
 from dataclasses import dataclass
 from functools import partial
+from itertools import groupby
 from math import sqrt
 from typing import Callable, Iterable, Protocol, TypeVar
 
 from tqdm import tqdm  # type: ignore
 
-from doddle.boards import Scoreboard
-
+from .boards import Scoreboard, ScoreboardPrinter
 from .decision import GraphBuilder
 from .engine import Engine, SimulEngine
+from .exceptions import InvalidWordleBotFileError
 from .game import DoddleGame, Game, SimultaneousGame
-from .words import Word
+from .histogram import HistogramBuilder
+from .scoring import Scorer, to_ternary
+from .words import Word, WordSeries
 
 if typing.TYPE_CHECKING:
     from graphviz import Digraph  # type: ignore # pragma: no cover
@@ -61,6 +64,21 @@ class Benchmark:
 
         return sqrt(variance)
 
+    def to_csv(self, path: str) -> None:
+        def solution(scoreboard: Scoreboard) -> str:
+            return scoreboard.rows[0].soln.value
+
+        ordered_scoreboards = sorted(self.scoreboards, key=solution)
+
+        lines: list[str] = []
+        for scoreboard in ordered_scoreboards:
+            line = ",".join(str(row.guess) for row in scoreboard.rows)
+            lines.append(line)
+
+        contents = "\n".join(lines)
+
+        self._write_to_file(path, contents)
+
     def digraph(self, *, predicate: Callable[[Scoreboard], bool] | None = None) -> "Digraph":
 
         if predicate:
@@ -81,6 +99,91 @@ class Benchmark:
         printer = BenchmarkPrinter()
         text_display = printer.build_string(self)
         p.text(text_display)
+
+    @staticmethod
+    def _write_to_file(path: str, content: str) -> None:  # pragma: no cover
+        with open(path, "w") as f:
+            f.write(content)
+
+    @classmethod
+    def read_csv(cls, path: str, validate: bool = True) -> Benchmark:
+
+        with open(path, "r") as file:
+            raw = file.read()
+
+        all_lines = [[Word(word) for word in line.split(",")] for line in raw.split("\n")]
+        potential_solns = WordSeries([str(line[-1]) for line in all_lines])
+        size = len(all_lines[0][0])
+        scorer = Scorer(size)
+        histogram_builder = HistogramBuilder(scorer, potential_solns, potential_solns)
+
+        scoreboards: list[Scoreboard] = []
+        histogram: defaultdict[int, int] = defaultdict(int)
+        for guesses in all_lines:
+            n = len(guesses)
+            histogram[n] += 1
+            soln = guesses[-1]
+            scoreboard = Scoreboard()
+            solns = potential_solns
+            for i, guess in enumerate(guesses):
+                score = scorer.score_word(soln, guess)
+                solns_by_score = histogram_builder.get_solns_by_score(solns, guess)
+                solns = solns_by_score[score]
+                ternary = to_ternary(score, size)
+                scoreboard.add_row(i + 1, soln, guess, ternary, len(solns))
+
+            scoreboards.append(scoreboard)
+
+        user_guesses: list[Word] = []
+        benchmark = cls(user_guesses, histogram, scoreboards)
+
+        if validate:
+            benchmark.validate()
+
+        return benchmark
+
+    def validate(self) -> None:
+
+        size = len(self.scoreboards[0].rows[0].score)
+
+        def create_key(n: int):
+            def score_path(scoreboard: Scoreboard) -> str:
+                scores: list[str] = []
+                for i in range(min(n, len(scoreboard.rows))):
+                    score = scoreboard.rows[i].score
+                    scores.append(score)
+                return "-".join(scores)
+
+            return score_path
+
+        worst_num_rounds = max(scoreboard.rows[-1].n for scoreboard in self.scoreboards)
+        sorted_boards = sorted(self.scoreboards, key=create_key(worst_num_rounds))
+
+        for i in range(1, worst_num_rounds + 1):
+            selector = create_key(i)
+            grps = groupby(sorted_boards, key=selector)
+            for _, grp in grps:
+                inner_scoreboards = list(grp)
+                if len(inner_scoreboards) == 1:
+                    continue
+                first_scoreboard = next(sb for sb in inner_scoreboards if len(sb) > i)
+                first_follow_up_guess = first_scoreboard.rows[i].guess
+                for scoreboard in inner_scoreboards:
+                    follow_up_guess = scoreboard.rows[i].guess
+                    if follow_up_guess != first_follow_up_guess:
+                        printer = ScoreboardPrinter(size)
+                        display1 = printer.build_string(first_scoreboard)
+                        display2 = printer.build_string(scoreboard)
+                        message = (
+                            "Well this is awkward 😬. It seems as though the solver is not logically "
+                            "consistent in how it plays each game - the same patterns seem to result "
+                            "in different guesses which will result in non-deterministic outcomes and "
+                            "a poorly defined decision tree. You can disable validation by passing "
+                            "`validate=False` as an argument. However, it is strongly advised that you "
+                            "check the solver for internal consistency.\n\nFor instance, please "
+                            f"examine row {i+1} below for each game below:\n\n{display1}\n\n{display2}"
+                        )
+                        raise InvalidWordleBotFileError(message)
 
 
 @dataclass

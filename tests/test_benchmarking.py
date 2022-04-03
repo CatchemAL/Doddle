@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import os
 from concurrent.futures import ProcessPoolExecutor
+from pathlib import Path
 from typing import Iterable
 from unittest.mock import ANY, MagicMock, PropertyMock, patch
 
@@ -8,6 +10,8 @@ import pytest
 
 from doddle import benchmarking, factory
 from doddle.benchmarking import Benchmark, BenchmarkPrinter, BenchmarkReporter, NullBenchmarkReporter
+from doddle.boards import Scoreboard
+from doddle.exceptions import InvalidWordleBotFileError
 from doddle.game import Game, SimultaneousGame
 from doddle.words import Word, WordSeries
 
@@ -39,20 +43,19 @@ class TestBenchmark:
 
     def test_repr(self) -> None:
         # Arrange
-        def game_factory(solns: WordSeries) -> Iterable[Game]:
+        def scoreboard_factory(solns: WordSeries) -> Iterable[Scoreboard]:
             for soln in solns:
-                game = Game(WordSeries([soln.value]), soln, [])
-                game.is_solved = True
-                game.scoreboard.add_row(1, soln, Word("START"), "20101", 125)
-                game.scoreboard.add_row(2, soln, soln, "22222", 1)
-                yield game
+                scoreboard = Scoreboard()
+                scoreboard.add_row(1, soln, Word("START"), "20101", 125)
+                scoreboard.add_row(2, soln, soln, "22222", 1)
+                yield scoreboard
 
         guesses = [Word("START")]
         histogram = {1: 1, 2: 76, 3: 1256, 4: 1031, 5: 52}
         solns = load_test_dictionary().common_words
-        games = list(game_factory(solns))
+        scoreboards = list(scoreboard_factory(solns))
 
-        sut = Benchmark(guesses, histogram, games)
+        sut = Benchmark(guesses, histogram, scoreboards)
 
         # Act
         str_repr = repr(sut)
@@ -97,53 +100,95 @@ class TestBenchmark:
     @patch.object(benchmarking, "GraphBuilder")
     def test_digraph(self, mock_builder: MagicMock) -> None:
         # Arrange
-        def game_factory(solns: WordSeries) -> Iterable[Game]:
+        def scoreboard_factory(solns: WordSeries) -> Iterable[Scoreboard]:
             for soln in solns:
-                game = Game(WordSeries([soln.value]), soln, [])
-                game.is_solved = True
-                game.scoreboard.add_row(1, soln, Word("START"), "20101", 125)
-                game.scoreboard.add_row(2, soln, soln, "22222", 1)
-                yield game
+                scoreboard = Scoreboard()
+                scoreboard.add_row(1, soln, Word("START"), "20101", 125)
+                scoreboard.add_row(2, soln, soln, "22222", 1)
+                yield scoreboard
 
         guesses = [Word("START")]
         histogram = {1: 1, 2: 76, 3: 1256, 4: 1031, 5: 52}
         solns = load_test_dictionary().common_words
-        games = list(game_factory(solns))
-        sut = Benchmark(guesses, histogram, games)
+        scoreboards = list(scoreboard_factory(solns))
+        sut = Benchmark(guesses, histogram, scoreboards)
 
         # Act
         sut.digraph()
 
         # Assert
-        mock_builder.assert_called_once_with(games)
+        mock_builder.assert_called_once_with(scoreboards)
 
     @patch.object(benchmarking, "GraphBuilder")
     def test_digraph_with_filter(self, mock_builder: MagicMock) -> None:
         # Arrange
-        def game_factory(solns: WordSeries) -> Iterable[Game]:
+        def scoreboard_factory(solns: WordSeries) -> Iterable[Scoreboard]:
             for soln in solns:
-                game = Game(WordSeries([soln.value]), soln, [])
-                game.is_solved = True
-                game.scoreboard.add_row(1, soln, Word("START"), "20101", 125)
-                game.scoreboard.add_row(2, soln, soln, "22222", 1)
-                yield game
+                scoreboard = Scoreboard()
+                scoreboard.add_row(1, soln, Word("START"), "20101", 125)
+                scoreboard.add_row(2, soln, soln, "22222", 1)
+                yield scoreboard
 
         guesses = [Word("START")]
         histogram = {1: 1, 2: 76, 3: 1256, 4: 1031, 5: 52}
         solns = load_test_dictionary().common_words
-        games = list(game_factory(solns))
-        sut = Benchmark(guesses, histogram, games)
+        scoreboards = list(scoreboard_factory(solns))
+        sut = Benchmark(guesses, histogram, scoreboards)
 
         game_words = {Word("RAISE"), Word("MOUNT"), Word("SNAKE")}
 
-        def some_filter(game: Game) -> bool:
-            return game.soln in game_words
+        def some_filter(scoreboard: Scoreboard) -> bool:
+            return scoreboard.rows[-1].soln in game_words
 
         # Act
         sut.digraph(predicate=some_filter)
 
         # Assert
         assert len(list(mock_builder.call_args[0][0])) == len(game_words)
+
+    @pytest.mark.parametrize("should_validate", [True, False])
+    def test_read_csv(self, should_validate: bool) -> None:
+        # Arrange
+        directory = Path(os.path.dirname(__file__))
+        path = directory / "wordle_bot_file.txt"
+
+        # Act
+        benchmark = Benchmark.read_csv(path, validate=should_validate)
+
+        # Assert
+        assert len(benchmark.scoreboards) == 100
+
+    def test_read_invalid_csv(self) -> None:
+        # Arrange
+        directory = Path(os.path.dirname(__file__))
+        path = directory / "wordle_bot_file_invalid.txt"
+
+        # Act + Assert
+        with pytest.raises(InvalidWordleBotFileError):
+            Benchmark.read_csv(path)
+
+    @patch.object(Benchmark, "_write_to_file")
+    def test_to_csv(self, patch_write_to_file) -> None:
+        # Arrange
+        def scoreboard_factory(solns: WordSeries) -> Iterable[Scoreboard]:
+            for soln in solns:
+                scoreboard = Scoreboard()
+                scoreboard.add_row(1, soln, Word("START"), "20101", 125)
+                scoreboard.add_row(2, soln, soln, "22222", 1)
+                yield scoreboard
+
+        guesses = [Word("START")]
+        histogram = {1: 1, 2: 76, 3: 1256, 4: 1031, 5: 52}
+        solns = load_test_dictionary().common_words
+        scoreboards = list(scoreboard_factory(solns))
+        sut = Benchmark(guesses, histogram, scoreboards)
+        path = "some_path.txt"
+
+        # Act
+        sut.to_csv(path)
+
+        # Assert
+        pass
 
 
 class TestBenchmarker:
