@@ -77,7 +77,7 @@ class TestHistogramBuilder:
         assert best_guess.size_of_largest_bucket == len(expected["02000"])
 
         for g in guesses:
-            assert g.is_common_word ^ (g.word == guess)
+            assert g.is_potential_soln ^ (g.word == guess)
 
     def test_populate_histogram(self) -> None:
         # Arrange

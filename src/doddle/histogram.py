@@ -109,8 +109,8 @@ class HistogramBuilder:
 
         histogram = self._allocate_histogram_vector(all_words.word_length)
         for i, word in enumerate(all_words):
-            is_common = _populate_histogram(scores, i, histogram)
-            yield guess_factory(word, is_common, histogram)
+            is_potential_soln = _populate_histogram(scores, i, histogram)
+            yield guess_factory(word, is_potential_soln, histogram)
 
     @staticmethod
     def _allocate_histogram_vector(word_length: int) -> np.ndarray:
@@ -150,13 +150,16 @@ def _populate_histogram(matrix: np.ndarray, row: int, hist: np.ndarray) -> bool:
         matrix (np.ndarray): The internal, precomputed score matrix
         row (int): The row in the score matrix corresponding to a guess
         hist (np.ndarray): The preallocated histogram vector
+
+    Returns:
+        Returns whether the guess is a potential solution.
     """
     hist[:] = 0
     for j in range(matrix.shape[1]):
         idx = matrix[row, j]
         hist[idx] += 1
-    is_common: bool = hist[-1] > 0
-    return is_common
+    is_potential_soln: bool = hist[-1] > 0
+    return is_potential_soln
 
 
 class MemoryMappedStorage:
