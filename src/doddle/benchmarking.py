@@ -11,12 +11,13 @@ from typing import Callable, Iterable, Protocol, TypeVar
 
 from tqdm import tqdm  # type: ignore
 
-from doddle.boards import Scoreboard
-
+from .boards import Scoreboard
 from .decision import GraphBuilder
 from .engine import Engine, SimulEngine
 from .game import DoddleGame, Game, SimultaneousGame
-from .words import Word
+from .histogram import HistogramBuilder
+from .scoring import Scorer, to_ternary
+from .words import Word, WordSeries
 
 if typing.TYPE_CHECKING:
     from graphviz import Digraph  # type: ignore # pragma: no cover
@@ -97,6 +98,38 @@ class Benchmark:
         printer = BenchmarkPrinter()
         text_display = printer.build_string(self)
         p.text(text_display)
+
+    @classmethod
+    def read_csv(cls, path: str) -> Benchmark:
+
+        with open(path, "r") as file:
+            raw = file.read()
+
+        all_lines = [[Word(word) for word in line.split(",")] for line in raw.split("\n")]
+        potential_solns = WordSeries([str(line[-1]) for line in all_lines])
+        size = len(all_lines[0][0])
+        scorer = Scorer(size)
+        histogram_builder = HistogramBuilder(scorer, potential_solns, potential_solns)
+
+        scoreboards: list[Scoreboard] = []
+        histogram: defaultdict[int, int] = defaultdict(int)
+        for guesses in all_lines:
+            n = len(guesses)
+            histogram[n] += 1
+            soln = guesses[-1]
+            scoreboard = Scoreboard()
+            solns = potential_solns
+            for i, guess in enumerate(guesses):
+                score = scorer.score_word(soln, guess)
+                solns_by_score = histogram_builder.get_solns_by_score(solns, guess)
+                solns = solns_by_score[score]
+                ternary = to_ternary(score, size)
+                scoreboard.add_row(i + 1, soln, guess, ternary, len(solns))
+
+            scoreboards.append(scoreboard)
+
+        user_guesses: list[Word] = []
+        return cls(user_guesses, histogram, scoreboards)
 
 
 @dataclass
