@@ -1,13 +1,12 @@
 from __future__ import annotations
 
-from itertools import groupby
-
 import random
 import typing
 from collections import defaultdict
 from concurrent.futures import ProcessPoolExecutor
 from dataclasses import dataclass
 from functools import partial
+from itertools import groupby
 from math import sqrt
 from typing import Callable, Iterable, Protocol, TypeVar
 
@@ -16,6 +15,7 @@ from tqdm import tqdm  # type: ignore
 from .boards import Scoreboard, ScoreboardPrinter
 from .decision import GraphBuilder
 from .engine import Engine, SimulEngine
+from .exceptions import InvalidWordleBotFileError
 from .game import DoddleGame, Game, SimultaneousGame
 from .histogram import HistogramBuilder
 from .scoring import Scorer, to_ternary
@@ -77,8 +77,7 @@ class Benchmark:
 
         contents = "\n".join(lines)
 
-        with open(path, "w") as f:
-            f.write(contents)
+        self._write_to_file(path, contents)
 
     def digraph(self, *, predicate: Callable[[Scoreboard], bool] | None = None) -> "Digraph":
 
@@ -100,6 +99,11 @@ class Benchmark:
         printer = BenchmarkPrinter()
         text_display = printer.build_string(self)
         p.text(text_display)
+
+    @staticmethod
+    def _write_to_file(path: str, content: str) -> None:  # pragma: no cover
+        with open(path, "w") as f:
+            f.write(content)
 
     @classmethod
     def read_csv(cls, path: str, validate: bool = True) -> Benchmark:
@@ -165,8 +169,6 @@ class Benchmark:
                 first_scoreboard = next(sb for sb in inner_scoreboards if len(sb) > i)
                 first_follow_up_guess = first_scoreboard.rows[i].guess
                 for scoreboard in inner_scoreboards:
-                    if len(scoreboard) <= i:
-                        continue
                     follow_up_guess = scoreboard.rows[i].guess
                     if follow_up_guess != first_follow_up_guess:
                         printer = ScoreboardPrinter(size)
@@ -181,7 +183,7 @@ class Benchmark:
                             "check the solver for internal consistency.\n\nFor instance, please "
                             f"examine row {i+1} below for each game below:\n\n{display1}\n\n{display2}"
                         )
-                        raise ValueError(message)
+                        raise InvalidWordleBotFileError(message)
 
 
 @dataclass
