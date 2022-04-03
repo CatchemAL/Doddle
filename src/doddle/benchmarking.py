@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from itertools import groupby
+
 import random
 import typing
 from collections import defaultdict
@@ -11,7 +13,7 @@ from typing import Callable, Iterable, Protocol, TypeVar
 
 from tqdm import tqdm  # type: ignore
 
-from .boards import Scoreboard
+from .boards import Scoreboard, ScoreboardPrinter
 from .decision import GraphBuilder
 from .engine import Engine, SimulEngine
 from .game import DoddleGame, Game, SimultaneousGame
@@ -100,7 +102,7 @@ class Benchmark:
         p.text(text_display)
 
     @classmethod
-    def read_csv(cls, path: str) -> Benchmark:
+    def read_csv(cls, path: str, validate: bool = True) -> Benchmark:
 
         with open(path, "r") as file:
             raw = file.read()
@@ -129,7 +131,57 @@ class Benchmark:
             scoreboards.append(scoreboard)
 
         user_guesses: list[Word] = []
-        return cls(user_guesses, histogram, scoreboards)
+        benchmark = cls(user_guesses, histogram, scoreboards)
+
+        if validate:
+            benchmark.validate()
+
+        return benchmark
+
+    def validate(self) -> None:
+
+        size = len(self.scoreboards[0].rows[0].score)
+
+        def create_key(n: int):
+            def score_path(scoreboard: Scoreboard) -> str:
+                scores: list[str] = []
+                for i in range(min(n, len(scoreboard.rows))):
+                    score = scoreboard.rows[i].score
+                    scores.append(score)
+                return "-".join(scores)
+
+            return score_path
+
+        worst_num_rounds = max(scoreboard.rows[-1].n for scoreboard in self.scoreboards)
+        sorted_boards = sorted(self.scoreboards, key=create_key(worst_num_rounds))
+
+        for i in range(1, worst_num_rounds + 1):
+            selector = create_key(i)
+            grps = groupby(sorted_boards, key=selector)
+            for _, grp in grps:
+                inner_scoreboards = list(grp)
+                if len(inner_scoreboards) == 1:
+                    continue
+                first_scoreboard = next(sb for sb in inner_scoreboards if len(sb) > i)
+                first_follow_up_guess = first_scoreboard.rows[i].guess
+                for scoreboard in inner_scoreboards:
+                    if len(scoreboard) <= i:
+                        continue
+                    follow_up_guess = scoreboard.rows[i].guess
+                    if follow_up_guess != first_follow_up_guess:
+                        printer = ScoreboardPrinter(size)
+                        display1 = printer.build_string(first_scoreboard)
+                        display2 = printer.build_string(scoreboard)
+                        message = (
+                            "Well this is awkward 😬. It seems as though the solver is not logically "
+                            "consistent in how it plays each game - the same patterns seem to result "
+                            "in different guesses which will result in non-deterministic outcomes and "
+                            "a poorly defined decision tree. You can disable validation by passing "
+                            "`validate=False` as an argument. However, it is strongly advised that you "
+                            "check the solver for internal consistency.\n\nFor instance, please "
+                            f"examine row {i+1} below for each game below:\n\n{display1}\n\n{display2}"
+                        )
+                        raise ValueError(message)
 
 
 @dataclass
