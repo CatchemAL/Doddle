@@ -73,8 +73,8 @@ class MinimaxSimulSolver(SimulSolver[MinimaxGuess, MinimaxSimulGuess]):
     def to_simul_guess(self, games: list[Game], guess_tuple: tuple[MinimaxGuess]) -> MinimaxSimulGuess:
 
         word = guess_tuple[0].word
-        eligibility_count = len([guess for guess in guess_tuple if guess.is_common_word])
-        is_common_word = eligibility_count > 0
+        eligibility_count = len([guess for guess in guess_tuple if guess.is_potential_soln])
+        is_potential_soln = eligibility_count > 0
         largest_sizes = np.array([g.size_of_largest_bucket for g in guess_tuple])
         num_solutions = np.array([len(g.potential_solns) for g in games])
         num_buckets = sum([g.number_of_buckets for g in guess_tuple])
@@ -84,7 +84,7 @@ class MinimaxSimulSolver(SimulSolver[MinimaxGuess, MinimaxSimulGuess]):
         max = largest_sizes.max()
         pct_left = np.prod(largest_sizes_pct)
 
-        return MinimaxSimulGuess(word, is_common_word, pct_left, min, tot, max, num_buckets)
+        return MinimaxSimulGuess(word, is_potential_soln, pct_left, min, tot, max, num_buckets)
 
     @property
     def all_seeds(self) -> list[Word]:
@@ -101,12 +101,12 @@ class EntropySimulSolver(SimulSolver[EntropyGuess, EntropyGuess]):
 
     def to_simul_guess(self, games: list[Game], guess_tuple: tuple[EntropyGuess]) -> EntropyGuess:
         word = guess_tuple[0].word
-        eligibility_count = len([guess for guess in guess_tuple if guess.is_common_word])
-        is_common_word = eligibility_count > 0
+        eligibility_count = len([guess for guess in guess_tuple if guess.is_potential_soln])
+        is_potential_soln = eligibility_count > 0
         entropies = np.array([g.entropy for g in guess_tuple])
         total_entropy = sum(entropies)
 
-        return EntropyGuess(word, is_common_word, total_entropy)
+        return EntropyGuess(word, is_potential_soln, total_entropy)
 
     @property
     def all_seeds(self) -> list[Word]:

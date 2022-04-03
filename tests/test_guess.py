@@ -177,7 +177,7 @@ class TestEntropyGuess:
 
         # Assert
         assert deep_guess.word == guess.word
-        assert deep_guess.is_common_word == guess.is_common_word
+        assert deep_guess.is_potential_soln == guess.is_potential_soln
         assert deep_guess.entropy == expected
 
     def test_entropy_guess_against_different_guess_raises(self) -> None:
