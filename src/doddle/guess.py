@@ -141,11 +141,12 @@ class MinimaxGuess:
 class EntropyGuess:
     """Represents a guess using the entropy heuristic."""
 
-    __slots__ = ["word", "is_potential_soln", "entropy"]
+    __slots__ = ["word", "is_potential_soln", "entropy", "num_buckets"]
 
     word: Word
     is_potential_soln: bool
     entropy: float
+    num_buckets: int
 
     def improves_upon(self, other: EntropyGuess) -> bool:
         """Defines whether the entropy guess improves upon the other.
@@ -194,12 +195,13 @@ class EntropyGuess:
     @staticmethod
     def from_histogram(word: Word, is_potential_soln: bool, histogram: np.ndarray) -> EntropyGuess:
 
-        num_potential_solns = np.sum(counts)
         counts = histogram[histogram > 0]
+        num_potential_solns = np.sum(counts)
         probabilites = counts / num_potential_solns
         entropy = -probabilites.dot(np.log2(probabilites))
+        num_buckets = len(counts)
 
-        return EntropyGuess(word, is_potential_soln, entropy)
+        return EntropyGuess(word, is_potential_soln, entropy, num_buckets)
 
 
 @dataclass(eq=True, frozen=True)
