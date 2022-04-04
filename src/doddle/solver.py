@@ -125,7 +125,7 @@ class DeepMinimaxSolver(MinimaxSolver):
         combined_guesses: list[MinimaxGuess] = []
         for guess in best_guesses:
             if guess.perfectly_partitions():
-                return MinimaxGuess(guess.word, guess.is_common_word, 0, 0)
+                return MinimaxGuess(guess.word, guess.is_potential_soln, 0, 0)
 
             solns_by_score = self.hist_builder.get_solns_by_score(potential_solns, guess.word)
             worst_scores = sorted(solns_by_score, key=lambda s: -len(solns_by_score[s]))
@@ -177,7 +177,7 @@ class DeepEntropySolver(EntropySolver):
             solns_by_score = self.hist_builder.get_solns_by_score(potential_solns, guess.word)
 
             if max(len(s) for s in solns_by_score.values()) == 1:
-                return EntropyGuess(guess.word, guess.is_common_word, float("inf"))
+                return EntropyGuess(guess.word, guess.is_potential_soln, float("inf"))
 
             avg_entropy_reduction = 0.0
             for potential_deep_solns in solns_by_score.values():

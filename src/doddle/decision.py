@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING, Iterable
 
-from doddle.boards import Scoreboard
+from .boards import Scoreboard
 
 if TYPE_CHECKING:
     from graphviz import Digraph  # type: ignore # pragma: no cover

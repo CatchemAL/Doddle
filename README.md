@@ -48,13 +48,15 @@ Doddle 5/7
 
 ### Beautiful Visualisations 🌴🌴🌴
 Doddle is not a black box. Create beautiful visualisations with just two lines of code that render the entire decision tree of games. Follow the flow diagram to see how Doddle plays a game. You can render the tree for any choice of opening guess, combination of guesses, depth or solver type.
+
 ```python
 benchmark = doddle.benchmark(guess="CRATE")
 benchmark.digraph()
 ```
 
 <img src="https://raw.githubusercontent.com/CatchemAl/Doddle/main/images/sample.svg" width="900">
-Note that the full tree has been truncated here for obvious reasons!
+
+Note that the full tree has been truncated here. Click [here](https://github.com/CatchemAL/LargeFiles/raw/main/Doddle/doddle_full_tree.pdf) to download the full PDF.
 
 ## Install
 Install Doddle with 

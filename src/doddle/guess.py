@@ -23,7 +23,7 @@ class Guess(Protocol):  # pragma: no cover
         ...
 
     @property
-    def is_common_word(self) -> bool:
+    def is_potential_soln(self) -> bool:
         """Whether the word is a possible answer.
 
         Returns:
@@ -43,10 +43,10 @@ class Guess(Protocol):  # pragma: no cover
 class MinimaxGuess:
     """Represents a guess using the minimax heuristic."""
 
-    __slots__ = ["word", "is_common_word", "number_of_buckets", "size_of_largest_bucket"]
+    __slots__ = ["word", "is_potential_soln", "number_of_buckets", "size_of_largest_bucket"]
 
     word: Word
-    is_common_word: bool
+    is_potential_soln: bool
     number_of_buckets: int
     size_of_largest_bucket: int
 
@@ -62,8 +62,8 @@ class MinimaxGuess:
         if self.size_of_largest_bucket != other.size_of_largest_bucket:
             return self.size_of_largest_bucket < other.size_of_largest_bucket
 
-        if self.is_common_word != other.is_common_word:
-            return self.is_common_word
+        if self.is_potential_soln != other.is_potential_soln:
+            return self.is_potential_soln
 
         if self.number_of_buckets != other.number_of_buckets:
             return self.number_of_buckets > other.number_of_buckets
@@ -89,7 +89,7 @@ class MinimaxGuess:
         """
         num_buckets = other.number_of_buckets
         largest_bucket = other.size_of_largest_bucket
-        return MinimaxGuess(self.word, self.is_common_word, num_buckets, largest_bucket)
+        return MinimaxGuess(self.word, self.is_potential_soln, num_buckets, largest_bucket)
 
     def __rshift__(self, other: MinimaxGuess) -> MinimaxGuess:
         """Syntactic sugar to combine guesses.
@@ -108,7 +108,7 @@ class MinimaxGuess:
         return str(self.word)
 
     def __repr__(self) -> str:
-        flag = "Common" if self.is_common_word else "Uncommon"
+        flag = "Common" if self.is_potential_soln else "Uncommon"
         return (
             f"Word={self.word} ({flag}), Largest bucket={self.size_of_largest_bucket}, "
             + f"Num. buckets={self.number_of_buckets}"
@@ -141,10 +141,10 @@ class MinimaxGuess:
 class EntropyGuess:
     """Represents a guess using the entropy heuristic."""
 
-    __slots__ = ["word", "is_common_word", "entropy"]
+    __slots__ = ["word", "is_potential_soln", "entropy"]
 
     word: Word
-    is_common_word: bool
+    is_potential_soln: bool
     entropy: float
 
     def improves_upon(self, other: EntropyGuess) -> bool:
@@ -160,8 +160,8 @@ class EntropyGuess:
         if not isclose(self.entropy, other.entropy, abs_tol=1e-9):
             return self.entropy > other.entropy
 
-        if self.is_common_word != other.is_common_word:
-            return self.is_common_word
+        if self.is_potential_soln != other.is_potential_soln:
+            return self.is_potential_soln
 
         return self.word < other.word
 
@@ -169,7 +169,7 @@ class EntropyGuess:
         return str(self.word)
 
     def __repr__(self) -> str:
-        flag = "Common" if self.is_common_word else "Uncommon"
+        flag = "Common" if self.is_potential_soln else "Uncommon"
         return f"Word={self.word} ({flag}), Entropy={self.entropy:.4f}"
 
     def __lt__(self, other: Guess) -> bool:
@@ -189,7 +189,7 @@ class EntropyGuess:
         raise TypeError(f"'<' not supported between instances of type '{type1}' and '{type2}'")
 
     def __add__(self, entropy: float) -> EntropyGuess:
-        return EntropyGuess(self.word, self.is_common_word, self.entropy + entropy)
+        return EntropyGuess(self.word, self.is_potential_soln, self.entropy + entropy)
 
     @staticmethod
     def from_histogram(word: Word, is_potential_soln: bool, histogram: np.ndarray) -> EntropyGuess:
@@ -205,8 +205,10 @@ class EntropyGuess:
 class MinimaxSimulGuess:
     """Represents a guess in a simultaneous game using the minimax heuristic."""
 
+    __slots__ = ["word", "is_potential_soln", "pct_left", "min", "sum", "max", "num_buckets"]
+
     word: Word
-    is_common_word: bool
+    is_potential_soln: bool
     pct_left: float
     min: int
     sum: int
@@ -235,8 +237,8 @@ class MinimaxSimulGuess:
         if self.max != other.max:
             return self.max < other.max
 
-        if self.is_common_word != other.is_common_word:
-            return self.is_common_word
+        if self.is_potential_soln != other.is_potential_soln:
+            return self.is_potential_soln
 
         if self.num_buckets != other.num_buckets:
             return self.num_buckets > other.num_buckets
@@ -247,7 +249,7 @@ class MinimaxSimulGuess:
         return str(self.word)
 
     def __repr__(self) -> str:
-        flag = "Common" if self.is_common_word else "Uncommon"
+        flag = "Common" if self.is_potential_soln else "Uncommon"
         return f"Word={self.word} ({flag}), % Left={self.pct_left:.8f}"
 
     def __lt__(self, other: Guess) -> bool:
