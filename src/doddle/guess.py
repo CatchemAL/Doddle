@@ -194,8 +194,9 @@ class EntropyGuess:
     @staticmethod
     def from_histogram(word: Word, is_potential_soln: bool, histogram: np.ndarray) -> EntropyGuess:
 
+        num_potential_solns = np.sum(counts)
         counts = histogram[histogram > 0]
-        probabilites = counts / np.sum(counts)
+        probabilites = counts / num_potential_solns
         entropy = -probabilites.dot(np.log2(probabilites))
 
         return EntropyGuess(word, is_potential_soln, entropy)
