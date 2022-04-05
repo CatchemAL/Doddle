@@ -1,9 +1,9 @@
 from unittest.mock import MagicMock, patch
 
 import numpy as np
+
 from doddle import factory
 from doddle.enums import SolverType
-
 from doddle.tree import GuessNode, TreeBuilder
 from doddle.words import Word
 from tests.fake_dictionary import load_test_dictionary

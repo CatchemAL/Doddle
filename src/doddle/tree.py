@@ -1,18 +1,14 @@
 from __future__ import annotations
 
-import time
 from dataclasses import dataclass
 from typing import Iterator
 
-import numpy as np
 from tqdm import tqdm
 
-from doddle.enums import SolverType
-from doddle.factory import create_models
-from doddle.histogram import HistogramBuilder
-from doddle.scoring import Scorer
-from doddle.solver import EntropySolver
-from doddle.words import Dictionary, Word, WordSeries
+from .histogram import HistogramBuilder
+from .scoring import Scorer
+from .solver import EntropySolver
+from .words import Dictionary, Word, WordSeries
 
 
 @dataclass
