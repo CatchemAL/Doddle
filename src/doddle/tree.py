@@ -12,16 +12,12 @@ from doddle.factory import create_models
 from doddle.histogram import HistogramBuilder
 from doddle.scoring import Scorer
 from doddle.solver import EntropySolver
-from doddle.words import Word, WordSeries
-
-
-dictionary, scorer, histogram_builder, solver, _ = create_models(
-    size=5, solver_type=SolverType.ENTROPY, lazy_eval=False
-)
+from doddle.words import Dictionary, Word, WordSeries
 
 
 @dataclass
 class TreeBuilder:
+    dictionary: Dictionary
     scorer: Scorer
     histogram_builder: HistogramBuilder
     solver: EntropySolver
@@ -39,7 +35,7 @@ class TreeBuilder:
         N_GUESSES = max(1, self.permutation_limit - 3 * depth)
         solns_by_score = self.histogram_builder.get_solns_by_score(potential_solns, parent.word)
 
-        for score, inner_solns in tqdm(solns_by_score.items(), colour="green", disable=depth > 0):
+        for score, inner_solns in tqdm(solns_by_score.items(), position=0, disable=depth > 0):
             score_node = parent.add(score)
             if score == WIN_SCORE:
                 continue
@@ -55,7 +51,7 @@ class TreeBuilder:
                 score_node.add(soln0).add(score1).add(soln1).add(WIN_SCORE)
                 continue
 
-            guesses = self.solver.all_guesses(all_words, inner_solns)
+            guesses = self.solver.all_guesses(self.dictionary.all_words, inner_solns)
             best_guesses = sorted(guesses)[:N_GUESSES]
             naive_best_guess = best_guesses[0]
 
@@ -148,48 +144,52 @@ class GuessNode:
             yield from child.display(new_prefix)
 
 
-start_time = time.time()
-all_words, common_words = dictionary.words
+if __name__ == "__main__":
 
+    dictionary, scorer, histogram_builder, solver, _ = create_models(
+        size=5, solver_type=SolverType.ENTROPY, lazy_eval=False
+    )
 
-seed = Word("WAIST")
-solns = ["DATUM", "GAMUT", "HABIT", "PATSY", "WAIST"]
+    start_time = time.time()
+    all_words, common_words = dictionary.words
 
-seed = Word("TALON")
-solns = ["BATON"]
+    seed = Word("WAIST")
+    solns = ["DATUM", "GAMUT", "HABIT", "PATSY", "WAIST"]
 
-seed = Word("TALON")
-solns = ["TIDAL", "TUBAL"]
+    seed = Word("TALON")
+    solns = ["BATON"]
 
-seed = Word("TALON")
-solns = ["DATUM", "GAMUT", "HABIT", "PATSY", "WAIST"]
+    seed = Word("TALON")
+    solns = ["TIDAL", "TUBAL"]
 
-# seed = Word('WEDEL')
-# solns = ['BONEY', 'GIVEN', 'GOOEY', 'HONEY', 'MONEY', 'HYMEN', 'NOSEY', 'PINEY', 'VIXEN']
+    seed = Word("TALON")
+    solns = ["DATUM", "GAMUT", "HABIT", "PATSY", "WAIST"]
 
-# seed = Word("SALET")
-# solns = common_words[:25_000]
+    # seed = Word('WEDEL')
+    # solns = ['BONEY', 'GIVEN', 'GOOEY', 'HONEY', 'MONEY', 'HYMEN', 'NOSEY', 'PINEY', 'VIXEN']
 
+    # seed = Word("SALET")
+    # solns = common_words[:25_000]
 
-# root.dump()
+    # root.dump()
 
-HOLY_GRAIL = 7920
-subset = np.array([Word(word) for word in solns])
-potential_solns = common_words[common_words.find_index(subset)]
+    HOLY_GRAIL = 7920
+    subset = np.array([Word(word) for word in solns])
+    potential_solns = common_words[common_words.find_index(subset)]
 
-for i in range(8, 11, 1):
+    for i in range(8, 11, 1):
 
-    print(f"Permutations={i}")
-    tree_builder = TreeBuilder(scorer, histogram_builder, solver, i)
-    root = tree_builder.build(common_words, "SALET")
-    c = root.count()
-    gc = root.guess_count()
-    print(f"Count={c:,}")
-    print(f"Guess count={gc:,}")
-    print(f"--- {(time.time() - start_time)} seconds ---")
-    print()
+        print(f"Permutations={i}")
+        tree_builder = TreeBuilder(dictionary, scorer, histogram_builder, solver, i)
+        root = tree_builder.build(common_words, "SALET")
+        c = root.count()
+        gc = root.guess_count()
+        print(f"Count={c:,}")
+        print(f"Guess count={gc:,}")
+        print(f"--- {(time.time() - start_time)} seconds ---")
+        print()
 
-    if gc <= HOLY_GRAIL:
-        csv_content = root.csv(False)
-        # print(csv_content)
-        break
+        if gc <= HOLY_GRAIL:
+            csv_content = root.csv(False)
+            # print(csv_content)
+            break
