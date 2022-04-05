@@ -128,7 +128,7 @@ class TestDeepEntropySolver:
         best_guess = sut.get_best_guess(all_words, potential_solns)
 
         # Assert
-        assert best_guess.word == Word("NYMPH")
+        assert best_guess.word == Word("PLANT")
 
     def test_get_best_guess_with_only_two_solns(self) -> None:
         # Arrange

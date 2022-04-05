@@ -141,12 +141,12 @@ class MinimaxGuess:
 class EntropyGuess:
     """Represents a guess using the entropy heuristic."""
 
-    __slots__ = ["word", "is_potential_soln", "entropy", "num_buckets"]
+    __slots__ = ["word", "is_potential_soln", "entropy", "is_perfect_partition"]
 
     word: Word
     is_potential_soln: bool
     entropy: float
-    num_buckets: int
+    is_perfect_partition: bool
 
     def improves_upon(self, other: EntropyGuess) -> bool:
         """Defines whether the entropy guess improves upon the other.
@@ -165,6 +165,14 @@ class EntropyGuess:
             return self.is_potential_soln
 
         return self.word < other.word
+
+    def perfectly_partitions(self) -> bool:
+        """Whether a guess partitions the histogram into buckets of size one.
+
+        Returns:
+            bool: Returns whether the guess partitions the histogram into bucekts of size one.
+        """
+        return self.is_perfect_partition
 
     def __str__(self) -> str:
         return str(self.word)
@@ -190,18 +198,23 @@ class EntropyGuess:
         raise TypeError(f"'<' not supported between instances of type '{type1}' and '{type2}'")
 
     def __add__(self, entropy: float) -> EntropyGuess:
-        return EntropyGuess(self.word, self.is_potential_soln, self.entropy + entropy)
+        return EntropyGuess(
+            self.word, self.is_potential_soln, self.entropy + entropy, self.is_perfect_partition
+        )
 
     @staticmethod
     def from_histogram(word: Word, is_potential_soln: bool, histogram: np.ndarray) -> EntropyGuess:
 
         counts = histogram[histogram > 0]
+        num_buckets = len(counts)
         num_potential_solns = np.sum(counts)
+        is_perfect_partition = num_buckets == num_potential_solns
+
         probabilites = counts / num_potential_solns
         entropy = -probabilites.dot(np.log2(probabilites))
-        num_buckets = len(counts)
+        entropy += 1 / num_potential_solns if is_potential_soln else 0
 
-        return EntropyGuess(word, is_potential_soln, entropy, num_buckets)
+        return EntropyGuess(word, is_potential_soln, entropy, is_perfect_partition)
 
 
 @dataclass(eq=True, frozen=True)

@@ -109,9 +109,13 @@ class Benchmark:
     def read_csv(cls, path: str, validate: bool = True) -> Benchmark:
 
         with open(path, "r") as file:
-            raw = file.read()
+            raw_content = file.read()
 
-        all_lines = [[Word(word) for word in line.split(",")] for line in raw.split("\n")]
+        return cls.from_csv(raw_content, validate)
+
+    @classmethod
+    def from_csv(cls, raw_content: str, validate: bool = True) -> Benchmark:
+        all_lines = [[Word(word) for word in line.split(",")] for line in raw_content.split("\n")]
         potential_solns = WordSeries([str(line[-1]) for line in all_lines])
         size = len(all_lines[0][0])
         scorer = Scorer(size)
