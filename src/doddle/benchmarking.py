@@ -13,10 +13,10 @@ from typing import Callable, Iterable, Protocol, TypeVar
 from tqdm import tqdm  # type: ignore
 
 from .boards import Scoreboard, ScoreboardPrinter
-from .graph import GraphBuilder
 from .engine import Engine, SimulEngine
 from .exceptions import InvalidWordleBotFileError
 from .game import DoddleGame, Game, SimultaneousGame
+from .graph import GraphBuilder
 from .histogram import HistogramBuilder
 from .scoring import Scorer, to_ternary
 from .words import Word, WordSeries
