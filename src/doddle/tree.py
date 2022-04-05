@@ -19,8 +19,8 @@ class TreeBuilder:
     solver: EntropySolver
     permutation_limit: int = 8
 
-    def build(self, potential_solns: WordSeries, opening_word: Word | str = "SALET") -> GuessNode:
-        guess = Word(opening_word)
+    def build(self, potential_solns: WordSeries, guess: Word | str) -> GuessNode:
+        guess = Word(guess)
         node = GuessNode(guess)
         self.find_best_tree(potential_solns, node)
         return node

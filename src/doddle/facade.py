@@ -210,10 +210,9 @@ class Doddle:
         common_words = self.dictionary.common_words
         solver = EntropySolver(self.histogram_builder)
         tree_builder = TreeBuilder(self.dictionary, self.scorer, self.histogram_builder, solver)
-        root_node = GuessNode(opening_guess)
-        tree_builder.find_best_tree(common_words, root_node)
+        root_node = tree_builder.build(common_words, opening_guess)
         comma_separated_values = root_node.csv(False)
-        return Benchmark.from_csv(comma_separated_values)
+        return Benchmark.from_csv(comma_separated_values, False)
 
     @staticmethod
     def __to_word_list(words: WordType | Sequence[WordType] | None, label: str) -> list[Word]:

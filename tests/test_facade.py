@@ -1,3 +1,5 @@
+import os
+from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -5,6 +7,7 @@ import pytest
 from doddle import Doddle, factory
 from doddle.benchmarking import Benchmark, Benchmarker, SimulBenchmarker
 from doddle.game import SimultaneousGame
+from doddle.tree import GuessNode, TreeBuilder
 from doddle.words import Word
 
 from .fake_dictionary import load_test_dictionary
@@ -132,3 +135,28 @@ class TestDoddle:
         # Assert
         assert actual == expected
         patch_run_benchmark.assert_called_once_with([Word("PARSE"), Word("CLINT")], 4, 5_000)
+
+    @patch.object(GuessNode, "csv")
+    @patch.object(factory, "load_dictionary")
+    @patch.object(TreeBuilder, "build")
+    def test_build_tree(
+        self, patch_build: MagicMock, patch_load_dictionary: MagicMock, patch_csv: MagicMock
+    ) -> None:
+
+        # Arrange
+        directory = Path(os.path.dirname(__file__))
+        path = directory / "wordle_bot_file.txt"
+        with open(path, "r") as file:
+            mock_csv = file.read()
+
+        patch_csv.return_value = mock_csv
+        patch_load_dictionary.return_value = load_test_dictionary()
+        patch_build.return_value = GuessNode(Word("SALET"))
+
+        sut = Doddle(size=5, solver_type="ENTROPY")
+
+        # Act
+        actual = sut.tree_search()
+
+        # Assert
+        assert len(actual.scoreboards) == 100
