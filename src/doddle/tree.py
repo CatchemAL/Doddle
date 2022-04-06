@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Iterator
 
-from tqdm import tqdm
+from tqdm import tqdm  # type: ignore
 
 from .histogram import HistogramBuilder
 from .scoring import Scorer
@@ -130,9 +130,9 @@ class GuessNode:
         filtered_rows = [",".join(row.split(",")[::2]) for row in rows]
         return "\n".join(filtered_rows)
 
-    def display(self, prefix: str = "") -> list[str]:
+    def display(self, prefix: str = "") -> Iterator[str]:
         if prefix == "":
-            new_prefix = self.word
+            new_prefix = str(self.word)
         else:
             new_prefix = f"{prefix},{self.word}"
 

@@ -8,7 +8,7 @@ from .engine import Engine, SimulEngine
 from .enums import SolverType
 from .factory import create_models
 from .solver import EntropySolver
-from .tree import GuessNode, TreeBuilder
+from .tree import TreeBuilder
 from .views import NullRunReporter
 from .words import Word
 
