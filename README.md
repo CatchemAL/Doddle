@@ -61,7 +61,7 @@ Note that the full tree has been truncated here. Click [here](https://github.com
 
 
 ### The Theoretical Minimum 💯
-Doddle's solver can also be used to generate the optimal decison tree via a recursive search. [Alex Selby](http://sonorouschocolate.com/notes/index.php?title=The_best_strategies_for_Wordle) was the first to prove that `SALET` yields the optimal decision tree with a total of 7,920 guesses to solve the 2,315 problems from the original Wordle dataset. To generate such a tree using Doddle:
+Doddle's solver can also be used to generate the optimal decison tree via a recursive search. [Alex Selby](http://sonorouschocolate.com/notes/index.php?title=The_best_strategies_for_Wordle) was the first to prove that `SALET` yields the optimal decision tree with a total of 7,920 guesses to solve the 2,315 problems from the original Wordle dataset. To generate such a tree [using Doddle](https://github.com/CatchemAL/LargeFiles/raw/main/Doddle/Doddle-SALET.pdf):
 
 ```
 benchmark = doddle.tree_search('SALET')
@@ -460,6 +460,8 @@ scoreboards = scoreboard.many()
 scoreboards[2]
 ```
 
+#### Benchmarking
+
 All the benchmarking functionality is exposed via the libary. 
 
 ```python
@@ -467,6 +469,8 @@ doddle = Doddle(solver_type="entropy")
 benchmark = doddle.benchmark("CRATE")
 benchmark
 ```
+
+#### Wordle Bot
 
 Doddle also integrates with [Wordle Bot](https://freshman.dev/wordle/#/leaderboard) so results can be written to the Wordle Bot format for direct upload. Wordle Bot works with a comma separated text file of solutions. To output in the required format:
 `benchmark.to_csv(filepath)`
@@ -529,7 +533,7 @@ The guess with the highest information content, as measured in Shannon bits, is 
 Work through the tutorials [here](https://github.com/CatchemAl/Doddle/tree/main/tutorial) to see Doddle in action!
 1. Learn to use Doddle via the API
 2. Run benchmarks and generate trees
-3. Calculate the optimal tree for a given starting word using a recursive search
+3. Calculate the [optimal tree](https://github.com/CatchemAL/LargeFiles/raw/main/Doddle/Doddle-SALET.pdf) for a given starting word using a recursive search
 
 
 Happy Doddling!
