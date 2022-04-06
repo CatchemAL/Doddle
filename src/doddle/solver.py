@@ -174,10 +174,10 @@ class DeepEntropySolver(EntropySolver):
 
         combined_guesses: list[EntropyGuess] = []
         for guess in best_guesses:
-            solns_by_score = self.hist_builder.get_solns_by_score(potential_solns, guess.word)
+            if guess.perfectly_partitions():
+                return EntropyGuess(guess.word, guess.is_potential_soln, float("inf"), True)
 
-            if max(len(s) for s in solns_by_score.values()) == 1:
-                return EntropyGuess(guess.word, guess.is_potential_soln, float("inf"))
+            solns_by_score = self.hist_builder.get_solns_by_score(potential_solns, guess.word)
 
             avg_entropy_reduction = 0.0
             for potential_deep_solns in solns_by_score.values():

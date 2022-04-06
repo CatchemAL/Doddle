@@ -31,9 +31,9 @@ class TestEngine:
         sut = Engine(dictionary, scorer, histogram_builder, solver, reporter)
 
         mock_get_best_guess.side_effect = [
-            EntropyGuess(Word("MULCH"), False, 5),
-            EntropyGuess(Word("FANGO"), False, 5),
-            EntropyGuess(soln, True, 5),
+            EntropyGuess(Word("MULCH"), False, 5, False),
+            EntropyGuess(Word("FANGO"), False, 5, True),
+            EntropyGuess(soln, True, 5, True),
         ]
 
         # Act
@@ -54,7 +54,7 @@ class TestEngine:
         reporter = RunReporter()
         sut = Engine(dictionary, scorer, histogram_builder, solver, reporter)
 
-        mock_get_best_guess.side_effect = [EntropyGuess(Word("MULCH"), False, 5)] * 25
+        mock_get_best_guess.side_effect = [EntropyGuess(Word("MULCH"), False, 5, False)] * 25
 
         # Act + Assert
         with pytest.raises(FailedToFindASolutionError):

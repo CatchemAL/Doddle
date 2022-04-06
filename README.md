@@ -58,6 +58,28 @@ benchmark.digraph()
 
 Note that the full tree has been truncated here. Click [here](https://github.com/CatchemAL/LargeFiles/raw/main/Doddle/doddle_full_tree.pdf) to download the full PDF.
 
+
+
+### The Theoretical Minimum 💯
+Doddle's solver can also be used to generate the optimal decison tree via a recursive search. [Alex Selby](http://sonorouschocolate.com/notes/index.php?title=The_best_strategies_for_Wordle) was the first to prove that `SALET` yields the optimal decision tree with a total of 7,920 guesses to solve the 2,315 problems from the original Wordle dataset. To generate such a tree [using Doddle](https://github.com/CatchemAL/LargeFiles/raw/main/Doddle/Doddle-SALET.pdf):
+
+```
+benchmark = doddle.tree_search('SALET')
+benchmark
+
+1 |                                                         (0)
+2 | ***                                                    (78)
+3 | **************************************************  (1,225)
+4 | ****************************************              (971)
+5 | **                                                     (41)
+
+Guess:    SALET
+Games:    2,315
+Guesses:  7,920
+Mean:     3.421
+Std:      0.589
+```
+
 ## Install
 Install Doddle with 
 
@@ -438,6 +460,24 @@ scoreboards = scoreboard.many()
 scoreboards[2]
 ```
 
+#### Benchmarking
+
+All the benchmarking functionality is exposed via the libary. 
+
+```python
+doddle = Doddle(solver_type="entropy")
+benchmark = doddle.benchmark("CRATE")
+benchmark
+```
+
+#### Wordle Bot
+
+Doddle also integrates with [Wordle Bot](https://freshman.dev/wordle/#/leaderboard) so results can be written to the Wordle Bot format for direct upload. Wordle Bot works with a comma separated text file of solutions. To output in the required format:
+`benchmark.to_csv(filepath)`
+
+More importantly, Doddle can create a benchmark from any Wordle Bot text file! Call `Benchmark.read_csv(filepath)` to load it in and start building decision trees from your own solves. Finally, you can generate an optimal decision tree via a recusive search. To do so:
+`benchmark = doddle.tree_search(starting_word)`
+
 ## Algorithm
 Doddle offers two choices of algorithms for solving Wordle: Minimax and Entropy.
 
@@ -493,6 +533,7 @@ The guess with the highest information content, as measured in Shannon bits, is 
 Work through the tutorials [here](https://github.com/CatchemAl/Doddle/tree/main/tutorial) to see Doddle in action!
 1. Learn to use Doddle via the API
 2. Run benchmarks and generate trees
+3. Calculate the [optimal tree](https://github.com/CatchemAL/LargeFiles/raw/main/Doddle/Doddle-SALET.pdf) for a given starting word using a recursive search
 
 
 Happy Doddling!
