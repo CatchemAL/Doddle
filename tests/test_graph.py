@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 
 from doddle.boards import Scoreboard
-from doddle.decision import GraphBuilder
+from doddle.graph import GraphBuilder
 from doddle.words import Word
 
 

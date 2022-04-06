@@ -13,10 +13,10 @@ from typing import Callable, Iterable, Protocol, TypeVar
 from tqdm import tqdm  # type: ignore
 
 from .boards import Scoreboard, ScoreboardPrinter
-from .decision import GraphBuilder
 from .engine import Engine, SimulEngine
 from .exceptions import InvalidWordleBotFileError
 from .game import DoddleGame, Game, SimultaneousGame
+from .graph import GraphBuilder
 from .histogram import HistogramBuilder
 from .scoring import Scorer, to_ternary
 from .words import Word, WordSeries
@@ -109,9 +109,13 @@ class Benchmark:
     def read_csv(cls, path: str, validate: bool = True) -> Benchmark:
 
         with open(path, "r") as file:
-            raw = file.read()
+            raw_content = file.read()
 
-        all_lines = [[Word(word) for word in line.split(",")] for line in raw.split("\n")]
+        return cls.from_csv(raw_content, validate)
+
+    @classmethod
+    def from_csv(cls, raw_content: str, validate: bool = True) -> Benchmark:
+        all_lines = [[Word(word) for word in line.split(",")] for line in raw_content.split("\n")]
         potential_solns = WordSeries([str(line[-1]) for line in all_lines])
         size = len(all_lines[0][0])
         scorer = Scorer(size)

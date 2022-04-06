@@ -105,8 +105,9 @@ class EntropySimulSolver(SimulSolver[EntropyGuess, EntropyGuess]):
         is_potential_soln = eligibility_count > 0
         entropies = np.array([g.entropy for g in guess_tuple])
         total_entropy = sum(entropies)
+        is_perfect_partition = all(g.is_perfect_partition for g in guess_tuple)
 
-        return EntropyGuess(word, is_potential_soln, total_entropy)
+        return EntropyGuess(word, is_potential_soln, total_entropy, is_perfect_partition)
 
     @property
     def all_seeds(self) -> list[Word]:

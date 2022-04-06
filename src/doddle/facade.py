@@ -7,6 +7,8 @@ from .boards import Scoreboard
 from .engine import Engine, SimulEngine
 from .enums import SolverType
 from .factory import create_models
+from .solver import EntropySolver
+from .tree import TreeBuilder
 from .views import NullRunReporter
 from .words import Word
 
@@ -104,11 +106,13 @@ class Doddle:
         callback = NullRunReporter()
         benchmarkReporter = NullBenchmarkReporter()
 
+        self.dictionary = dictionary
+        self.scorer = scorer
+        self.histogram_builder = histogram_builder
         self.engine = Engine(dictionary, scorer, histogram_builder, solver, callback)
         self.simul_engine = SimulEngine(dictionary, scorer, histogram_builder, simul_solver, callback)
         self.benchmarker = Benchmarker(self.engine, benchmarkReporter)
         self.simul_benchmarker = SimulBenchmarker(self.simul_engine, benchmarkReporter)
-        self.dictionary = dictionary
 
     def __call__(
         self, answer: WordType | Sequence[WordType], guess: WordType | Sequence[WordType] | None = None
@@ -184,7 +188,7 @@ class Doddle:
         return simul_game.scoreboard
 
     def benchmark(self, guess: WordType | Sequence[WordType] | None = None) -> Benchmark:
-        self.benchmarker.engine.histogram_builder.score_matrix.precompute()
+        self.histogram_builder.score_matrix.precompute()
 
         guesses = self.__to_word_list(guess, "guess") if guess else []
         benchmark = self.benchmarker.run_benchmark(guesses)
@@ -193,11 +197,22 @@ class Doddle:
     def simul_benchmark(
         self, num_simul: int, num_rounds: int = 1000, guess: WordType | Sequence[WordType] | None = None
     ) -> Benchmark:
-        self.simul_benchmarker.engine.histogram_builder.score_matrix.precompute()
+        self.histogram_builder.score_matrix.precompute()
 
         guesses = self.__to_word_list(guess, "guess") if guess else []
         benchmark = self.simul_benchmarker.run_benchmark(guesses, num_simul, num_rounds)
         return benchmark
+
+    def tree_search(self, guess: WordType | None = None) -> Benchmark:
+        self.histogram_builder.score_matrix.precompute()
+
+        opening_guess = Word(guess) if guess else Word("SALET")
+        common_words = self.dictionary.common_words
+        solver = EntropySolver(self.histogram_builder)
+        tree_builder = TreeBuilder(self.dictionary, self.scorer, self.histogram_builder, solver)
+        root_node = tree_builder.build(common_words, opening_guess)
+        comma_separated_values = root_node.csv(False)
+        return Benchmark.from_csv(comma_separated_values, False)
 
     @staticmethod
     def __to_word_list(words: WordType | Sequence[WordType] | None, label: str) -> list[Word]:

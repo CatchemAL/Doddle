@@ -70,7 +70,7 @@ class TestMinimaxGuess:
         word1 = Word("SNAKE")
         word2 = Word("SHARK")
         guess1 = MinimaxGuess(word1, False, 5, 20)
-        guess2 = EntropyGuess(word2, False, 5)
+        guess2 = EntropyGuess(word2, False, 5, False)
 
         # Act + Assert
         with pytest.raises(TypeError):
@@ -123,8 +123,8 @@ class TestEntropyGuess:
         # Arrange
         word1 = Word("SNAKE")
         word2 = Word("SHARK")
-        guess1 = EntropyGuess(word1, True, 5.3)
-        guess2 = EntropyGuess(word2, True, 4.8)
+        guess1 = EntropyGuess(word1, True, 5.3, False)
+        guess2 = EntropyGuess(word2, True, 4.8, False)
 
         # Act
         is_better = guess1 < guess2
@@ -139,8 +139,8 @@ class TestEntropyGuess:
         # Arrange
         word1 = Word("SNAKE")
         word2 = Word("SHARK")
-        guess1 = MinimaxGuess(word1, True, 4, 5.3)
-        guess2 = MinimaxGuess(word2, False, 4, 5.3)
+        guess1 = EntropyGuess(word1, True, 5.3, False)
+        guess2 = EntropyGuess(word2, False, 5.3, False)
 
         # Act
         is_better = guess1 < guess2
@@ -154,8 +154,8 @@ class TestEntropyGuess:
         # Arrange
         word1 = Word("SNAKE")
         word2 = Word("SHARK")
-        guess1 = MinimaxGuess(word1, False, 5, 5.3)
-        guess2 = MinimaxGuess(word2, False, 5, 5.3)
+        guess1 = EntropyGuess(word1, False, 5, True)
+        guess2 = EntropyGuess(word2, False, 5, True)
 
         # Act
         is_better = guess1 < guess2
@@ -168,7 +168,7 @@ class TestEntropyGuess:
     def test_entropy_add_entropy_from_second_guess(self) -> None:
         # Arrange
         word = Word("SNAKE")
-        guess = EntropyGuess(word, False, 5)
+        guess = EntropyGuess(word, False, 5, False)
         extra_entropy = 3
         expected = 8
 
@@ -185,7 +185,7 @@ class TestEntropyGuess:
         word1 = Word("SNAKE")
         word2 = Word("SHARK")
         guess1 = MinimaxGuess(word1, False, 5, 20)
-        guess2 = EntropyGuess(word2, False, 5)
+        guess2 = EntropyGuess(word2, False, 5, False)
 
         # Act + Assert
         with pytest.raises(TypeError):
@@ -197,7 +197,7 @@ class TestEntropyGuess:
     def test_entropy_guess_representation(self) -> None:
         # Arrange
         word1 = Word("snake")
-        guess1 = EntropyGuess(word1, True, 4.654321)
+        guess1 = EntropyGuess(word1, True, 4.654321, False)
 
         # Act
         string = str(guess1)
@@ -319,7 +319,7 @@ class TestMinimaxSimulGuess:
         word1 = Word("SNAKE")
         word2 = Word("SHARK")
         guess1 = MinimaxSimulGuess(word1, True, 0.01, 4, 25, 7, 20)
-        guess2 = EntropyGuess(word2, False, 5)
+        guess2 = EntropyGuess(word2, False, 5, False)
 
         # Act + Assert
         with pytest.raises(TypeError):
