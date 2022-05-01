@@ -38,8 +38,10 @@ class Engine:
         """
 
         all_words, available_answers = self.dictionary.words
+        # all_words = available_answers
         game = Game(available_answers, solution, user_guesses)
         guess = game.user_guess(0) or self.solver.seed(all_words.word_length)
+        guess = self.solver.get_best_guess(all_words, available_answers).word
 
         MAX_ITERS = 20
         for i in range(1, MAX_ITERS + 1):

@@ -11,7 +11,8 @@
             "module": "src.doddle",
             "args": [
                 "run",
-                "--answer=POWER",
+                "--answer=THROB",
+                "--solver=ENTROPY",
                 "--depth=1"
             ]
         },

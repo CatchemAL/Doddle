@@ -81,8 +81,10 @@ def _score_word_jit(solution_array: np.ndarray, guess_array: np.ndarray, powers:
     value = 0
     for (i, is_match) in enumerate(matches):
         if is_match:
-            value += 2 * powers[i]
+            value += 1
+    value *= 10
 
+    approx = 0
     for (i, is_match) in enumerate(matches):
         if is_match:
             continue
@@ -101,9 +103,9 @@ def _score_word_jit(solution_array: np.ndarray, guess_array: np.ndarray, powers:
             num_times_in_solution += int(letter == soln_letter)
 
         is_partial_match = num_times_already_observed < num_times_in_solution
-        value += int(powers[i] * is_partial_match)
+        approx += int(is_partial_match)
 
-    return value
+    return value + approx
 
 
 def score_word_slow(soln: str, guess: str) -> int:

@@ -75,10 +75,10 @@ class Game:
         Returns:
             ScoreboardRow: The row added to the internal scoreboard.
         """
-        ternary_score = to_ternary(score, self.word_length)
+        ternary_score = f"{score}".rjust(5, "0")  # to_ternary(score, self.word_length)
         self.potential_solns = potential_solns
         row = self.scoreboard.add_row(n, self.soln, guess, ternary_score, len(potential_solns))
-        self.is_solved = all([s == "2" for s in list(ternary_score)])
+        self.is_solved = ternary_score == '00050' # all([s == "2" for s in list(ternary_score)])
         return row
 
     @property
